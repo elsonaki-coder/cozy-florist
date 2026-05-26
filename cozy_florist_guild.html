@@ -315,7 +315,32 @@ window.toggleFlower = async function(id) {
 
 // ── 관리자: 차단 토글 ─────────────────────────────────────
 window.toggleBlock = async function(nick) {
-  const bl = [...blocked];
+ window.deleteMember = async function(nick) {
+
+  const ok = confirm(`${nick} 계정을 삭제할까요?`);
+
+  if (!ok) return;
+
+  const safeNick = nick.replace(/[.#$\/\[\]]/g,"_");
+
+  // members 삭제
+  await remove(ref(db, `members/${safeNick}`));
+
+  // selections 안에서도 제거
+  for (const flowerId in selections) {
+
+    if (selections[flowerId] &&
+        selections[flowerId][safeNick]) {
+
+      await remove(
+        ref(db, `selections/${flowerId}/${safeNick}`)
+      );
+    }
+  }
+
+  showToast(`${nick} 삭제 완료`);
+}
+ const bl = [...blocked];
   const idx = bl.indexOf(nick);
   if (idx >= 0) bl.splice(idx,1); else bl.push(nick);
   await set(ref(db,"blocked"), bl);
