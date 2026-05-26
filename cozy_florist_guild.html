@@ -210,6 +210,7 @@ let guildSearch = "";
 let guildFilterGrade = "전체";
 let guildFilterCond = "전체";
 let guildSortBy = "name"; // name | grade | cond | member
+let guildSortReverse = false;
 let unsub = null;
 let composing = false;
 
@@ -478,16 +479,49 @@ function renderGuild() {
     }
   }
   // 정렬
-  list.sort((a,b) => {
-    if (guildSortBy === "grade") return (GRADE_ORDER[a.grade]-GRADE_ORDER[b.grade]) || sortKey(a.name).localeCompare(sortKey(b.name),"ko");
-    if (guildSortBy === "cond") return a.cond.localeCompare(b.cond,"ko") || sortKey(a.name).localeCompare(sortKey(b.name),"ko");
-    if (guildSortBy === "member") {
-      const ca = selections[a.id] ? Object.keys(selections[a.id]).length : 0;
-      const cb = selections[b.id] ? Object.keys(selections[b.id]).length : 0;
-      return cb - ca || sortKey(a.name).localeCompare(sortKey(b.name),"ko");
-    }
-    return sortKey(a.name).localeCompare(sortKey(b.name),"ko");
-  });
+list.sort((a,b) => {
+
+  let result = 0;
+
+  if (guildSortBy === "grade") {
+    result =
+      (GRADE_ORDER[a.grade] - GRADE_ORDER[b.grade]) ||
+      sortKey(a.name).localeCompare(sortKey(b.name), "ko");
+  }
+
+  else if (guildSortBy === "cond") {
+    result =
+      a.cond.localeCompare(b.cond, "ko") ||
+      sortKey(a.name).localeCompare(sortKey(b.name), "ko");
+  }
+
+  else if (guildSortBy === "member") {
+
+    const ca = selections[a.id]
+      ? Object.keys(selections[a.id]).length
+      : 0;
+
+    const cb = selections[b.id]
+      ? Object.keys(selections[b.id]).length
+      : 0;
+
+    result =
+      cb - ca ||
+      sortKey(a.name).localeCompare(sortKey(b.name), "ko");
+  }
+
+  else {
+    result =
+      sortKey(a.name).localeCompare(sortKey(b.name), "ko");
+  }
+
+  // 조건순 제외
+  if (guildSortBy !== "cond" && guildSortReverse) {
+    result *= -1;
+  }
+
+  return result;
+});
 
   document.getElementById("content").innerHTML = `
     <div class="stat-grid">
@@ -510,6 +544,12 @@ function renderGuild() {
     </div>
     <div class="sort-pills" style="margin-bottom:.75rem">
       ${[["name","이름순"],["grade","등급순"],["cond","조건순"],["member","길드원순"]].map(([v,l])=>`<button class="sort-pill${guildSortBy===v?" active":""}" onclick="setGuildSort('${v}')">${l}</button>`).join("")}
+
+ <button class="sort-pill ${guildSortReverse ? "active" : ""}"
+onclick="toggleGuildReverseSort()">
+↕ 역순
+</button>
+
     </div>
     <div class="sort-pills" style="margin-bottom:1rem">
       <button class="sort-pill${guildView==="all"?" active":""}" onclick="setGuildView('all')">전체 보기</button>
@@ -545,7 +585,10 @@ function renderGuild() {
 
 window.setGuildView = function(v) { guildView=v; renderGuild(); }
 window.setGuildSort = function(v) { guildSortBy=v; guildSearch=""; renderGuild(); }
-
+window.toggleGuildReverseSort = function() {
+  guildSortReverse = !guildSortReverse;
+  renderGuild();
+}
 function renderAdmin() {
   const memberList = Object.keys(members);
   document.getElementById("content").innerHTML = `
