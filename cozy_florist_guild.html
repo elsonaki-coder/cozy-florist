@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌸 코지 플로리스트 길드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  :root{
+    --green:#4caf50;--green-light:#e8f5e9;--green-mid:#a5d6a7;
+    --blue:#1976d2;--blue-light:#e3f2fd;--blue-mid:#90caf9;
+    --purple:#6a1b9a;--purple-light:#f3e5f5;--purple-mid:#ce93d8;
+    --yellow:#f57f17;--yellow-light:#fffde7;--yellow-mid:#fff176;
+    --red:#b71c1c;--red-light:#fce4ec;--red-mid:#f48fb1;
+    --bg:#faf9f7;--card:#fff;--border:#e8e4df;--border2:#d4cfc9;
+    --text:#2c2825;--text2:#6b6560;--text3:#9e9890;
+    --radius:12px;--radius-sm:8px;--shadow:0 1px 3px rgba(0,0,0,.08);
+  }
+  body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+  
+  /* LOGIN */
+  #login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;gap:1.5rem;}
+  .login-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem 2rem;width:100%;max-width:360px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:1.2rem;align-items:center;}
+  .login-emoji{font-size:48px;}
+  .login-title{font-size:20px;font-weight:700;color:var(--text);}
+  .login-sub{font-size:13px;color:var(--text2);text-align:center;line-height:1.6;}
+  .login-input{width:100%;padding:12px 14px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:15px;font-family:inherit;color:var(--text);background:#fff;outline:none;transition:border .2s;}
+  .login-input:focus{border-color:var(--green);}
+  .login-btn{width:100%;padding:13px;background:var(--green);color:#fff;border:none;border-radius:var(--radius-sm);font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;transition:background .2s;}
+  .login-btn:hover{background:#388e3c;}
+  .login-note{font-size:11px;color:var(--text3);text-align:center;line-height:1.6;}
+
+  /* APP */
+  #app-screen{display:none;flex-direction:column;min-height:100vh;}
+  
+  /* HEADER */
+  .header{background:var(--card);border-bottom:1px solid var(--border);padding:0 1rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;}
+  .header-title{font-size:16px;font-weight:700;display:flex;align-items:center;gap:6px;}
+  .header-right{display:flex;align-items:center;gap:8px;}
+  .nick-badge{font-size:12px;color:var(--text2);background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:4px 10px;}
+  .logout-btn{font-size:12px;color:var(--text3);background:none;border:1px solid var(--border);border-radius:20px;padding:4px 10px;cursor:pointer;font-family:inherit;}
+  .logout-btn:hover{color:var(--text);}
+
+  /* TABS */
+  .tabs{background:var(--card);border-bottom:1px solid var(--border);display:flex;padding:0 1rem;}
+  .tab{padding:12px 14px;font-size:14px;font-weight:500;color:var(--text2);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;font-family:inherit;transition:all .15s;}
+  .tab.active{color:var(--green);border-bottom-color:var(--green);}
+
+  /* CONTENT */
+  .content{flex:1;padding:1rem;}
+
+  /* FILTERS */
+  .filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1rem;}
+  .search-wrap{position:relative;flex:1;min-width:140px;}
+  .search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);}
+  .search-input{width:100%;padding:9px 10px 9px 34px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;color:var(--text);background:#fff;outline:none;}
+  .search-input:focus{border-color:var(--green);}
+  .filter-select{padding:8px 10px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;color:var(--text);background:#fff;outline:none;}
+  .sort-pills{display:flex;gap:4px;flex-wrap:wrap;}
+  .sort-pill{padding:6px 11px;border-radius:20px;font-size:12px;font-family:inherit;border:1px solid var(--border2);background:#fff;color:var(--text2);cursor:pointer;transition:all .15s;}
+  .sort-pill.active{background:var(--green-light);border-color:var(--green-mid);color:#2e7d32;font-weight:500;}
+
+  /* FLOWER LIST */
+  .flower-list{display:flex;flex-direction:column;gap:6px;}
+  .flower-row{display:flex;align-items:center;gap:10px;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent;}
+  .flower-row:active{transform:scale(.98);}
+  .flower-row.selected{background:var(--green-light);border-color:var(--green-mid);}
+  .grade-badge{font-size:11px;font-weight:700;padding:3px 7px;border-radius:10px;white-space:nowrap;flex-shrink:0;}
+  .grade-N{background:var(--green-light);color:#2e7d32;border:1px solid var(--green-mid);}
+  .grade-R{background:var(--blue-light);color:#1565c0;border:1px solid var(--blue-mid);}
+  .grade-SR{background:var(--purple-light);color:#4a148c;border:1px solid var(--purple-mid);}
+  .grade-SSR{background:var(--yellow-light);color:#e65100;border:1px solid var(--yellow-mid);}
+  .grade-UR{background:var(--red-light);color:#b71c1c;border:1px solid var(--red-mid);}
+  .flower-name{font-size:14px;flex:1;color:var(--text);}
+  .flower-cond{font-size:11px;color:var(--text3);white-space:nowrap;flex-shrink:0;}
+  .check-icon{flex-shrink:0;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;}
+  .check-icon.on{background:var(--green);color:#fff;}
+  .check-icon.off{background:var(--border);color:transparent;}
+
+  /* GUILD VIEW */
+  .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem;}
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 8px;text-align:center;}
+  .stat-num{font-size:22px;font-weight:700;color:var(--text);}
+  .stat-num.warn{color:#e53935;}
+  .stat-num.ok{color:#43a047;}
+  .stat-label{font-size:11px;color:var(--text2);margin-top:2px;}
+  .guild-row{display:flex;flex-direction:column;gap:4px;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);}
+  .guild-row.unowned{border-color:#ef9a9a;background:#fff8f8;}
+  .guild-row-top{display:flex;align-items:center;gap:8px;}
+  .unowned-badge{font-size:10px;background:var(--red-light);color:#c62828;border-radius:8px;padding:2px 7px;border:1px solid var(--red-mid);flex-shrink:0;}
+  .owner-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;}
+  .owner-chip{font-size:11px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:2px 8px;color:var(--text2);}
+
+  /* ADMIN */
+  .admin-section{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem;}
+  .section-title{font-size:14px;font-weight:700;margin-bottom:1rem;color:var(--text);}
+  .admin-input-row{display:flex;gap:8px;margin-bottom:1rem;}
+  .admin-input{flex:1;padding:10px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;color:var(--text);outline:none;}
+  .admin-input:focus{border-color:var(--green);}
+  .admin-btn{padding:10px 16px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--bg);color:var(--text);font-size:13px;font-family:inherit;cursor:pointer;white-space:nowrap;}
+  .admin-btn:hover{background:var(--border);}
+  .admin-btn.danger{border-color:#ef9a9a;color:#c62828;background:var(--red-light);}
+  .member-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:6px;background:#fff;}
+  .blocked-row{border-color:#ef9a9a;background:var(--red-light);}
+  .member-name{flex:1;font-size:14px;}
+  .member-count{font-size:12px;color:var(--text2);}
+  .blocked-tag{font-size:11px;background:var(--red-light);color:#c62828;border:1px solid var(--red-mid);border-radius:8px;padding:2px 8px;}
+  .unblock-btn{font-size:12px;color:#c62828;border:1px solid var(--red-mid);border-radius:8px;padding:3px 10px;cursor:pointer;background:transparent;font-family:inherit;}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#323232;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;}
+  .toast.show{opacity:1;}
+
+  /* EMPTY */
+  .empty{text-align:center;padding:3rem 1rem;color:var(--text2);font-size:14px;}
+
+  /* LOADING */
+  .loading{display:flex;align-items:center;justify-content:center;padding:3rem;color:var(--text2);font-size:14px;gap:8px;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .spinner{width:18px;height:18px;border:2px solid var(--border2);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;}
+
+  /* SAVE BAR */
+  .save-bar{background:var(--green-light);border-bottom:1px solid var(--green-mid);padding:6px 1rem;font-size:12px;color:#2e7d32;text-align:center;font-weight:500;}
+
+  @media(max-width:400px){
+    .stat-grid{grid-template-columns:repeat(2,1fr);}
+    .flower-cond{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-emoji">🌸</div>
+    <div class="login-title">코지 플로리스트 길드</div>
+    <div class="login-sub">꽃 보유 현황을 함께 관리해요</div>
+    <input class="login-input" id="nick-input" placeholder="게임 닉네임 입력" maxlength="20" />
+    <button class="login-btn" onclick="doLogin()">입장하기</button>
+    <div class="login-note">길드원만 이용 가능합니다<br>길드장은 닉네임을 <strong>길드장</strong>으로 입력하세요</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-screen">
+  <div class="header">
+    <div class="header-title">🌸 <span>코지 플로리스트</span></div>
+    <div class="header-right">
+      <span class="nick-badge" id="header-nick"></span>
+      <button class="logout-btn" onclick="doLogout()">로그아웃</button>
+    </div>
+  </div>
+  <div class="tabs" id="tabs">
+    <button class="tab active" onclick="switchTab('my')">내 꽃 관리</button>
+    <button class="tab" onclick="switchTab('guild')">길드 현황</button>
+    <button class="tab" id="admin-tab" style="display:none" onclick="switchTab('admin')">관리자 ⚙️</button>
+  </div>
+  <div id="save-bar" class="save-bar" style="display:none">저장 중...</div>
+  <div class="content" id="content"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCADiBeq2rB3rXxHWvvnmdH2jzi24Eizzc",
+  authDomain: "cozy-florist-guild.firebaseapp.com",
+  databaseURL: "https://cozy-florist-guild-default-rtdb.firebaseio.com",
+  projectId: "cozy-florist-guild",
+  storageBucket: "cozy-florist-guild.firebasestorage.app",
+  messagingSenderId: "442349803661",
+  appId: "1:442349803661:web:c7342f11de97a63adaaac4"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db = getDatabase(fbApp);
+
+// ── 꽃 데이터 ──────────────────────────────────────────────
+const FLOWERS = [
+  {id:0,grade:"N",cond:"레벨",name:"붉은 장미"},{id:1,grade:"N",cond:"레벨",name:"은방울꽃"},{id:2,grade:"N",cond:"레벨",name:"자색 도라지"},{id:3,grade:"N",cond:"레벨",name:"노란장미"},{id:4,grade:"N",cond:"레벨",name:"카네이션"},{id:5,grade:"N",cond:"레벨",name:"노란 튤립"},{id:6,grade:"N",cond:"레벨",name:"제비꽃"},{id:7,grade:"N",cond:"레벨",name:"분홍 튤립"},{id:8,grade:"N",cond:"레벨",name:"호접란"},{id:9,grade:"N",cond:"레벨",name:"분홍 장미"},{id:10,grade:"N",cond:"레벨",name:"흰 백합"},{id:11,grade:"N",cond:"레벨",name:"데이지"},{id:12,grade:"N",cond:"레벨",name:"분홍 백합"},{id:13,grade:"N",cond:"레벨",name:"푸른볓꽃"},{id:14,grade:"N",cond:"레벨",name:"노란 백합"},{id:15,grade:"N",cond:"레벨",name:"자색 수국"},{id:16,grade:"N",cond:"레벨",name:"동백꽃"},{id:17,grade:"N",cond:"레벨",name:"분홍 수국"},{id:18,grade:"N",cond:"레벨",name:"구즈마니아"},{id:19,grade:"N",cond:"레벨",name:"파란 수국"},{id:20,grade:"N",cond:"레벨",name:"해바라기"},{id:21,grade:"N",cond:"레벨",name:"프리지아"},{id:22,grade:"N",cond:"레벨",name:"금술 국화"},{id:23,grade:"N",cond:"레벨",name:"수선화"},{id:24,grade:"N",cond:"레벨",name:"거베라"},{id:25,grade:"N",cond:"레벨",name:"붉은 카라"},{id:26,grade:"N",cond:"레벨",name:"초롱꽃"},{id:27,grade:"N",cond:"레벨",name:"노란 카라"},{id:28,grade:"N",cond:"레벨",name:"민들레"},{id:29,grade:"N",cond:"레벨",name:"자색 카라"},{id:30,grade:"N",cond:"레벨",name:"연보라 히아신스"},{id:31,grade:"N",cond:"레벨",name:"자귀나무꽃"},{id:32,grade:"N",cond:"레벨",name:"연분홍 히아신스"},{id:33,grade:"N",cond:"레벨",name:"재스민"},{id:34,grade:"N",cond:"레벨",name:"연노랑 히아신스"},{id:35,grade:"N",cond:"레벨",name:"황금 여의 국화"},{id:36,grade:"N",cond:"레벨",name:"치자꽃"},{id:37,grade:"N",cond:"레벨",name:"연분홍 여의 국화"},{id:38,grade:"N",cond:"레벨",name:"분홍 복사꽃"},{id:39,grade:"N",cond:"레벨",name:"연귤색 여의 국화"},{id:40,grade:"N",cond:"레벨",name:"비취 리시안셔스"},{id:41,grade:"N",cond:"레벨",name:"자운 라일락"},{id:42,grade:"N",cond:"레벨",name:"붉은구름 리시안셔스"},{id:43,grade:"N",cond:"레벨",name:"연노랑 라일락"},{id:44,grade:"N",cond:"레벨",name:"호박 리시안셔스"},{id:45,grade:"N",cond:"레벨",name:"자홍색 부겐빌레아"},{id:46,grade:"N",cond:"레벨",name:"물망초"},{id:47,grade:"N",cond:"레벨",name:"연노랑 부겐빌레아"},{id:48,grade:"N",cond:"레벨",name:"설혼 구리향"},{id:49,grade:"N",cond:"레벨",name:"연벚꽃 부겐빌레아"},{id:50,grade:"N",cond:"레벨",name:"탐스러운 덩굴장미"},{id:51,grade:"N",cond:"레벨",name:"성심 백합"},{id:52,grade:"N",cond:"레벨",name:"자색 폭스테일"},{id:53,grade:"N",cond:"레벨",name:"서리꽃 석곡"},{id:54,grade:"N",cond:"레벨",name:"분홍색 폭스테일"},{id:55,grade:"N",cond:"레벨",name:"청백 로벨리아"},{id:56,grade:"N",cond:"레벨",name:"노란 폭스테일"},{id:57,grade:"N",cond:"레벨",name:"자색 괭이밥"},{id:58,grade:"N",cond:"레벨",name:"주황색 괭이밥"},{id:59,grade:"N",cond:"레벨",name:"빛나는 노란 괭이밥"},
+  {id:60,grade:"R",cond:"꽃시장 현상금",name:"수정빛 페튜니아"},{id:61,grade:"R",cond:"꽃시장 현상금",name:"금살구 페튜니아"},{id:62,grade:"R",cond:"꽃시장 현상금",name:"연분홍 폼폼 국화"},{id:63,grade:"R",cond:"꽃시장 현상금",name:"연귤색 폼폼 국화"},{id:64,grade:"R",cond:"꽃시장 현상금",name:"순백 폼폼 국화"},{id:65,grade:"R",cond:"꽃시장 현상금",name:"스파티필룸"},{id:66,grade:"R",cond:"꽃시장 현상금",name:"안스리움"},{id:67,grade:"R",cond:"꽃시장 현상금",name:"라이트 클레마티스"},{id:68,grade:"R",cond:"꽃시장 현상금",name:"향수 백합"},{id:69,grade:"R",cond:"꽃시장 현상금",name:"극락조화"},{id:70,grade:"R",cond:"꽃시장 현상금",name:"개나리"},{id:71,grade:"R",cond:"별똥별의 향기",name:"연노랑 녹융호"},{id:72,grade:"R",cond:"별똥별의 향기",name:"금살구 온시디움"},{id:73,grade:"R",cond:"별똥별의 향기",name:"순백 코스모스"},{id:74,grade:"R",cond:"꽃시장 교환",name:"다투라"},{id:75,grade:"R",cond:"꽃시장 교환",name:"석산"},{id:76,grade:"R",cond:"꽃시장 교환",name:"개상사화"},{id:77,grade:"R",cond:"꽃시장 교환",name:"복숭아빛 노루오줌"},{id:78,grade:"R",cond:"꽃시장 교환",name:"반쯤 핀 칼랑코에"},{id:79,grade:"R",cond:"꽃시장 교환",name:"핑크 심비디움"},{id:80,grade:"R",cond:"꽃시장 교환",name:"붉은 노을 아부틸론"},{id:81,grade:"R",cond:"꽃시장 교환",name:"연분홍 협죽도"},{id:82,grade:"R",cond:"꽃시장 교환",name:"자홍색 협죽도"},{id:83,grade:"R",cond:"꽃시장 교환",name:"보랏빛 아부틸론"},{id:84,grade:"R",cond:"꽃시장 교환",name:"진홍빛 아부틸론"},{id:85,grade:"R",cond:"꽃시장 교환",name:"금살구 진달래"},{id:86,grade:"R",cond:"꽃시장 교환",name:"아리따운 진달래"},{id:87,grade:"R",cond:"꽃시장 교환",name:"비취잎 소철"},{id:88,grade:"R",cond:"꽃향기 조향",name:"하늘빛 재클린"},{id:89,grade:"R",cond:"VIP 상점",name:"자홍깃 재클린"},{id:90,grade:"R",cond:"꽃의 밀령",name:"복숭아빛 재클린"},{id:91,grade:"R",cond:"꽃시장 교환",name:"촉영 해당화"},{id:92,grade:"R",cond:"꽃시장 교환",name:"취한뺨 해당화"},{id:93,grade:"R",cond:"꽃시장 교환",name:"금박 베고니아"},{id:94,grade:"R",cond:"VIP 상점",name:"푸른 솜털 안개꽃"},{id:95,grade:"R",cond:"꽃시장 교환",name:"금술 접시꽃"},{id:96,grade:"R",cond:"꽃시장 교환",name:"안개 자색 아프리칸바이올렛"},{id:97,grade:"R",cond:"꽃시장 교환",name:"연분홍 아프리칸바이올렛"},{id:98,grade:"R",cond:"꽃시장 교환",name:"연지 아프리칸바이올렛"},{id:99,grade:"R",cond:"꽃시장 교환",name:"그윽한 보랏빛 델피니움"},{id:100,grade:"R",cond:"꽃시장 교환",name:"복숭아빛 델피니움"},{id:101,grade:"R",cond:"꽃시장 교환",name:"구름빛 델피니움"},{id:102,grade:"R",cond:"펫",name:"백설 노루귀"},{id:103,grade:"R",cond:"미식 파티",name:"레트로 코코아"},{id:104,grade:"R",cond:"향기로운 회랑",name:"앵규다정"},{id:234,grade:"R",cond:"기타",name:"라넌큘러스"},
+  {id:105,grade:"SR",cond:"꽃시장 현상금",name:"연분홍 페튜니아"},{id:106,grade:"SR",cond:"별똥별의 향기",name:"붉은 벚꽃 달맞이꽃"},{id:107,grade:"SR",cond:"별똥별의 향기",name:"푸른빛 달맞이꽃"},{id:108,grade:"SR",cond:"별똥별의 향기",name:"진홍 벚꽃 나비무 장미"},{id:109,grade:"SR",cond:"별똥별의 향기",name:"영롱한 얼음빛 납매"},{id:110,grade:"SR",cond:"누적 충전",name:"붉은노을 접시꽃"},{id:111,grade:"SR",cond:"꽃의 밀령",name:"달계곡 등나무"},{id:112,grade:"SR",cond:"꽃시장 교환",name:"윤기나는 작약"},{id:113,grade:"SR",cond:"누적 충전",name:"창공빛 산호초"},{id:114,grade:"SR",cond:"누적 충전",name:"베들레헴의 별"},{id:115,grade:"SR",cond:"누적 충전",name:"별꿈 해파리"},{id:116,grade:"SR",cond:"꽃시장 교환",name:"분홍 수레국화"},{id:117,grade:"SR",cond:"꽃시장 교환",name:"우아한 보랏빛 알리움"},{id:118,grade:"SR",cond:"꽃시장 교환",name:"푸른 소철"},{id:119,grade:"SR",cond:"꽃시장 교환",name:"브룬펠시아"},{id:120,grade:"SR",cond:"꽃시장 교환",name:"타오르는 불꽃 레난테라"},{id:121,grade:"SR",cond:"꽃시장 교환",name:"꿀처럼 부드러운 달맞이꽃"},{id:122,grade:"SR",cond:"꽃시장 교환",name:"금서리 붓꽃"},{id:123,grade:"SR",cond:"꽃시장 교환",name:"분홍 수정 루위시아"},{id:124,grade:"SR",cond:"꽃시장 교환",name:"따뜻한 노랑 루위시아"},{id:125,grade:"SR",cond:"꽃시장 교환",name:"서리꽃 맥문동"},{id:126,grade:"SR",cond:"꽃시장 교환",name:"분홍 안개 맥문동"},{id:127,grade:"SR",cond:"꽃시장 교환",name:"홍시 칼랑코에"},{id:128,grade:"SR",cond:"꽃시장 교환",name:"연지빛 헬레보루스"},{id:129,grade:"SR",cond:"꽃시장 교환",name:"차홍색 헬레보루스"},{id:130,grade:"SR",cond:"꽃시장 교환",name:"유벽 메코놉시스"},{id:131,grade:"SR",cond:"꽃시장 교환",name:"흑자색 메코놉시스"},{id:132,grade:"SR",cond:"꽃시장 교환",name:"연분홍 조팝나무"},{id:133,grade:"SR",cond:"꽃시장 교환",name:"우아한 보라 코스모스"},{id:134,grade:"SR",cond:"꽃시장 교환",name:"진홍색 달리아"},{id:135,grade:"SR",cond:"꽃시장 교환",name:"흑수정 달리아"},{id:136,grade:"SR",cond:"꽃시장 교환",name:"분홍 스파티필룸"},{id:137,grade:"SR",cond:"꽃시장 교환",name:"연홍색 접시꽃"},{id:138,grade:"SR",cond:"꽃시장 교환",name:"붉은불꽃 아네모네"},{id:139,grade:"SR",cond:"꽃시장 교환",name:"황금잎 금목서"},{id:140,grade:"SR",cond:"꽃시장 교환",name:"진사 단목서"},{id:141,grade:"SR",cond:"꽃시장 교환",name:"창봉 은목서"},{id:142,grade:"SR",cond:"꽃시장 교환",name:"노을빛 산호꽃"},{id:143,grade:"SR",cond:"꽃시장 교환",name:"연자색 산호꽃"},{id:144,grade:"SR",cond:"꽃시장 교환",name:"달빛 아네모네"},{id:145,grade:"SR",cond:"꽃시장 교환",name:"구름자수 작약"},{id:146,grade:"SR",cond:"꽃시장 교환",name:"연지 작약"},{id:147,grade:"SR",cond:"꽃 패키지",name:"황혼 등나무"},{id:148,grade:"SR",cond:"패키지 화단",name:"연지빛 개양귀비"},{id:149,grade:"SR",cond:"패키지 화단",name:"흑자색 개양귀비"},{id:150,grade:"SR",cond:"패키지 화단",name:"햇살 개양귀비"},{id:151,grade:"SR",cond:"패키지 화단",name:"꿈의 보라 으아리"},{id:152,grade:"SR",cond:"패키지 화단",name:"연분홍 버베나"},{id:153,grade:"SR",cond:"패키지 화단",name:"오렌지꿀 버베나"},{id:154,grade:"SR",cond:"패키지 화단",name:"자색 수레국화"},{id:155,grade:"SR",cond:"패키지 화단",name:"푸른 수레국화"},{id:156,grade:"SR",cond:"패키지 화단",name:"아련한 자색 아스틸베"},{id:157,grade:"SR",cond:"패키지 화단",name:"구름빛 아스틸베"},{id:158,grade:"SR",cond:"패키지 화단",name:"분홍안개 붓꽃"},{id:159,grade:"SR",cond:"패키지 화단",name:"비홍 붓꽃"},{id:160,grade:"SR",cond:"패키지 화단",name:"흑자색 목련"},{id:161,grade:"SR",cond:"패키지 화단",name:"금빛 목련"},{id:162,grade:"SR",cond:"패키지 화단",name:"청영 루위시아"},{id:163,grade:"SR",cond:"패키지 화단",name:"자색 맥문동"},{id:164,grade:"SR",cond:"패키지 화단",name:"윤분홍 칼랑코에"},{id:165,grade:"SR",cond:"패키지 화단",name:"병아리색 헬레보루스"},{id:166,grade:"SR",cond:"패키지 화단",name:"핑크화이트 심비디움"},{id:167,grade:"SR",cond:"패키지 화단",name:"봄빛 심비디움"},{id:168,grade:"SR",cond:"패키지 화단",name:"금종 개나리"},{id:169,grade:"SR",cond:"패키지 화단",name:"새하얀 조팝나무"},{id:170,grade:"SR",cond:"패키지 화단",name:"벚꽃 온시디움"},{id:171,grade:"SR",cond:"패키지 화단",name:"단풍 온시디움"},{id:172,grade:"SR",cond:"패키지 화단",name:"분홍구름 코스모스"},{id:173,grade:"SR",cond:"패키지 화단",name:"분홍 복숭아 달리아"},{id:174,grade:"SR",cond:"패키지 화단",name:"향설 목향장미"},{id:175,grade:"SR",cond:"패키지 화단",name:"용금 아네모네"},{id:176,grade:"SR",cond:"패키지 화단",name:"창벽 협죽도"},{id:177,grade:"SR",cond:"패키지 화단",name:"진홍 진달래"},{id:178,grade:"SR",cond:"패키지 화단",name:"꾀꼬리 장미"},{id:179,grade:"SR",cond:"패키지 화단",name:"맑은 봉우리 장미"},{id:180,grade:"SR",cond:"패키지 화단",name:"아지랑이빛 장미"},{id:181,grade:"SR",cond:"꽃시장 교환",name:"묵옥 아네모네"},{id:182,grade:"SR",cond:"꽃시장 교환",name:"먹술 아네모네"},{id:183,grade:"SR",cond:"꽃의 밀령",name:"자색 글라디올러스"},{id:184,grade:"SR",cond:"패키지 화단",name:"주황 불꽃 글라디올러스"},{id:185,grade:"SR",cond:"별똥별의 향기",name:"연지 아네모네"},{id:186,grade:"SR",cond:"패키지 화단",name:"옥빛 글라디올러스"},{id:187,grade:"SR",cond:"꽃시장 교환",name:"노을빛 아마릴리스"},{id:188,grade:"SR",cond:"패키지 화단",name:"황금목 아마릴리스"},{id:189,grade:"SR",cond:"패키지 화단",name:"붉은 깃털 아마릴리스"},{id:190,grade:"SR",cond:"꽃시장 교환",name:"붉은 눈 목향장미"},{id:191,grade:"SR",cond:"꽃시장 교환",name:"새벽빛 목향장미"},{id:192,grade:"SR",cond:"첫 충전 특별 선물",name:"반짝 솜토끼"},{id:193,grade:"SR",cond:"7일 접속",name:"윤생 호랑가시나무"},{id:194,grade:"SR",cond:"성장의 길",name:"연지 무궁화"},{id:195,grade:"SR",cond:"누적 충전",name:"취한 별의 꿈"},{id:196,grade:"SR",cond:"풍요의 별그림",name:"따스한 여름 햇살"},{id:197,grade:"SR",cond:"풍요의 별그림",name:"진주 제비난"},{id:230,grade:"SR",cond:"꽃 패키지",name:"창공빛 등나무"},
+  {id:198,grade:"SSR",cond:"별똥별의 향기",name:"옥구슬 목련"},{id:199,grade:"SSR",cond:"누적 충전",name:"별빛 꿈의 방주"},{id:200,grade:"SSR",cond:"스타소울 상점",name:"행운의 올리브"},{id:201,grade:"SSR",cond:"스타소울 상점",name:"크리스마스의 밤"},{id:202,grade:"SSR",cond:"패키지 화단",name:"홍운 납매"},{id:203,grade:"SSR",cond:"패키지 화단",name:"진홍빛 납매"},{id:204,grade:"SSR",cond:"패키지 화단",name:"수정빛 나비춤 장미"},{id:205,grade:"SSR",cond:"패키지 화단",name:"황금 장미"},{id:206,grade:"SSR",cond:"패키지 화단",name:"몽롱한 청아"},{id:207,grade:"SSR",cond:"패키지 화단",name:"비령추란"},{id:208,grade:"SSR",cond:"패키지 화단",name:"자색 여운"},{id:209,grade:"SSR",cond:"패키지 화단",name:"분홍빛 물결꽃"},{id:210,grade:"SSR",cond:"패키지 화단",name:"푸른안개 모란"},{id:211,grade:"SSR",cond:"패키지 화단",name:"봄 살구빛 옷자락"},{id:212,grade:"SSR",cond:"패키지 화단",name:"선녀의 춤"},{id:213,grade:"SSR",cond:"패키지 화단",name:"먹빛 모란"},{id:214,grade:"SSR",cond:"패키지 화단",name:"보랏빛 꿈 부용"},{id:215,grade:"SSR",cond:"꽃 패키지",name:"분홍옥 부용"},{id:216,grade:"SSR",cond:"패키지 화단",name:"달빛 모란"},{id:217,grade:"SSR",cond:"스타소울 상점",name:"가을빛 단풍"},{id:218,grade:"SSR",cond:"미식 파티",name:"심쿵 스위트 베리"},{id:219,grade:"SSR",cond:"향기로운 회랑",name:"푸른 물결의 춤"},{id:220,grade:"SSR",cond:"향기로운 회랑",name:"황금빛 단꿈"},{id:221,grade:"SSR",cond:"향기로운 회랑",name:"보랏빛 구름의 안식"},{id:229,grade:"SSR",cond:"커플 플라워 데이트",name:"성란화의 언약"},{id:232,grade:"SSR",cond:"기타",name:"꽃케이크 바구니"},{id:233,grade:"SSR",cond:"기타",name:"차와 야옹 이야기"},{id:235,grade:"SSR",cond:"꽃 패키지",name:"귤빛 불꽃 부용"},
+  {id:222,grade:"UR",cond:"별똥별의 향기",name:"별똥별의 향기"},{id:223,grade:"UR",cond:"누적 충전",name:"푸른 사슴 그림자"},{id:224,grade:"UR",cond:"스타소울 상점",name:"동화의 성"},{id:225,grade:"UR",cond:"스타소울 상점",name:"구름꿈 고래의 노래"},{id:226,grade:"UR",cond:"풍요의 별그림",name:"황소자리-풍요의 별그림"},{id:227,grade:"UR",cond:"미식 파티",name:"프로스팅 마녀"},{id:228,grade:"UR",cond:"향기로운 회랑",name:"성스러운 깃털의 수호"},{id:231,grade:"UR",cond:"따스한 봄소풍",name:"나른한 시간"},
+];
+const GRADE_ORDER = {N:0,R:1,SR:2,SSR:3,UR:4};
+
+// ── 상태 ──────────────────────────────────────────────────
+let nickname = "";
+let selections = {};   // { flowerIndex: {nickname: true} }
+let blocked = [];
+let members = {};      // { nickname: true }
+let currentTab = "my";
+let myFlowerSet = new Set();
+let searchText = "";
+let filterGrade = "전체";
+let filterCond = "전체";
+let sortBy = "name";
+let guildView = "all";
+let unsub = null;
+
+// ── 유틸 ───────────────────────────────────────────────────
+function sortKey(name) {
+  const parts = name.split(" ");
+  return parts[parts.length - 1] + "|" + name;
+}
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2000);
+}
+function setSaveBar(msg, show) {
+  const el = document.getElementById("save-bar");
+  el.style.display = show ? "block" : "none";
+  el.textContent = msg;
+}
+
+// ── Firebase 구독 ──────────────────────────────────────────
+function subscribeDB() {
+  if (unsub) unsub();
+  const r = ref(db, "/");
+  unsub = onValue(r, snap => {
+    const data = snap.val() || {};
+    selections = data.selections || {};
+    blocked = data.blocked || [];
+    members = data.members || {};
+    // 내 꽃 세트 갱신
+    myFlowerSet = new Set(
+      Object.entries(selections)
+        .filter(([, nicks]) => nicks && nicks[nickname])
+        .map(([id]) => Number(id))
+    );
+    renderContent();
+  });
+}
+
+// ── 로그인 ─────────────────────────────────────────────────
+window.doLogin = async function() {
+  const nick = document.getElementById("nick-input").value.trim();
+  if (!nick) { showToast("닉네임을 입력해주세요"); return; }
+
+  // 차단 확인
+  const snap = await get(ref(db, "blocked"));
+  const bl = snap.val() || [];
+  if (bl.includes(nick)) { showToast("길드장에 의해 사용이 제한된 계정입니다."); return; }
+
+  nickname = nick;
+  // 멤버 등록
+  await set(ref(db, `members/${nick.replace(/[.#$\/\[\]]/g,"_")}`), true);
+
+  document.getElementById("login-screen").style.display = "none";
+  document.getElementById("app-screen").style.display = "flex";
+  document.getElementById("header-nick").textContent = nick;
+  if (nick === "길드장") document.getElementById("admin-tab").style.display = "flex";
+
+  subscribeDB();
+}
+
+window.doLogout = function() {
+  if (unsub) unsub();
+  nickname = "";
+  document.getElementById("login-screen").style.display = "flex";
+  document.getElementById("app-screen").style.display = "none";
+  document.getElementById("nick-input").value = "";
+  document.getElementById("admin-tab").style.display = "none";
+}
+
+document.getElementById("nick-input").addEventListener("keydown", e => {
+  if (e.key === "Enter") window.doLogin();
+});
+
+// ── 탭 ────────────────────────────────────────────────────
+window.switchTab = function(tab) {
+  currentTab = tab;
+  document.querySelectorAll(".tab").forEach((el,i) => {
+    const tabs = ["my","guild","admin"];
+    el.classList.toggle("active", tabs[i] === tab || (i===2 && tab==="admin"));
+  });
+  // fix active for tab buttons
+  document.querySelectorAll(".tab").forEach(el => el.classList.remove("active"));
+  const tabEls = document.querySelectorAll(".tab");
+  if(tab==="my") tabEls[0].classList.add("active");
+  else if(tab==="guild") tabEls[1].classList.add("active");
+  else if(tab==="admin") tabEls[2].classList.add("active");
+  renderContent();
+}
+
+// ── 꽃 토글 ───────────────────────────────────────────────
+window.toggleFlower = async function(id) {
+  id = Number(id);
+  setSaveBar("저장 중...", true);
+  const safeNick = nickname.replace(/[.#$\/\[\]]/g,"_");
+  const path = `selections/${id}/${safeNick}`;
+  const has = myFlowerSet.has(id);
+  await set(ref(db, path), has ? null : true);
+  setSaveBar("저장됨 ✓", true);
+  setTimeout(() => setSaveBar("", false), 1500);
+}
+
+// ── 관리자: 차단 토글 ─────────────────────────────────────
+window.toggleBlock = async function(nick) {
+  const bl = [...blocked];
+  const idx = bl.indexOf(nick);
+  if (idx >= 0) bl.splice(idx,1); else bl.push(nick);
+  await set(ref(db,"blocked"), bl);
+  showToast(idx >= 0 ? `${nick} 차단 해제됨` : `${nick} 차단됨`);
+}
+
+// ── 렌더 ──────────────────────────────────────────────────
+function renderContent() {
+  if (currentTab === "my") renderMy();
+  else if (currentTab === "guild") renderGuild();
+  else if (currentTab === "admin") renderAdmin();
+}
+
+function getFiltered() {
+  let list = [...FLOWERS];
+  if (filterGrade !== "전체") list = list.filter(f => f.grade === filterGrade);
+  if (filterCond !== "전체") list = list.filter(f => f.cond === filterCond);
+  if (searchText) {
+    const q = searchText.toLowerCase();
+    list = list.filter(f => {
+      const core = f.name.split(" ").slice(-1)[0];
+      return f.name.toLowerCase().includes(q) || core.toLowerCase().includes(q);
+    });
+  }
+  list.sort((a,b) => {
+    if (sortBy === "grade") return (GRADE_ORDER[a.grade]-GRADE_ORDER[b.grade]) || sortKey(a.name).localeCompare(sortKey(b.name),"ko");
+    if (sortBy === "cond") return a.cond.localeCompare(b.cond,"ko") || sortKey(a.name).localeCompare(sortKey(b.name),"ko");
+    return sortKey(a.name).localeCompare(sortKey(b.name),"ko");
+  });
+  return list;
+}
+
+const allConds = ["전체",...Array.from(new Set(FLOWERS.map(f=>f.cond).filter(Boolean))).sort((a,b)=>a.localeCompare(b,"ko"))];
+
+function renderMy() {
+  const list = getFiltered();
+  document.getElementById("content").innerHTML = `
+    <div class="filters">
+      <div class="search-wrap">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="search-input" id="search-input" placeholder="꽃 이름 검색 (예: 백합)" value="${searchText}">
+      </div>
+      <select class="filter-select" id="grade-filter">
+        ${["전체","N","R","SR","SSR","UR"].map(g=>`<option${filterGrade===g?" selected":""}>${g}</option>`).join("")}
+      </select>
+      <select class="filter-select" id="cond-filter">
+        ${allConds.map(c=>`<option${filterCond===c?" selected":""}>${c}</option>`).join("")}
+      </select>
+      <div class="sort-pills">
+        ${[["name","이름순"],["grade","등급순"],["cond","조건순"]].map(([v,l])=>`<button class="sort-pill${sortBy===v?" active":""}" onclick="setSortBy('${v}')">${l}</button>`).join("")}
+      </div>
+    </div>
+    <div class="flower-list" id="flower-list">
+      ${list.map(f => {
+        const sel = myFlowerSet.has(f.id);
+        return `<div class="flower-row${sel?" selected":""}" onclick="toggleFlower(${f.id})">
+          <span class="grade-badge grade-${f.grade}">${f.grade}</span>
+          <span class="flower-name">${f.name}</span>
+          <span class="flower-cond">${f.cond}</span>
+          <span class="check-icon ${sel?"on":"off"}">${sel?"✓":""}</span>
+        </div>`;
+      }).join("")}
+      ${list.length===0?'<div class="empty">검색 결과가 없어요</div>':""}
+    </div>
+  `;
+  document.getElementById("search-input").addEventListener("input", e => { searchText=e.target.value; renderMy(); });
+  document.getElementById("grade-filter").addEventListener("change", e => { filterGrade=e.target.value; renderMy(); });
+  document.getElementById("cond-filter").addEventListener("change", e => { filterCond=e.target.value; renderMy(); });
+  // 검색창 포커스 유지
+  if (searchText) {
+    const inp = document.getElementById("search-input");
+    inp.focus(); inp.setSelectionRange(inp.value.length,inp.value.length);
+  }
+}
+
+window.setSortBy = function(v) { sortBy=v; renderMy(); }
+
+function renderGuild() {
+  const totalOwned = FLOWERS.filter(f => {
+    const n = selections[f.id];
+    return n && Object.keys(n).length > 0;
+  }).length;
+  const totalUnowned = FLOWERS.length - totalOwned;
+  const memberCount = Object.keys(members).length;
+
+  let list = [...FLOWERS];
+  if (guildView === "unowned") list = list.filter(f => {
+    const n = selections[f.id]; return !n || Object.keys(n).length===0;
+  });
+  list.sort((a,b) => sortKey(a.name).localeCompare(sortKey(b.name),"ko"));
+
+  document.getElementById("content").innerHTML = `
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-num">${FLOWERS.length}</div><div class="stat-label">전체 꽃</div></div>
+      <div class="stat-card"><div class="stat-num ok">${totalOwned}</div><div class="stat-label">보유됨</div></div>
+      <div class="stat-card"><div class="stat-num ${totalUnowned>0?"warn":"ok"}">${totalUnowned}</div><div class="stat-label">미보유</div></div>
+      <div class="stat-card"><div class="stat-num">${memberCount}</div><div class="stat-label">길드원</div></div>
+    </div>
+    <div class="sort-pills" style="margin-bottom:1rem">
+      <button class="sort-pill${guildView==="all"?" active":""}" onclick="setGuildView('all')">전체 보기</button>
+      <button class="sort-pill${guildView==="unowned"?" active":""}" onclick="setGuildView('unowned')">⚠️ 미보유만</button>
+    </div>
+    <div class="flower-list">
+      ${list.map(f => {
+        const nicks = selections[f.id] ? Object.keys(selections[f.id]) : [];
+        const has = nicks.length > 0;
+        return `<div class="guild-row${has?"":" unowned"}">
+          <div class="guild-row-top">
+            <span class="grade-badge grade-${f.grade}">${f.grade}</span>
+            <span class="flower-name">${f.name}</span>
+            ${!has?'<span class="unowned-badge">미보유</span>':""}
+          </div>
+          ${has?`<div class="owner-chips">${nicks.map(n=>`<span class="owner-chip">${n}</span>`).join("")}</div>`:""}
+        </div>`;
+      }).join("")}
+      ${list.length===0?'<div class="empty">모든 꽃이 보유되어 있어요! 🎉</div>':""}
+    </div>
+  `;
+}
+
+window.setGuildView = function(v) { guildView=v; renderGuild(); }
+
+function renderAdmin() {
+  const memberList = Object.keys(members);
+  document.getElementById("content").innerHTML = `
+    <div class="admin-section">
+      <div class="section-title">길드원 차단 관리</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:.75rem;line-height:1.6">차단된 닉네임은 프로그램 접속이 불가합니다.</div>
+      <div class="admin-input-row">
+        <input class="admin-input" id="block-input" placeholder="차단할 닉네임 입력">
+        <button class="admin-btn" onclick="doBlock()">차단/해제</button>
+      </div>
+      ${blocked.length>0?`
+        <div style="font-size:13px;font-weight:500;color:var(--text2);margin-bottom:8px">차단 목록 (${blocked.length}명)</div>
+        ${blocked.map(n=>`<div class="member-row blocked-row">
+          <span class="member-name" style="color:#c62828">${n}</span>
+          <button class="unblock-btn" onclick="toggleBlock('${n}')">해제</button>
+        </div>`).join("")}
+      `:`<div style="font-size:13px;color:var(--text3)">차단된 길드원이 없습니다.</div>`}
+    </div>
+    <div class="admin-section">
+      <div class="section-title">길드원 목록 (${memberList.length}명)</div>
+      ${memberList.map(n=>`<div class="member-row">
+        <span class="member-name">${n}</span>
+        ${blocked.includes(n)?'<span class="blocked-tag">차단됨</span>':""}
+        <span class="member-count">꽃 ${Object.keys(selections).filter(id=>selections[id]&&selections[id][n.replace(/[.#$\/\[\]]/g,"_")]).length}개</span>
+      </div>`).join("")}
+      ${memberList.length===0?'<div style="font-size:13px;color:var(--text3)">아직 접속한 길드원이 없습니다.</div>':""}
+    </div>
+  `;
+  document.getElementById("block-input").addEventListener("keydown", e => { if(e.key==="Enter") window.doBlock(); });
+}
+
+window.doBlock = function() {
+  const nick = document.getElementById("block-input").value.trim();
+  if (!nick) return;
+  window.toggleBlock(nick);
+  document.getElementById("block-input").value = "";
+}
+</script>
+</body>
+</html>
