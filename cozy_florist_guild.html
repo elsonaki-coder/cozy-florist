@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌸 코지 플로리스트 길드</title>
+<title>🌸 코지 플로리스트 정원산책길드 소유꽃확인</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -37,7 +37,8 @@
   
   /* HEADER */
   .header{background:var(--card);border-bottom:1px solid var(--border);padding:0 1rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;}
-  .header-title{font-size:16px;font-weight:700;display:flex;align-items:center;gap:6px;}
+  .header-title{font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;line-height:1.3;}
+  .header-credit{font-size:10px;font-weight:400;color:var(--text3);margin-left:2px;}
   .header-right{display:flex;align-items:center;gap:8px;}
   .nick-badge{font-size:12px;color:var(--text2);background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:4px 10px;}
   .logout-btn{font-size:12px;color:var(--text3);background:none;border:1px solid var(--border);border-radius:20px;padding:4px 10px;cursor:pointer;font-family:inherit;}
@@ -147,7 +148,7 @@
 <!-- APP -->
 <div id="app-screen">
   <div class="header">
-    <div class="header-title">🌸 <span>코지 플로리스트</span></div>
+    <div class="header-title">🌸 <span>코지 플로리스트 정원산책길드 소유꽃확인<span class="header-credit">ㅣ제작_별별</span></span></div>
     <div class="header-right">
       <span class="nick-badge" id="header-nick"></span>
       <button class="logout-btn" onclick="doLogout()">로그아웃</button>
@@ -204,7 +205,12 @@ let filterGrade = "전체";
 let filterCond = "전체";
 let sortBy = "name";
 let guildView = "all";
+let guildSearch = "";
+let guildFilterGrade = "전체";
+let guildFilterCond = "전체";
+let guildSortBy = "name"; // name | grade | cond | member
 let unsub = null;
+let composing = false;
 
 // ── 유틸 ───────────────────────────────────────────────────
 function sortKey(name) {
@@ -373,10 +379,11 @@ function renderMy() {
       ${list.length===0?'<div class="empty">검색 결과가 없어요</div>':""}
     </div>
   `;
-  document.getElementById("search-input").addEventListener("input", e => { searchText=e.target.value; renderMy(); });
+  document.getElementById("search-input").addEventListener("compositionstart", () => { composing = true; });
+  document.getElementById("search-input").addEventListener("compositionend", e => { composing = false; searchText = e.target.value; renderMy(); });
+  document.getElementById("search-input").addEventListener("input", e => { if (!composing) { searchText = e.target.value; renderMy(); } });
   document.getElementById("grade-filter").addEventListener("change", e => { filterGrade=e.target.value; renderMy(); });
   document.getElementById("cond-filter").addEventListener("change", e => { filterCond=e.target.value; renderMy(); });
-  // 검색창 포커스 유지
   if (searchText) {
     const inp = document.getElementById("search-input");
     inp.focus(); inp.setSelectionRange(inp.value.length,inp.value.length);
@@ -393,11 +400,39 @@ function renderGuild() {
   const totalUnowned = FLOWERS.length - totalOwned;
   const memberCount = Object.keys(members).length;
 
+  // 필터링
   let list = [...FLOWERS];
   if (guildView === "unowned") list = list.filter(f => {
     const n = selections[f.id]; return !n || Object.keys(n).length===0;
   });
-  list.sort((a,b) => sortKey(a.name).localeCompare(sortKey(b.name),"ko"));
+  if (guildFilterGrade !== "전체") list = list.filter(f => f.grade === guildFilterGrade);
+  if (guildFilterCond !== "전체") list = list.filter(f => f.cond === guildFilterCond);
+  if (guildSearch) {
+    const q = guildSearch.toLowerCase();
+    if (guildSortBy === "member") {
+      // 길드원 이름으로 필터
+      list = list.filter(f => {
+        const nicks = selections[f.id] ? Object.keys(selections[f.id]) : [];
+        return nicks.some(n => n.toLowerCase().includes(q));
+      });
+    } else {
+      list = list.filter(f => {
+        const core = f.name.split(" ").slice(-1)[0];
+        return f.name.toLowerCase().includes(q) || core.toLowerCase().includes(q);
+      });
+    }
+  }
+  // 정렬
+  list.sort((a,b) => {
+    if (guildSortBy === "grade") return (GRADE_ORDER[a.grade]-GRADE_ORDER[b.grade]) || sortKey(a.name).localeCompare(sortKey(b.name),"ko");
+    if (guildSortBy === "cond") return a.cond.localeCompare(b.cond,"ko") || sortKey(a.name).localeCompare(sortKey(b.name),"ko");
+    if (guildSortBy === "member") {
+      const ca = selections[a.id] ? Object.keys(selections[a.id]).length : 0;
+      const cb = selections[b.id] ? Object.keys(selections[b.id]).length : 0;
+      return cb - ca || sortKey(a.name).localeCompare(sortKey(b.name),"ko");
+    }
+    return sortKey(a.name).localeCompare(sortKey(b.name),"ko");
+  });
 
   document.getElementById("content").innerHTML = `
     <div class="stat-grid">
@@ -405,6 +440,21 @@ function renderGuild() {
       <div class="stat-card"><div class="stat-num ok">${totalOwned}</div><div class="stat-label">보유됨</div></div>
       <div class="stat-card"><div class="stat-num ${totalUnowned>0?"warn":"ok"}">${totalUnowned}</div><div class="stat-label">미보유</div></div>
       <div class="stat-card"><div class="stat-num">${memberCount}</div><div class="stat-label">길드원</div></div>
+    </div>
+    <div class="filters">
+      <div class="search-wrap">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="search-input" id="guild-search-input" placeholder="${guildSortBy==="member"?"길드원 닉네임 검색":"꽃 이름 검색 (예: 백합)"}" value="${guildSearch}">
+      </div>
+      <select class="filter-select" id="guild-grade-filter">
+        ${["전체","N","R","SR","SSR","UR"].map(g=>`<option${guildFilterGrade===g?" selected":""}>${g}</option>`).join("")}
+      </select>
+      <select class="filter-select" id="guild-cond-filter">
+        ${allConds.map(c=>`<option${guildFilterCond===c?" selected":""}>${c}</option>`).join("")}
+      </select>
+    </div>
+    <div class="sort-pills" style="margin-bottom:.75rem">
+      ${[["name","이름순"],["grade","등급순"],["cond","조건순"],["member","길드원순"]].map(([v,l])=>`<button class="sort-pill${guildSortBy===v?" active":""}" onclick="setGuildSort('${v}')">${l}</button>`).join("")}
     </div>
     <div class="sort-pills" style="margin-bottom:1rem">
       <button class="sort-pill${guildView==="all"?" active":""}" onclick="setGuildView('all')">전체 보기</button>
@@ -423,12 +473,23 @@ function renderGuild() {
           ${has?`<div class="owner-chips">${nicks.map(n=>`<span class="owner-chip">${n}</span>`).join("")}</div>`:""}
         </div>`;
       }).join("")}
-      ${list.length===0?'<div class="empty">모든 꽃이 보유되어 있어요! 🎉</div>':""}
+      ${list.length===0?'<div class="empty">검색 결과가 없거나 모든 꽃이 보유되어 있어요 🎉</div>':""}
     </div>
   `;
+
+  // 이벤트
+  let gComposing = false;
+  const gi = document.getElementById("guild-search-input");
+  gi.addEventListener("compositionstart", () => { gComposing = true; });
+  gi.addEventListener("compositionend", e => { gComposing = false; guildSearch = e.target.value; renderGuild(); });
+  gi.addEventListener("input", e => { if (!gComposing) { guildSearch = e.target.value; renderGuild(); } });
+  document.getElementById("guild-grade-filter").addEventListener("change", e => { guildFilterGrade=e.target.value; renderGuild(); });
+  document.getElementById("guild-cond-filter").addEventListener("change", e => { guildFilterCond=e.target.value; renderGuild(); });
+  if (guildSearch) { gi.focus(); gi.setSelectionRange(gi.value.length,gi.value.length); }
 }
 
 window.setGuildView = function(v) { guildView=v; renderGuild(); }
+window.setGuildSort = function(v) { guildSortBy=v; guildSearch=""; renderGuild(); }
 
 function renderAdmin() {
   const memberList = Object.keys(members);
