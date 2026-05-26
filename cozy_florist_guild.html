@@ -350,7 +350,31 @@ const allConds = ["전체",...Array.from(new Set(FLOWERS.map(f=>f.cond).filter(B
 
 function renderMy() {
   const list = getFiltered();
+
+ const myOwned = myFlowerSet.size;
+ const myMissing = FLOWERS.length - myOwned;
   document.getElementById("content").innerHTML = `
+   <div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-num">${FLOWERS.length}</div>
+    <div class="stat-label">전체 꽃</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-num ok">${myOwned}</div>
+    <div class="stat-label">보유</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-num ${myMissing > 0 ? "warn" : "ok"}">${myMissing}</div>
+    <div class="stat-label">미보유</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-num">${Math.floor((myOwned / FLOWERS.length) * 100)}%</div>
+    <div class="stat-label">수집률</div>
+  </div>
+</div>
     <div class="filters">
       <div class="search-wrap">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
