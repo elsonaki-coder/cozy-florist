@@ -638,6 +638,13 @@ function renderAdmin() {
         <span class="member-name">${n}</span>
         ${blocked.includes(n)?'<span class="blocked-tag">차단됨</span>':""}
         <span class="member-count">꽃 ${Object.keys(selections).filter(id=>selections[id]&&selections[id][n.replace(/[.#$\/\[\]]/g,"_")]).length}개</span>
+
+  <button class="unblock-btn"
+onclick="deleteMember('${n}')"
+style="margin-left:6px">
+삭제
+</button>
+
       </div>`).join("")}
       ${memberList.length===0?'<div style="font-size:13px;color:var(--text3)">아직 접속한 길드원이 없습니다.</div>':""}
     </div>
