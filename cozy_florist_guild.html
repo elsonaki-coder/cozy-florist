@@ -204,6 +204,7 @@ let searchText = "";
 let filterGrade = "전체";
 let filterCond = "전체";
 let sortBy = "name";
+let sortReverse = false;
 let guildView = "all";
 let guildSearch = "";
 let guildFilterGrade = "전체";
@@ -338,11 +339,34 @@ function getFiltered() {
       return f.name.toLowerCase().includes(q) || core.toLowerCase().includes(q);
     });
   }
-  list.sort((a,b) => {
-    if (sortBy === "grade") return (GRADE_ORDER[a.grade]-GRADE_ORDER[b.grade]) || sortKey(a.name).localeCompare(sortKey(b.name),"ko");
-    if (sortBy === "cond") return a.cond.localeCompare(b.cond,"ko") || sortKey(a.name).localeCompare(sortKey(b.name),"ko");
-    return sortKey(a.name).localeCompare(sortKey(b.name),"ko");
-  });
+list.sort((a,b) => {
+
+  let result = 0;
+
+  if (sortBy === "grade") {
+    result =
+      (GRADE_ORDER[a.grade] - GRADE_ORDER[b.grade]) ||
+      sortKey(a.name).localeCompare(sortKey(b.name), "ko");
+  }
+
+  else if (sortBy === "cond") {
+    result =
+      a.cond.localeCompare(b.cond, "ko") ||
+      sortKey(a.name).localeCompare(sortKey(b.name), "ko");
+  }
+
+  else {
+    result =
+      sortKey(a.name).localeCompare(sortKey(b.name), "ko");
+  }
+
+  // 조건순은 역순 제외
+  if (sortBy !== "cond" && sortReverse) {
+    result *= -1;
+  }
+
+  return result;
+});
   return list;
 }
 
@@ -388,6 +412,10 @@ function renderMy() {
       </select>
       <div class="sort-pills">
         ${[["name","이름순"],["grade","등급순"],["cond","조건순"]].map(([v,l])=>`<button class="sort-pill${sortBy===v?" active":""}" onclick="setSortBy('${v}')">${l}</button>`).join("")}
+      <button class="sort-pill ${sortReverse ? "active" : ""}"
+onclick="toggleReverseSort()">
+↕ 역순
+</button>
       </div>
     </div>
     <div class="flower-list" id="flower-list">
@@ -415,7 +443,10 @@ function renderMy() {
 }
 
 window.setSortBy = function(v) { sortBy=v; renderMy(); }
-
+window.toggleReverseSort = function() {
+  sortReverse = !sortReverse;
+  renderMy();
+}
 function renderGuild() {
   const totalOwned = FLOWERS.filter(f => {
     const n = selections[f.id];
