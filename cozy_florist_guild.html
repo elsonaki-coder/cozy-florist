@@ -125,6 +125,33 @@
   /* SAVE BAR */
   .save-bar{background:var(--green-light);border-bottom:1px solid var(--green-mid);padding:6px 1rem;font-size:12px;color:#2e7d32;text-align:center;font-weight:500;}
 
+  /* MODAL */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:center;justify-content:center;padding:1rem;}
+  .modal{background:var(--card);border-radius:var(--radius);padding:1.5rem;width:100%;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.18);}
+  .modal-title{font-size:15px;font-weight:700;margin-bottom:1.2rem;color:var(--text);}
+  .modal-field{display:flex;flex-direction:column;gap:5px;margin-bottom:.9rem;}
+  .modal-label{font-size:12px;font-weight:500;color:var(--text2);}
+  .modal-input{padding:10px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;color:var(--text);background:#fff;outline:none;width:100%;}
+  .modal-input:focus{border-color:var(--green);}
+  .modal-row{display:flex;gap:8px;margin-top:.4rem;}
+  .modal-btn{flex:1;padding:11px;border-radius:var(--radius-sm);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;border:none;}
+  .modal-btn.primary{background:var(--green);color:#fff;}
+  .modal-btn.primary:hover{background:#388e3c;}
+  .modal-btn.secondary{background:var(--bg);color:var(--text);border:1px solid var(--border2);}
+  .modal-btn.secondary:hover{background:var(--border);}
+  .modal-btn.danger-btn{background:var(--red-light);color:#c62828;border:1px solid var(--red-mid);}
+
+  /* CUSTOM FLOWER BADGE */
+  .custom-tag{font-size:10px;background:#fff8e1;color:#e65100;border:1px solid #ffcc02;border-radius:8px;padding:1px 6px;flex-shrink:0;}
+  .flower-actions{display:flex;gap:4px;flex-shrink:0;}
+  .flower-action-btn{width:26px;height:26px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--bg);color:var(--text2);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;}
+  .flower-action-btn:hover{background:var(--border);}
+  .flower-action-btn.del{border-color:var(--red-mid);color:#c62828;background:var(--red-light);}
+
+  /* ADD BUTTON */
+  .add-flower-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:11px;border:1.5px dashed var(--border2);border-radius:var(--radius-sm);background:transparent;color:var(--text2);font-size:14px;font-family:inherit;cursor:pointer;transition:all .15s;margin-bottom:1rem;}
+  .add-flower-btn:hover{border-color:var(--green);color:var(--green);background:var(--green-light);}
+
   @media(max-width:400px){
     .stat-grid{grid-template-columns:repeat(2,1fr);}
     .flower-cond{display:none;}
@@ -163,12 +190,44 @@
   <div class="content" id="content"></div>
 </div>
 
+<!-- FLOWER MODAL -->
+<div class="modal-backdrop" id="flower-modal" style="display:none" onclick="closeFlowerModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title" id="modal-title">🌸 꽃 추가</div>
+    <div class="modal-field">
+      <div class="modal-label">등급</div>
+      <select class="modal-input" id="modal-grade">
+        <option value="N">N (초록)</option>
+        <option value="R">R (파랑)</option>
+        <option value="SR">SR (보라)</option>
+        <option value="SSR">SSR (노랑)</option>
+        <option value="UR">UR (빨강)</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">얻는 방법</div>
+      <input class="modal-input" id="modal-cond" placeholder="예: 꽃시장 교환, 레벨 61 …" maxlength="30">
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">꽃 이름</div>
+      <input class="modal-input" id="modal-name" placeholder="예: 연분홍 장미" maxlength="30">
+    </div>
+    <div class="modal-row">
+      <button class="modal-btn secondary" onclick="closeFlowerModal()">취소</button>
+      <button class="modal-btn primary" id="modal-submit-btn" onclick="submitFlower()">추가하기</button>
+    </div>
+    <div id="modal-delete-row" style="display:none;margin-top:8px;">
+      <button class="modal-btn danger-btn" style="width:100%" onclick="deleteCustomFlower()">🗑 이 꽃 삭제하기</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <!-- Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, onValue, set, get, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, onValue, set, get, remove, push, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCADiBeq2rB3rXxHWvvnmdH2jzi24Eizzc",
@@ -213,6 +272,13 @@ let guildSortBy = "name"; // name | grade | cond | member
 let guildSortReverse = false;
 let unsub = null;
 let composing = false;
+let customFlowers = [];   // [{ fbKey, id, grade, cond, name }, ...]
+let editingFlowerKey = null;  // fbKey of flower being edited, null = new
+
+// ── 커스텀 꽃 합산 (FLOWERS + customFlowers) ─────────────────
+function allFlowers() {
+  return [...FLOWERS, ...customFlowers];
+}
 
 // ── 유틸 ───────────────────────────────────────────────────
 function sortKey(name) {
@@ -240,11 +306,24 @@ function subscribeDB() {
     selections = data.selections || {};
     blocked = data.blocked || [];
     members = data.members || {};
+    // 커스텀 꽃 로드 (fbKey를 id 대신 사용, id는 "c_"+fbKey로 구분)
+    const raw = data.customFlowers || {};
+    customFlowers = Object.entries(raw).map(([fbKey, v]) => ({
+      fbKey,
+      id: "c_" + fbKey,
+      grade: v.grade,
+      cond: v.cond,
+      name: v.name,
+      addedBy: v.addedBy || "",
+    }));
     // 내 꽃 세트 갱신
     myFlowerSet = new Set(
       Object.entries(selections)
         .filter(([, nicks]) => nicks && nicks[nickname])
-        .map(([id]) => Number(id))
+        .map(([id]) => {
+          const n = Number(id);
+          return isNaN(n) ? id : n;
+        })
     );
     renderContent();
   });
@@ -315,39 +394,104 @@ window.toggleFlower = async function(id) {
 
 // ── 관리자: 차단 토글 ─────────────────────────────────────
 window.toggleBlock = async function(nick) {
- window.deleteMember = async function(nick) {
-
-  const ok = confirm(`${nick} 계정을 삭제할까요?`);
-
-  if (!ok) return;
-
-  const safeNick = nick.replace(/[.#$\/\[\]]/g,"_");
-
-  // members 삭제
-  await remove(ref(db, `members/${safeNick}`));
-
-  // selections 안에서도 제거
-  for (const flowerId in selections) {
-
-    if (selections[flowerId] &&
-        selections[flowerId][safeNick]) {
-
-      await remove(
-        ref(db, `selections/${flowerId}/${safeNick}`)
-      );
-    }
-  }
-
-  showToast(`${nick} 삭제 완료`);
-}
- const bl = [...blocked];
+  const bl = [...blocked];
   const idx = bl.indexOf(nick);
   if (idx >= 0) bl.splice(idx,1); else bl.push(nick);
   await set(ref(db,"blocked"), bl);
   showToast(idx >= 0 ? `${nick} 차단 해제됨` : `${nick} 차단됨`);
 }
 
-// ── 렌더 ──────────────────────────────────────────────────
+// ── 관리자: 멤버 삭제 ─────────────────────────────────────
+window.deleteMember = async function(nick) {
+  const ok = confirm(`${nick} 계정을 삭제할까요?`);
+  if (!ok) return;
+  const safeNick = nick.replace(/[.#$\/\[\]]/g,"_");
+  await remove(ref(db, `members/${safeNick}`));
+  for (const flowerId in selections) {
+    if (selections[flowerId] && selections[flowerId][safeNick]) {
+      await remove(ref(db, `selections/${flowerId}/${safeNick}`));
+    }
+  }
+  showToast(`${nick} 삭제 완료`);
+}
+
+// ── 꽃 토글 (커스텀 꽃 id 포함) ───────────────────────────
+window.toggleFlower = async function(id) {
+  setSaveBar("저장 중...", true);
+  const safeNick = nickname.replace(/[.#$\/\[\]]/g,"_");
+  const safeId = String(id).replace(/[.#$\[\]]/g,"_");
+  const path = `selections/${safeId}/${safeNick}`;
+  const has = myFlowerSet.has(id);
+  await set(ref(db, path), has ? null : true);
+  setSaveBar("저장됨 ✓", true);
+  setTimeout(() => setSaveBar("", false), 1500);
+}
+
+// ── 꽃 추가 모달 ──────────────────────────────────────────
+window.openAddFlowerModal = function() {
+  editingFlowerKey = null;
+  document.getElementById("modal-title").textContent = "🌸 꽃 추가";
+  document.getElementById("modal-grade").value = "N";
+  document.getElementById("modal-cond").value = "";
+  document.getElementById("modal-name").value = "";
+  document.getElementById("modal-submit-btn").textContent = "추가하기";
+  document.getElementById("modal-delete-row").style.display = "none";
+  document.getElementById("flower-modal").style.display = "flex";
+}
+
+window.openEditFlowerModal = function(fbKey) {
+  const flower = customFlowers.find(f => f.fbKey === fbKey);
+  if (!flower) return;
+  editingFlowerKey = fbKey;
+  document.getElementById("modal-title").textContent = "✏️ 꽃 수정";
+  document.getElementById("modal-grade").value = flower.grade;
+  document.getElementById("modal-cond").value = flower.cond;
+  document.getElementById("modal-name").value = flower.name;
+  document.getElementById("modal-submit-btn").textContent = "저장하기";
+  document.getElementById("modal-delete-row").style.display = "block";
+  document.getElementById("flower-modal").style.display = "flex";
+}
+
+window.closeFlowerModal = function(e) {
+  if (e && e.target !== document.getElementById("flower-modal")) return;
+  document.getElementById("flower-modal").style.display = "none";
+  editingFlowerKey = null;
+}
+
+window.submitFlower = async function() {
+  const grade = document.getElementById("modal-grade").value;
+  const cond  = document.getElementById("modal-cond").value.trim();
+  const name  = document.getElementById("modal-name").value.trim();
+  if (!cond) { showToast("얻는 방법을 입력해주세요"); return; }
+  if (!name) { showToast("꽃 이름을 입력해주세요"); return; }
+
+  if (editingFlowerKey) {
+    // 수정
+    await update(ref(db, `customFlowers/${editingFlowerKey}`), { grade, cond, name });
+    showToast("꽃 정보가 수정됐어요 ✓");
+  } else {
+    // 새 꽃 추가
+    await push(ref(db, "customFlowers"), { grade, cond, name, addedBy: nickname });
+    showToast("새 꽃이 추가됐어요 🌸");
+  }
+  document.getElementById("flower-modal").style.display = "none";
+  editingFlowerKey = null;
+}
+
+window.deleteCustomFlower = async function() {
+  if (!editingFlowerKey) return;
+  const flower = customFlowers.find(f => f.fbKey === editingFlowerKey);
+  const ok = confirm(`"${flower?.name}" 꽃을 삭제할까요?\n선택 정보도 함께 삭제됩니다.`);
+  if (!ok) return;
+  const safeId = ("c_" + editingFlowerKey).replace(/[.#$\[\]]/g,"_");
+  // selections에서 해당 꽃 제거
+  await remove(ref(db, `selections/${safeId}`));
+  // customFlowers에서 제거
+  await remove(ref(db, `customFlowers/${editingFlowerKey}`));
+  showToast("꽃이 삭제됐어요");
+  document.getElementById("flower-modal").style.display = "none";
+  editingFlowerKey = null;
+}
 function renderContent() {
   if (currentTab === "my") renderMy();
   else if (currentTab === "guild") renderGuild();
@@ -355,7 +499,7 @@ function renderContent() {
 }
 
 function getFiltered() {
-  let list = [...FLOWERS];
+  let list = allFlowers();
   if (filterGrade !== "전체") list = list.filter(f => f.grade === filterGrade);
   if (filterCond !== "전체") list = list.filter(f => f.cond === filterCond);
   if (searchText) {
@@ -365,48 +509,35 @@ function getFiltered() {
       return f.name.toLowerCase().includes(q) || core.toLowerCase().includes(q);
     });
   }
-list.sort((a,b) => {
-
-  let result = 0;
-
-  if (sortBy === "grade") {
-    result =
-      (GRADE_ORDER[a.grade] - GRADE_ORDER[b.grade]) ||
-      sortKey(a.name).localeCompare(sortKey(b.name), "ko");
-  }
-
-  else if (sortBy === "cond") {
-    result =
-      a.cond.localeCompare(b.cond, "ko") ||
-      sortKey(a.name).localeCompare(sortKey(b.name), "ko");
-  }
-
-  else {
-    result =
-      sortKey(a.name).localeCompare(sortKey(b.name), "ko");
-  }
-
-  // 조건순은 역순 제외
-  if (sortBy !== "cond" && sortReverse) {
-    result *= -1;
-  }
-
-  return result;
-});
+  list.sort((a,b) => {
+    let result = 0;
+    if (sortBy === "grade") {
+      result = (GRADE_ORDER[a.grade] - GRADE_ORDER[b.grade]) || sortKey(a.name).localeCompare(sortKey(b.name), "ko");
+    } else if (sortBy === "cond") {
+      result = a.cond.localeCompare(b.cond, "ko") || sortKey(a.name).localeCompare(sortKey(b.name), "ko");
+    } else {
+      result = sortKey(a.name).localeCompare(sortKey(b.name), "ko");
+    }
+    if (sortBy !== "cond" && sortReverse) result *= -1;
+    return result;
+  });
   return list;
 }
 
-const allConds = ["전체",...Array.from(new Set(FLOWERS.map(f=>f.cond).filter(Boolean))).sort((a,b)=>a.localeCompare(b,"ko"))];
+function getAllConds() {
+  return ["전체",...Array.from(new Set(allFlowers().map(f=>f.cond).filter(Boolean))).sort((a,b)=>a.localeCompare(b,"ko"))];
+}
 
 function renderMy() {
   const list = getFiltered();
 
  const myOwned = myFlowerSet.size;
- const myMissing = FLOWERS.length - myOwned;
+ const totalFlowers = allFlowers().length;
+ const myMissing = totalFlowers - myOwned;
   document.getElementById("content").innerHTML = `
    <div class="stat-grid">
   <div class="stat-card">
-    <div class="stat-num">${FLOWERS.length}</div>
+    <div class="stat-num">${totalFlowers}</div>
     <div class="stat-label">전체 꽃</div>
   </div>
 
@@ -421,7 +552,7 @@ function renderMy() {
   </div>
 
   <div class="stat-card">
-    <div class="stat-num">${Math.floor((myOwned / FLOWERS.length) * 100)}%</div>
+    <div class="stat-num">${Math.floor((myOwned / totalFlowers) * 100)}%</div>
     <div class="stat-label">수집률</div>
   </div>
 </div>
@@ -434,7 +565,7 @@ function renderMy() {
         ${["전체","N","R","SR","SSR","UR"].map(g=>`<option${filterGrade===g?" selected":""}>${g}</option>`).join("")}
       </select>
       <select class="filter-select" id="cond-filter">
-        ${allConds.map(c=>`<option${filterCond===c?" selected":""}>${c}</option>`).join("")}
+        ${getAllConds().map(c=>`<option${filterCond===c?" selected":""}>${c}</option>`).join("")}
       </select>
       <div class="sort-pills">
         ${[["name","이름순"],["grade","등급순"],["cond","조건순"]].map(([v,l])=>`<button class="sort-pill${sortBy===v?" active":""}" onclick="setSortBy('${v}')">${l}</button>`).join("")}
@@ -444,13 +575,18 @@ onclick="toggleReverseSort()">
 </button>
       </div>
     </div>
+    <button class="add-flower-btn" onclick="openAddFlowerModal()">＋ 새 꽃 추가하기</button>
     <div class="flower-list" id="flower-list">
       ${list.map(f => {
         const sel = myFlowerSet.has(f.id);
-        return `<div class="flower-row${sel?" selected":""}" onclick="toggleFlower(${f.id})">
+        const isCustom = typeof f.id === "string" && f.id.startsWith("c_");
+        const safeId = JSON.stringify(f.id);
+        return `<div class="flower-row${sel?" selected":""}" onclick="toggleFlower(${safeId})">
           <span class="grade-badge grade-${f.grade}">${f.grade}</span>
           <span class="flower-name">${f.name}</span>
+          ${isCustom ? `<span class="custom-tag">추가됨</span>` : ""}
           <span class="flower-cond">${f.cond}</span>
+          ${isCustom ? `<span class="flower-actions" onclick="event.stopPropagation()"><button class="flower-action-btn" onclick="openEditFlowerModal('${f.fbKey}')" title="수정">✏️</button></span>` : ""}
           <span class="check-icon ${sel?"on":"off"}">${sel?"✓":""}</span>
         </div>`;
       }).join("")}
@@ -474,15 +610,16 @@ window.toggleReverseSort = function() {
   renderMy();
 }
 function renderGuild() {
-  const totalOwned = FLOWERS.filter(f => {
+  const flowers = allFlowers();
+  const totalOwned = flowers.filter(f => {
     const n = selections[f.id];
     return n && Object.keys(n).length > 0;
   }).length;
-  const totalUnowned = FLOWERS.length - totalOwned;
+  const totalUnowned = flowers.length - totalOwned;
   const memberCount = Object.keys(members).length;
 
   // 필터링
-  let list = [...FLOWERS];
+  let list = [...flowers];
   if (guildView === "unowned") list = list.filter(f => {
     const n = selections[f.id]; return !n || Object.keys(n).length===0;
   });
@@ -491,7 +628,6 @@ function renderGuild() {
   if (guildSearch) {
     const q = guildSearch.toLowerCase();
     if (guildSortBy === "member") {
-      // 길드원 이름으로 필터
       list = list.filter(f => {
         const nicks = selections[f.id] ? Object.keys(selections[f.id]) : [];
         return nicks.some(n => n.toLowerCase().includes(q));
@@ -550,7 +686,7 @@ list.sort((a,b) => {
 
   document.getElementById("content").innerHTML = `
     <div class="stat-grid">
-      <div class="stat-card"><div class="stat-num">${FLOWERS.length}</div><div class="stat-label">전체 꽃</div></div>
+      <div class="stat-card"><div class="stat-num">${flowers.length}</div><div class="stat-label">전체 꽃</div></div>
       <div class="stat-card"><div class="stat-num ok">${totalOwned}</div><div class="stat-label">보유됨</div></div>
       <div class="stat-card"><div class="stat-num ${totalUnowned>0?"warn":"ok"}">${totalUnowned}</div><div class="stat-label">미보유</div></div>
       <div class="stat-card"><div class="stat-num">${memberCount}</div><div class="stat-label">길드원</div></div>
@@ -564,7 +700,7 @@ list.sort((a,b) => {
         ${["전체","N","R","SR","SSR","UR"].map(g=>`<option${guildFilterGrade===g?" selected":""}>${g}</option>`).join("")}
       </select>
       <select class="filter-select" id="guild-cond-filter">
-        ${allConds.map(c=>`<option${guildFilterCond===c?" selected":""}>${c}</option>`).join("")}
+        ${getAllConds().map(c=>`<option${guildFilterCond===c?" selected":""}>${c}</option>`).join("")}
       </select>
     </div>
     <div class="sort-pills" style="margin-bottom:.75rem">
