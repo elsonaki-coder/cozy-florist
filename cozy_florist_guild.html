@@ -308,22 +308,22 @@ function subscribeDB() {
     members = data.members || {};
     // 커스텀 꽃 로드 (fbKey를 id 대신 사용, id는 "c_"+fbKey로 구분)
     const raw = data.customFlowers || {};
-    customFlowers = Object.entries(raw).map(([fbKey, v]) => ({
-      fbKey,
-      id: "c_" + fbKey,
-      grade: v.grade,
-      cond: v.cond,
-      name: v.name,
-      addedBy: v.addedBy || "",
-    }));
-    // 내 꽃 세트 갱신
+    customFlowers = Object.entries(raw).map(([fbKey, v]) => {
+      const safeId = ("c_" + fbKey).replace(/[.#$\/\[\]]/g,"_");
+      return {
+        fbKey,
+        id: safeId,   // safeId를 id로 직접 사용 → selections 키와 일치
+        grade: v.grade,
+        cond: v.cond,
+        name: v.name,
+        addedBy: v.addedBy || "",
+      };
+    });
+    // 내 꽃 세트 갱신 — Firebase 키(safeId)로 저장되므로 그대로 사용
     myFlowerSet = new Set(
       Object.entries(selections)
-        .filter(([, nicks]) => nicks && nicks[nickname])
-        .map(([id]) => {
-          const n = Number(id);
-          return isNaN(n) ? id : n;
-        })
+        .filter(([, nicks]) => nicks && nicks[nickname.replace(/[.#$\/\[\]]/g,"_")])
+        .map(([safeId]) => safeId)  // safeId 문자열 그대로 저장
     );
     renderContent();
   });
@@ -380,18 +380,6 @@ window.switchTab = function(tab) {
   renderContent();
 }
 
-// ── 꽃 토글 ───────────────────────────────────────────────
-window.toggleFlower = async function(id) {
-  id = Number(id);
-  setSaveBar("저장 중...", true);
-  const safeNick = nickname.replace(/[.#$\/\[\]]/g,"_");
-  const path = `selections/${id}/${safeNick}`;
-  const has = myFlowerSet.has(id);
-  await set(ref(db, path), has ? null : true);
-  setSaveBar("저장됨 ✓", true);
-  setTimeout(() => setSaveBar("", false), 1500);
-}
-
 // ── 관리자: 차단 토글 ─────────────────────────────────────
 window.toggleBlock = async function(nick) {
   const bl = [...blocked];
@@ -415,14 +403,14 @@ window.deleteMember = async function(nick) {
   showToast(`${nick} 삭제 완료`);
 }
 
-// ── 꽃 토글 (커스텀 꽃 id 포함) ───────────────────────────
-window.toggleFlower = async function(id) {
+// ── 꽃 토글 ──────────────────────────────────────────────
+window.toggleFlower = async function(rawId) {
   setSaveBar("저장 중...", true);
   const safeNick = nickname.replace(/[.#$\/\[\]]/g,"_");
-  const safeId = String(id).replace(/[.#$\[\]]/g,"_");
-  const path = `selections/${safeId}/${safeNick}`;
-  const has = myFlowerSet.has(id);
-  await set(ref(db, path), has ? null : true);
+  // 일반 꽃: 숫자 그대로 / 커스텀 꽃: 이미 safeId(문자열)
+  const safeId = String(rawId).replace(/[.#$\/\[\]]/g,"_");
+  const has = myFlowerSet.has(safeId);
+  await set(ref(db, `selections/${safeId}/${safeNick}`), has ? null : true);
   setSaveBar("저장됨 ✓", true);
   setTimeout(() => setSaveBar("", false), 1500);
 }
@@ -483,10 +471,8 @@ window.deleteCustomFlower = async function() {
   const flower = customFlowers.find(f => f.fbKey === editingFlowerKey);
   const ok = confirm(`"${flower?.name}" 꽃을 삭제할까요?\n선택 정보도 함께 삭제됩니다.`);
   if (!ok) return;
-  const safeId = ("c_" + editingFlowerKey).replace(/[.#$\[\]]/g,"_");
-  // selections에서 해당 꽃 제거
+  const safeId = ("c_" + editingFlowerKey).replace(/[.#$\/\[\]]/g,"_");
   await remove(ref(db, `selections/${safeId}`));
-  // customFlowers에서 제거
   await remove(ref(db, `customFlowers/${editingFlowerKey}`));
   showToast("꽃이 삭제됐어요");
   document.getElementById("flower-modal").style.display = "none";
@@ -578,10 +564,11 @@ onclick="toggleReverseSort()">
     <button class="add-flower-btn" onclick="openAddFlowerModal()">＋ 새 꽃 추가하기</button>
     <div class="flower-list" id="flower-list">
       ${list.map(f => {
-        const sel = myFlowerSet.has(f.id);
+        const safeId = String(f.id).replace(/[.#$\/\[\]]/g,"_");
+        const sel = myFlowerSet.has(safeId);
         const isCustom = typeof f.id === "string" && f.id.startsWith("c_");
-        const safeId = JSON.stringify(f.id);
-        return `<div class="flower-row${sel?" selected":""}" onclick="toggleFlower(${safeId})">
+        const safeIdJson = JSON.stringify(f.id);
+        return `<div class="flower-row${sel?" selected":""}" onclick="toggleFlower(${safeIdJson})">
           <span class="grade-badge grade-${f.grade}">${f.grade}</span>
           <span class="flower-name">${f.name}</span>
           ${isCustom ? `<span class="custom-tag">추가됨</span>` : ""}
@@ -612,7 +599,8 @@ window.toggleReverseSort = function() {
 function renderGuild() {
   const flowers = allFlowers();
   const totalOwned = flowers.filter(f => {
-    const n = selections[f.id];
+    const safeId = String(f.id).replace(/[.#$\/\[\]]/g,"_");
+    const n = selections[safeId];
     return n && Object.keys(n).length > 0;
   }).length;
   const totalUnowned = flowers.length - totalOwned;
@@ -621,7 +609,8 @@ function renderGuild() {
   // 필터링
   let list = [...flowers];
   if (guildView === "unowned") list = list.filter(f => {
-    const n = selections[f.id]; return !n || Object.keys(n).length===0;
+    const safeId = String(f.id).replace(/[.#$\/\[\]]/g,"_");
+    const n = selections[safeId]; return !n || Object.keys(n).length===0;
   });
   if (guildFilterGrade !== "전체") list = list.filter(f => f.grade === guildFilterGrade);
   if (guildFilterCond !== "전체") list = list.filter(f => f.cond === guildFilterCond);
@@ -718,12 +707,17 @@ onclick="toggleGuildReverseSort()">
     </div>
     <div class="flower-list">
       ${list.map(f => {
-        const nicks = selections[f.id] ? Object.keys(selections[f.id]) : [];
+        const safeId = String(f.id).replace(/[.#$\/\[\]]/g,"_");
+        const rawNicks = selections[safeId] ? Object.keys(selections[safeId]) : [];
+        // safeNick -> 원본 닉네임 복원은 어려우므로 members 키와 매핑
+        const nicks = rawNicks;
         const has = nicks.length > 0;
+        const isCustom = typeof f.id === "string" && f.id.startsWith("c_");
         return `<div class="guild-row${has?"":" unowned"}">
           <div class="guild-row-top">
             <span class="grade-badge grade-${f.grade}">${f.grade}</span>
             <span class="flower-name">${f.name}</span>
+            ${isCustom ? '<span class="custom-tag">추가됨</span>' : ""}
             ${!has?'<span class="unowned-badge">미보유</span>':""}
           </div>
           ${has?`<div class="owner-chips">${nicks.map(n=>`<span class="owner-chip">${n}</span>`).join("")}</div>`:""}
