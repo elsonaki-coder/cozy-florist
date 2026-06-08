@@ -446,7 +446,7 @@ window.switchTab = function(tab) {
   else if(tab==="guild") tabEls[1].classList.add("active");
   else if(tab==="coupon") tabEls[2].classList.add("active");
   else if(tab==="admin") tabEls[tabEls.length-1].classList.add("active");
-  if(tab==="coupon" && cpnCoupons.length===0) cpnLoad();
+
   renderContent();
 }
 
@@ -829,7 +829,42 @@ const CPN_SVGS = [
   `<svg viewBox="0 0 24 24" fill="none" stroke="#e0b840" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><line x1="12" y1="3" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="21"/><line x1="3" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="21" y2="12"/></svg>`,
   `<svg viewBox="0 0 24 24" fill="none" stroke="#8ab87a" stroke-width="1.5"><circle cx="9" cy="9" r="3"/><circle cx="15" cy="9" r="3"/><circle cx="9" cy="15" r="3"/><circle cx="15" cy="15" r="3"/><path d="M12 18v3"/></svg>`,
 ];
-let cpnCoupons = [];
+let cpnCoupons = [
+  { code:"Pa355be4", expired:false, isNew:false },
+  { code:"COZYKongHyoJin", expired:false, isNew:false },
+  { code:"KongHyoJin2019", expired:false, isNew:false },
+  { code:"KongHyoJin1999", expired:false, isNew:false },
+  { code:"KongHyoJin0404", expired:false, isNew:false },
+  { code:"Md1ce400", expired:false, isNew:false },
+  { code:"C63d337b", expired:false, isNew:false },
+  { code:"Z924ce9c", expired:false, isNew:false },
+  { code:"COZYINS10K", expired:false, isNew:false },
+  { code:"J453c758", expired:false, isNew:false },
+  { code:"LOF777", expired:false, isNew:false },
+
+  { code:"vb0c17d9", expired:true, isNew:false },
+
+  { code:"Ef606e2a", expired:false, isNew:false },
+
+  { code:"C8ebb2b0", expired:true, isNew:false },
+
+  { code:"nb5b4d0a", expired:false, isNew:false },
+  { code:"grandopen777", expired:false, isNew:false },
+  { code:"COZY666", expired:false, isNew:false },
+  { code:"COZY888", expired:false, isNew:false },
+  { code:"COZY999", expired:false, isNew:false },
+
+  { code:"cca788ce", expired:true, isNew:false },
+  { code:"Ed451f04", expired:true, isNew:false },
+
+  { code:"robin", expired:false, isNew:false },
+  { code:"pomflr2026", expired:false, isNew:false },
+  { code:"TaekyungTV", expired:false, isNew:false },
+  { code:"PrettyHerb", expired:false, isNew:false },
+  { code:"SEONENG", expired:false, isNew:false },
+  { code:"JAHEE", expired:false, isNew:false },
+  { code:"J3bb2be6", expired:false, isNew:false }
+];
 let cpnFilter = 'all';
 let cpnLoaded = false;
 let cpnLoading = false;
@@ -839,21 +874,6 @@ function cpnIconIdx(code) {
   return n % CPN_SVGS.length;
 }
 
-async function cpnLoad() {
-  if (cpnLoading) return;
-  cpnLoading = true;
-  renderCoupon();
-  try {
-    const res = await fetch(`${CPN_API}?action=get`);
-    const data = await res.json();
-    if (data.status === 'ok') {
-      cpnCoupons = data.coupons;
-      cpnLoaded = true;
-    } else { cpnLoaded = 'error'; }
-  } catch(e) { cpnLoaded = 'error'; }
-  cpnLoading = false;
-  if (currentTab === 'coupon') renderCoupon();
-}
 
 function renderCoupon() {
   const isAdmin = nickname === "길드장";
