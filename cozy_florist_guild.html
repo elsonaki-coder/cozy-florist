@@ -914,7 +914,7 @@ function renderCoupon() {
       </div>
 
       ${cpnLoading ? `<div class="cpn-loading"><div class="spinner"></div> 불러오는 중...</div>` :
-        cpnLoaded==='error' ? `<div class="cpn-error">⚠️ 코드를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.<br><br><button class="cpn-admin-btn" onclick="cpnCoupons=[];cpnLoaded=false;cpnLoad()">다시 시도</button></div>` : `
+        cpnLoaded==='error' ? `<div class="cpn-error">⚠️ 코드를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.<br><br><button class="cpn-admin-btn" onclick="cpnCoupons=[];cpnLoaded=false;cpnRender();">다시 시도</button></div>` : `
       <div class="cpn-filter-bar">
         ${[['all','전체'],['active','사용 가능'],['expired','만료됨'],['new','신규 추가']].map(([v,l])=>
           `<button class="cpn-filter-btn${cpnFilter===v?' active':''}" onclick="cpnSetFilter('${v}')">${l}</button>`
@@ -1001,7 +1001,7 @@ window.cpnAddCode = async function() {
     const res = await fetch(`${CPN_API}?action=add&code=${encodeURIComponent(val)}`);
     const data = await res.json();
     if (data.status==='ok') {
-      input.value = ''; cpnCoupons=[]; cpnLoaded=false; await cpnLoad();
+      input.value = ''; cpnCoupons=[]; cpnLoaded=false; await cpnRender();
     } else if (data.message==='Already exists') {
       input.style.borderColor='#e28080'; input.placeholder='이미 존재하는 코드예요!'; input.value='';
       setTimeout(()=>{ input.style.borderColor=''; input.placeholder='새 교환코드 입력'; },2000);
