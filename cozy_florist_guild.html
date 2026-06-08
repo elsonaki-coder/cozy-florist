@@ -330,8 +330,7 @@ let selections = {};   // { flowerIndex: {nickname: true} }
 let blocked = [];
 let members = {};      // { nickname: true }
 let currentTab = "my";
-let couponSelections = {};
-let myCouponSet = new Set();
+let myFlowerSet = new Set();
 let searchText = "";
 let filterGrade = "전체";
 let filterCond = "전체";
@@ -379,7 +378,6 @@ function subscribeDB() {
     selections = data.selections || {};
     blocked = data.blocked || [];
     members = data.members || {};
-   couponSelections = data.couponSelections || {};
     // 커스텀 꽃 로드 (fbKey를 id 대신 사용, id는 "c_"+fbKey로 구분)
     const raw = data.customFlowers || {};
     customFlowers = Object.entries(raw).map(([fbKey, v]) => {
@@ -400,13 +398,6 @@ function subscribeDB() {
         .filter(([, nicks]) => nicks && nicks[safeNick])
         .map(([key]) => key)  // Firebase 키 그대로 (이미 safe)
     );
-// 쿠폰
-   myCouponSet = new Set(
-  Object.entries(couponSelections)
-    .filter(([, nicks]) => nicks && nicks[safeNick])
-    .map(([key]) => key.replace(/_/g,'.'))
-);
-   
     renderContent();
   });
 }
@@ -493,24 +484,6 @@ window.toggleFlower = async function(safeId) {
   setTimeout(() => setSaveBar("", false), 1500);
 }
 
-//토글쿠폰
- window.toggleCoupon = async function(code) {
-  setSaveBar("저장 중...", true);
-
-  const safeNick = nickname.replace(/[.#$\/\[\]]/g,"_");
-  const safeCode = code.replace(/[.#$\/\[\]]/g,"_");
-
-  const has = myCouponSet.has(code);
-
-  await set(
-    ref(db, `couponSelections/${safeCode}/${safeNick}`),
-    has ? null : true
-  );
-
-  setSaveBar("저장됨 ✓", true);
-  setTimeout(() => setSaveBar("", false), 1500);
-}
- 
 // ── 꽃 추가 모달 ──────────────────────────────────────────
 window.openAddFlowerModal = function() {
   editingFlowerKey = null;
@@ -953,11 +926,6 @@ function renderCoupon() {
           const svg = CPN_SVGS[cpnIconIdx(c.code)];
           return `<div class="cpn-card${c.expired?' expired':''}${c.isNew?' new-card':''}">
             <div class="cpn-icon">${svg}</div>
-            <button
-  class="cpn-check-btn ${myCouponSet.has(c.code)?'checked':''}"
-  onclick="toggleCoupon('${c.code}')">
-  ${myCouponSet.has(c.code)?'✓':'☐'}
-</button>
             <div style="flex:1;min-width:0">
               <div class="cpn-code">${c.code}</div>
               <div class="cpn-badges">
@@ -969,30 +937,6 @@ function renderCoupon() {
               ${c.expired?'':'onclick="cpnCopy(\''+c.code+'\',\'cpnbtn-'+c.origIdx+'\')"'}>
               ${c.expired?'만료됨':'복사'}
             </button>
-            .cpn-check-btn{
-  width:34px;
-  height:34px;
-  border:none;
-  border-radius:50%;
-  cursor:pointer;
-  font-size:16px;
-  background:#f1f1f1;
-  color:#777;
-  margin-right:8px;
-  flex-shrink:0;
-}
-
-.cpn-check-btn.checked{
-  background:#81c784;
-  color:white;
-}
-
-.cpn-card.owned{
-  background:#edf8ee;
-  border:2px solid #81c784;
-}
-
-</style>
           </div>`;
         }).join('')}
         ${filtered.length===0?'<div class="empty">해당하는 코드가 없어요</div>':''}
