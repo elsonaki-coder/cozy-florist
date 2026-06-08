@@ -156,6 +156,77 @@
     .stat-grid{grid-template-columns:repeat(2,1fr);}
     .flower-cond{display:none;}
   }
+
+  /* ── 교환코드 탭 ── */
+  .coupon-hero{background:linear-gradient(160deg,#f5ede3 0%,#eee6d6 60%,#ddd4c2 100%);padding:20px 1.25rem 16px;border-bottom:1px solid #e2d9ce;position:relative;overflow:hidden;margin-bottom:1rem;}
+  .coupon-hero::before{content:'🌸';font-size:60px;position:absolute;top:-8px;left:-8px;opacity:.1;transform:rotate(-20deg);}
+  .coupon-hero::after{content:'🌿';font-size:60px;position:absolute;bottom:-8px;right:-8px;opacity:.1;transform:rotate(20deg);}
+  .coupon-hero-title{font-size:15px;font-weight:700;color:#3d2e1e;position:relative;}
+  .coupon-hero-sub{font-size:12px;color:#8a7060;margin-top:3px;position:relative;}
+  .coupon-stats{display:flex;gap:16px;margin-top:12px;position:relative;}
+  .coupon-stat{text-align:center;background:rgba(255,255,255,.55);border-radius:var(--radius-sm);padding:7px 14px;}
+  .coupon-stat-num{font-size:18px;font-weight:700;color:#3d2e1e;display:block;}
+  .coupon-stat-label{font-size:10px;color:#8a7060;}
+
+  .howto-box{background:#fff9f0;border:1px solid #e8d9c4;border-radius:var(--radius);overflow:hidden;margin:0 0 1rem;}
+  .howto-header{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;cursor:pointer;user-select:none;}
+  .howto-header-title{font-size:13px;font-weight:700;color:#7a5c3e;}
+  .howto-arrow{font-size:11px;color:#a89080;transition:transform .3s;display:inline-block;}
+  .howto-arrow.open{transform:rotate(180deg);}
+  .howto-body{display:none;padding:0 14px 12px;border-top:1px solid #ede5db;}
+  .howto-body.open{display:block;}
+  .howto-steps{display:flex;flex-direction:column;gap:0;margin-top:10px;}
+  .howto-step{display:flex;align-items:center;gap:10px;position:relative;}
+  .howto-step:not(:last-child)::after{content:'';position:absolute;left:13px;top:28px;width:1px;height:16px;background:#e2d9ce;}
+  .howto-num{width:26px;height:26px;border-radius:50%;background:#c8a882;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .howto-text{font-size:13px;color:#5a4030;padding:6px 0;line-height:1.4;}
+  .howto-text strong{font-weight:700;color:#3d2e1e;}
+  .howto-tip{margin-top:8px;padding:7px 10px;background:#f5ede3;border-radius:8px;font-size:11px;color:#8a7060;line-height:1.5;}
+
+  .cpn-filter-bar{display:flex;gap:6px;margin-bottom:.85rem;flex-wrap:wrap;}
+  .cpn-filter-btn{padding:6px 13px;border-radius:20px;font-size:12px;font-family:inherit;border:1px solid var(--border2);background:#fff;color:var(--text2);cursor:pointer;transition:all .15s;}
+  .cpn-filter-btn.active{background:#c8a882;border-color:#c8a882;color:#fff;font-weight:500;}
+
+  .cpn-section-label{font-size:12px;font-weight:500;color:var(--text2);margin-bottom:.6rem;padding-left:2px;}
+
+  .cpn-list{display:flex;flex-direction:column;gap:8px;}
+  .cpn-card{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 12px;transition:all .15s;}
+  .cpn-card.expired{opacity:.5;background:#fafafa;}
+  .cpn-card.new-card{border-color:#c8a882;background:#fffaf5;}
+  .cpn-icon{width:34px;height:34px;flex-shrink:0;}
+  .cpn-icon svg{width:34px;height:34px;}
+  .cpn-code{font-size:14px;font-weight:500;color:var(--text);flex:1;word-break:break-all;line-height:1.4;}
+  .cpn-badges{display:flex;gap:4px;flex-wrap:wrap;margin-top:3px;}
+  .cpn-badge-new{font-size:10px;background:#fff3e0;color:#e65100;border:1px solid #ffcc80;border-radius:8px;padding:1px 6px;font-weight:500;}
+  .cpn-badge-exp{font-size:10px;background:#f5f5f5;color:#9e9e9e;border:1px solid #e0e0e0;border-radius:8px;padding:1px 6px;}
+  .cpn-copy-btn{flex-shrink:0;padding:7px 13px;border-radius:var(--radius-sm);font-size:12px;font-weight:500;font-family:inherit;border:1px solid #c8a882;background:#fff9f0;color:#7a5c3e;cursor:pointer;transition:all .15s;white-space:nowrap;}
+  .cpn-copy-btn:hover{background:#c8a882;color:#fff;}
+  .cpn-copy-btn.copied{background:#c8a882;color:#fff;border-color:#c8a882;}
+  .cpn-copy-btn.disabled{border-color:var(--border);background:var(--bg);color:var(--text3);cursor:default;}
+
+  .cpn-admin-toggle{display:none;align-items:center;justify-content:space-between;margin-top:1rem;padding:11px 14px;background:#fff9f0;border:1px solid #e8d9c4;border-radius:var(--radius);cursor:pointer;user-select:none;}
+  .cpn-admin-label{font-size:13px;font-weight:700;color:#7a5c3e;}
+  .cpn-admin-arrow{font-size:11px;color:#a89080;transition:transform .3s;}
+  .cpn-admin-arrow.open{transform:rotate(180deg);}
+  .cpn-admin-panel{display:none;background:#fff9f0;border:1px solid #e8d9c4;border-top:none;border-radius:0 0 var(--radius) var(--radius);padding:12px 14px;}
+  .cpn-admin-panel.open{display:block;}
+  .cpn-input-row{display:flex;gap:8px;margin-bottom:10px;}
+  .cpn-admin-input{flex:1;padding:9px 12px;border:1px solid #e8d9c4;border-radius:var(--radius-sm);font-size:13px;font-family:inherit;color:var(--text);background:#fff;outline:none;}
+  .cpn-admin-input:focus{border-color:#c8a882;}
+  .cpn-admin-btn{padding:9px 14px;border-radius:var(--radius-sm);border:none;background:#c8a882;color:#fff;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;}
+  .cpn-admin-btn:hover{background:#b8956e;}
+  .cpn-divider{border:none;border-top:1px solid #e8d9c4;margin:10px 0;}
+  .cpn-admin-sub{font-size:12px;font-weight:500;color:#8a7060;margin-bottom:8px;}
+  .cpn-expire-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f0e8de;}
+  .cpn-expire-code{font-size:13px;color:var(--text);}
+  .cpn-expire-code.is-expired{color:var(--text3);text-decoration:line-through;}
+  .cpn-toggle-expire{font-size:11px;padding:3px 10px;border-radius:8px;cursor:pointer;font-family:inherit;border:1px solid;}
+  .cpn-toggle-expire.set-expired{border-color:#e8d9c4;color:#8a7060;background:#fff9f0;}
+  .cpn-toggle-expire.set-active{border-color:var(--green-mid);color:#2e7d32;background:var(--green-light);}
+
+  .cpn-loading{text-align:center;padding:2rem;font-size:13px;color:var(--text2);}
+  .cpn-error{background:#fff5f5;border:1px solid #f5c0c0;border-radius:var(--radius);padding:14px;font-size:12px;color:#c05030;text-align:center;margin-bottom:1rem;}
+  .cpn-notice{text-align:center;font-size:11px;color:var(--text3);margin-top:1.5rem;padding-bottom:.5rem;}
 </style>
 </head>
 <body>
@@ -184,6 +255,7 @@
   <div class="tabs" id="tabs">
     <button class="tab active" onclick="switchTab('my')">내 꽃 관리</button>
     <button class="tab" onclick="switchTab('guild')">길드 현황</button>
+    <button class="tab" onclick="switchTab('coupon')">🎟 교환코드</button>
     <button class="tab" id="admin-tab" style="display:none" onclick="switchTab('admin')">관리자 ⚙️</button>
   </div>
   <div id="save-bar" class="save-bar" style="display:none">저장 중...</div>
@@ -368,16 +440,13 @@ document.getElementById("nick-input").addEventListener("keydown", e => {
 // ── 탭 ────────────────────────────────────────────────────
 window.switchTab = function(tab) {
   currentTab = tab;
-  document.querySelectorAll(".tab").forEach((el,i) => {
-    const tabs = ["my","guild","admin"];
-    el.classList.toggle("active", tabs[i] === tab || (i===2 && tab==="admin"));
-  });
-  // fix active for tab buttons
   document.querySelectorAll(".tab").forEach(el => el.classList.remove("active"));
   const tabEls = document.querySelectorAll(".tab");
   if(tab==="my") tabEls[0].classList.add("active");
   else if(tab==="guild") tabEls[1].classList.add("active");
-  else if(tab==="admin") tabEls[2].classList.add("active");
+  else if(tab==="coupon") tabEls[2].classList.add("active");
+  else if(tab==="admin") tabEls[tabEls.length-1].classList.add("active");
+  if(tab==="coupon" && cpnCoupons.length===0) cpnLoad();
   renderContent();
 }
 
@@ -481,6 +550,7 @@ window.deleteCustomFlower = async function() {
 function renderContent() {
   if (currentTab === "my") renderMy();
   else if (currentTab === "guild") renderGuild();
+  else if (currentTab === "coupon") renderCoupon();
   else if (currentTab === "admin") renderAdmin();
 }
 
@@ -746,6 +816,188 @@ onclick="toggleGuildReverseSort()">
 
 window.setGuildView = function(v) { guildView=v; renderGuild(); }
 window.setGuildSort = function(v) { guildSortBy=v; guildSearch=""; renderGuild(); }
+
+// ── 교환코드 탭 ────────────────────────────────────────────
+const CPN_API = 'https://script.google.com/macros/s/AKfycbwO46f6lACpHSiegY7RbqdUwq-fB7WYPQq4x7EwlceNCIbQmMHVKcmbHn3vutfpYDx6Uw/exec';
+const CPN_SVGS = [
+  `<svg viewBox="0 0 24 24" fill="none" stroke="#c8a882" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="6" rx="2" ry="3"/><ellipse cx="12" cy="18" rx="2" ry="3"/><ellipse cx="6" cy="12" rx="3" ry="2"/><ellipse cx="18" cy="12" rx="3" ry="2"/><ellipse cx="7.8" cy="7.8" rx="2" ry="3" transform="rotate(45 7.8 7.8)"/><ellipse cx="16.2" cy="16.2" rx="2" ry="3" transform="rotate(45 16.2 16.2)"/><ellipse cx="16.2" cy="7.8" rx="2" ry="3" transform="rotate(-45 16.2 7.8)"/><ellipse cx="7.8" cy="16.2" rx="2" ry="3" transform="rotate(-45 7.8 16.2)"/></svg>`,
+  `<svg viewBox="0 0 24 24" fill="none" stroke="#8ab87a" stroke-width="1.5"><path d="M12 22C6 16 4 10 6 5c4-2 10 0 12 6-2 4-4 8-6 11z"/><path d="M12 22 9 13"/></svg>`,
+  `<svg viewBox="0 0 24 24" fill="none" stroke="#d4888a" stroke-width="1.5"><path d="M12 21v-8"/><path d="M8 13c0-4 2-7 4-9 2 2 4 5 4 9H8z"/><path d="M9 21h6"/></svg>`,
+  `<svg viewBox="0 0 24 24" fill="none" stroke="#c8a882" stroke-width="1.5"><path d="M12 2l2 7h7l-5.5 4 2 7L12 16l-5.5 4 2-7L3 9h7z"/></svg>`,
+  `<svg viewBox="0 0 24 24" fill="none" stroke="#8ab87a" stroke-width="1.5"><path d="M5 17c2-6 7-10 13-10-1 6-6 10-13 10z"/><path d="M5 17c1-4 4-7 8-8"/><path d="M5 17v4"/></svg>`,
+  `<svg viewBox="0 0 24 24" fill="none" stroke="#d4a0c0" stroke-width="1.5"><path d="M12 21v-9"/><path d="M12 12c0-4 2-6 4-7-1 3-1 6-4 7z"/><path d="M12 12c0-4-2-6-4-7 1 3 1 6 4 7z"/><ellipse cx="12" cy="8" rx="3" ry="4"/></svg>`,
+  `<svg viewBox="0 0 24 24" fill="none" stroke="#e0b840" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><line x1="12" y1="3" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="21"/><line x1="3" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="21" y2="12"/></svg>`,
+  `<svg viewBox="0 0 24 24" fill="none" stroke="#8ab87a" stroke-width="1.5"><circle cx="9" cy="9" r="3"/><circle cx="15" cy="9" r="3"/><circle cx="9" cy="15" r="3"/><circle cx="15" cy="15" r="3"/><path d="M12 18v3"/></svg>`,
+];
+let cpnCoupons = [];
+let cpnFilter = 'all';
+let cpnLoaded = false;
+let cpnLoading = false;
+
+function cpnIconIdx(code) {
+  let n = 0; for (let c of code) n += c.charCodeAt(0);
+  return n % CPN_SVGS.length;
+}
+
+async function cpnLoad() {
+  if (cpnLoading) return;
+  cpnLoading = true;
+  renderCoupon();
+  try {
+    const res = await fetch(`${CPN_API}?action=get`);
+    const data = await res.json();
+    if (data.status === 'ok') {
+      cpnCoupons = data.coupons;
+      cpnLoaded = true;
+    } else { cpnLoaded = 'error'; }
+  } catch(e) { cpnLoaded = 'error'; }
+  cpnLoading = false;
+  if (currentTab === 'coupon') renderCoupon();
+}
+
+function renderCoupon() {
+  const isAdmin = nickname === "길드장";
+  const total = cpnCoupons.length;
+  const expired = cpnCoupons.filter(c=>c.expired).length;
+  const active = total - expired;
+
+  let filtered = cpnCoupons.map((c,i)=>({...c,origIdx:i}));
+  if (cpnFilter==='active') filtered = filtered.filter(c=>!c.expired);
+  if (cpnFilter==='expired') filtered = filtered.filter(c=>c.expired);
+  if (cpnFilter==='new') filtered = filtered.filter(c=>c.isNew);
+  const labels = {all:'전체 코드', active:'사용 가능한 코드', expired:'만료된 코드', new:'신규 추가 코드'};
+
+  document.getElementById("content").innerHTML = `
+    <div class="coupon-hero">
+      <div class="coupon-hero-title">🎟 정원산책 교환코드</div>
+      <div class="coupon-hero-sub">코드를 복사해 게임 내에서 입력하세요</div>
+      ${cpnLoaded===true ? `<div class="coupon-stats">
+        <div class="coupon-stat"><span class="coupon-stat-num">${total}</span><span class="coupon-stat-label">전체</span></div>
+        <div class="coupon-stat"><span class="coupon-stat-num" style="color:#43a047">${active}</span><span class="coupon-stat-label">사용 가능</span></div>
+        <div class="coupon-stat"><span class="coupon-stat-num" style="color:#9e9e9e">${expired}</span><span class="coupon-stat-label">만료됨</span></div>
+      </div>` : ''}
+    </div>
+    <div class="content" style="padding-top:0">
+      <div class="howto-box">
+        <div class="howto-header" onclick="cpnToggleHowto()">
+          <span class="howto-header-title">📖 교환코드 사용 방법</span>
+          <span class="howto-arrow" id="howto-arrow">▼</span>
+        </div>
+        <div class="howto-body" id="howto-body">
+          <div class="howto-steps">
+            <div class="howto-step"><div class="howto-num">1</div><div class="howto-text">아래에서 원하는 코드 옆 <strong>복사</strong> 버튼을 누르세요</div></div>
+            <div class="howto-step"><div class="howto-num">2</div><div class="howto-text">게임 실행 → 우측 상단 <strong>내 정보</strong> 탭 이동</div></div>
+            <div class="howto-step"><div class="howto-num">3</div><div class="howto-text"><strong>쿠폰 교환</strong> 버튼 클릭 → 코드 붙여넣기 후 확인</div></div>
+          </div>
+          <div class="howto-tip">💡 만료된 코드는 입력해도 보상이 지급되지 않아요. 사용 가능한 코드만 먼저 확인해 보세요!</div>
+        </div>
+      </div>
+
+      ${cpnLoading ? `<div class="cpn-loading"><div class="spinner"></div> 불러오는 중...</div>` :
+        cpnLoaded==='error' ? `<div class="cpn-error">⚠️ 코드를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.<br><br><button class="cpn-admin-btn" onclick="cpnCoupons=[];cpnLoaded=false;cpnLoad()">다시 시도</button></div>` : `
+      <div class="cpn-filter-bar">
+        ${[['all','전체'],['active','사용 가능'],['expired','만료됨'],['new','신규 추가']].map(([v,l])=>
+          `<button class="cpn-filter-btn${cpnFilter===v?' active':''}" onclick="cpnSetFilter('${v}')">${l}</button>`
+        ).join('')}
+      </div>
+      <div class="cpn-section-label">${labels[cpnFilter]} (${filtered.length}개)</div>
+      <div class="cpn-list">
+        ${filtered.map(c=>{
+          const svg = CPN_SVGS[cpnIconIdx(c.code)];
+          return `<div class="cpn-card${c.expired?' expired':''}${c.isNew?' new-card':''}">
+            <div class="cpn-icon">${svg}</div>
+            <div style="flex:1;min-width:0">
+              <div class="cpn-code">${c.code}</div>
+              <div class="cpn-badges">
+                ${c.isNew&&!c.expired?'<span class="cpn-badge-new">NEW</span>':''}
+                ${c.expired?'<span class="cpn-badge-exp">만료됨</span>':''}
+              </div>
+            </div>
+            <button class="cpn-copy-btn${c.expired?' disabled':''}" id="cpnbtn-${c.origIdx}"
+              ${c.expired?'':'onclick="cpnCopy(\''+c.code+'\',\'cpnbtn-'+c.origIdx+'\')"'}>
+              ${c.expired?'만료됨':'복사'}
+            </button>
+          </div>`;
+        }).join('')}
+        ${filtered.length===0?'<div class="empty">해당하는 코드가 없어요</div>':''}
+      </div>
+      ${isAdmin ? `
+        <div class="cpn-admin-toggle" id="cpn-admin-toggle" style="display:flex" onclick="cpnToggleAdmin()">
+          <span class="cpn-admin-label">🌿 관리자 메뉴</span>
+          <span class="cpn-admin-arrow" id="cpn-admin-arrow">▼</span>
+        </div>
+        <div class="cpn-admin-panel" id="cpn-admin-panel">
+          <div class="cpn-input-row">
+            <input class="cpn-admin-input" id="cpn-code-input" placeholder="새 교환코드 입력" />
+            <button class="cpn-admin-btn" onclick="cpnAddCode()">추가</button>
+          </div>
+          <hr class="cpn-divider"/>
+          <div class="cpn-admin-sub">코드 상태 변경</div>
+          <div id="cpn-expire-list">
+            ${cpnCoupons.map((c,i)=>`
+              <div class="cpn-expire-row">
+                <span class="cpn-expire-code${c.expired?' is-expired':''}">${c.code}</span>
+                <button class="cpn-toggle-expire ${c.expired?'set-active':'set-expired'}" onclick="cpnToggleExpire(${i},'${c.code}')">
+                  ${c.expired?'활성화':'만료 처리'}
+                </button>
+              </div>`).join('')}
+          </div>
+        </div>` : ''}
+      <div class="cpn-notice">💐 더 코지 플로리스트 [정원산책] 교환코드</div>
+      `}
+    </div>
+  `;
+
+  // 관리자 input 엔터키
+  const ci = document.getElementById("cpn-code-input");
+  if (ci) ci.addEventListener("keydown", e => { if(e.key==="Enter") cpnAddCode(); });
+}
+
+window.cpnToggleHowto = function() {
+  document.getElementById('howto-body').classList.toggle('open');
+  document.getElementById('howto-arrow').classList.toggle('open');
+}
+window.cpnToggleAdmin = function() {
+  document.getElementById('cpn-admin-panel').classList.toggle('open');
+  document.getElementById('cpn-admin-arrow').classList.toggle('open');
+}
+window.cpnSetFilter = function(f) { cpnFilter=f; renderCoupon(); }
+window.cpnCopy = function(code, btnId) {
+  const dummy = document.createElement('textarea');
+  dummy.value = code; document.body.appendChild(dummy); dummy.select();
+  try { document.execCommand('copy'); } catch(e) {}
+  document.body.removeChild(dummy);
+  if (navigator.clipboard) navigator.clipboard.writeText(code).catch(()=>{});
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  btn.textContent = '복사됨 ✓'; btn.classList.add('copied');
+  setTimeout(()=>{ btn.textContent='복사'; btn.classList.remove('copied'); }, 1800);
+}
+window.cpnAddCode = async function() {
+  const input = document.getElementById('cpn-code-input');
+  const val = input.value.trim(); if (!val) return;
+  input.disabled = true;
+  try {
+    const res = await fetch(`${CPN_API}?action=add&code=${encodeURIComponent(val)}`);
+    const data = await res.json();
+    if (data.status==='ok') {
+      input.value = ''; cpnCoupons=[]; cpnLoaded=false; await cpnLoad();
+    } else if (data.message==='Already exists') {
+      input.style.borderColor='#e28080'; input.placeholder='이미 존재하는 코드예요!'; input.value='';
+      setTimeout(()=>{ input.style.borderColor=''; input.placeholder='새 교환코드 입력'; },2000);
+    }
+  } catch(e) { showToast('저장 중 오류가 발생했어요'); }
+  input.disabled = false;
+}
+window.cpnToggleExpire = async function(idx, code) {
+  const newExpired = !cpnCoupons[idx].expired;
+  cpnCoupons[idx].expired = newExpired; renderCoupon();
+  try {
+    const res = await fetch(`${CPN_API}?action=update&code=${encodeURIComponent(code)}&expired=${newExpired}`);
+    const data = await res.json();
+    if (data.status!=='ok') { cpnCoupons[idx].expired=!newExpired; renderCoupon(); showToast('저장 오류가 발생했어요'); }
+  } catch(e) { cpnCoupons[idx].expired=!newExpired; renderCoupon(); showToast('저장 오류가 발생했어요'); }
+}
 window.toggleGuildReverseSort = function() {
   guildSortReverse = !guildSortReverse;
   renderGuild();
