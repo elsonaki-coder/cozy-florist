@@ -501,9 +501,14 @@ window.switchTab = function(tab) {
     showToast("로그인 후 이용할 수 있어요");
     return;
   }
-  // 내 꽃 탭을 떠날 때 껍데기 제거 → 돌아오면 새로 생성
+  // 내 꽃 탭을 떠날 때 껍데기 제거
   if (currentTab === "my" && tab !== "my") {
     const shell = document.getElementById("my-shell");
+    if (shell) shell.remove();
+  }
+  // 길드 탭을 떠날 때 껍데기 제거 (추가됨)
+  if (currentTab === "guild" && tab !== "guild") {
+    const shell = document.getElementById("guild-shell");
     if (shell) shell.remove();
   }
   currentTab = tab;
@@ -785,6 +790,7 @@ window.toggleReverseSort = function() {
   if (btn) btn.classList.toggle("active", sortReverse);
   updateFlowerList();
 }
+
 function renderGuild() {
   const flowers = allFlowers();
   const totalOwned = flowers.filter(f => {
@@ -795,32 +801,129 @@ function renderGuild() {
   const totalUnowned = flowers.length - totalOwned;
   const memberCount = Object.keys(members).length;
 
-  // 필터링
-  let list = [...flowers];
-  if (guildView === "unowned") list = list.filter(f => {
-    const safeId = String(f.id).replace(/[.#$\/\[\]]/g,"_");
-    const n = selections[safeId]; return !n || Object.keys(n).length===0;
+  // 껍데기가 없으면 전체 구조(Shell) 그리기
+  if (!document.getElementById("guild-shell")) {
+    document.getElementById("content").innerHTML = `
+      <div id="guild-shell">
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-num" id="g-stat-total">${flowers.length}</div><div class="stat-label">전체 꽃</div></div>
+          <div class="stat-card"><div class="stat-num ok" id="g-stat-owned">${totalOwned}</div><div class="stat-label">보유됨</div></div>
+          <div class="stat-card"><div class="stat-num ${totalUnowned>0?"warn":"ok"}" id="g-stat-unowned">${totalUnowned}</div><div class="stat-label">미보유</div></div>
+          <div class="stat-card"><div class="stat-num" id="g-stat-members">${memberCount}</div><div class="stat-label">길드원</div></div>
+        </div>
+        <div class="filters">
+          <div class="search-wrap">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input class="search-input" id="guild-search-input" autocomplete="off" placeholder="${guildSortBy==="member"?"길드원 닉네임 검색":"꽃 이름 검색 · 초성 가능 (예: ㄴㅁ→납매)"}" value="${guildSearch}">
+          </div>
+          <select class="filter-select" id="guild-grade-filter">
+            ${["전체","N","R","SR","SSR","UR"].map(g=>`<option${guildFilterGrade===g?" selected":""}>${g}</option>`).join("")}
+          </select>
+          <select class="filter-select" id="guild-cond-filter">
+            ${getAllConds().map(c=>`<option${guildFilterCond===c?" selected":""}>${c}</option>`).join("")}
+          </select>
+        </div>
+        
+        <div id="guild-sort-container"></div>
+        
+        <div class="sort-pills" style="margin-bottom:1rem">
+          <button class="sort-pill g-view-btn${guildView==="all"?" active":""}" data-val="all" onclick="setGuildView('all')">전체 보기</button>
+          <button class="sort-pill g-view-btn${guildView==="unowned"?" active":""}" data-val="unowned" onclick="setGuildView('unowned')">⚠️ 미보유만</button>
+        </div>
+        <div class="flower-list" id="guild-flower-list"></div>
+      </div>
+    `;
+
+    // 1회성 이벤트 바인딩
+    let gComposing = false;
+    const gi = document.getElementById("guild-search-input");
+    gi.addEventListener("compositionstart", () => { gComposing = true; });
+    gi.addEventListener("compositionend", e => { 
+      gComposing = false; guildSearch = e.target.value; updateGuildFlowerList(); 
+    });
+    gi.addEventListener("input", e => { 
+      if (!gComposing) { guildSearch = e.target.value; updateGuildFlowerList(); } 
+    });
+
+    document.getElementById("guild-grade-filter").addEventListener("change", e => { guildFilterGrade=e.target.value; updateGuildFlowerList(); });
+    document.getElementById("guild-cond-filter").addEventListener("change", e => { guildFilterCond=e.target.value; updateGuildFlowerList(); });
+    
+    // 초기 로드 시 입력창 포커싱(옵션)
+    if (guildSearch) { gi.focus(); gi.setSelectionRange(gi.value.length, gi.value.length); }
+  } else {
+    // 이미 껍데기가 있으면 통계 데이터만 업데이트
+    document.getElementById("g-stat-total").textContent = flowers.length;
+    document.getElementById("g-stat-owned").textContent = totalOwned;
+    const unEl = document.getElementById("g-stat-unowned");
+    unEl.textContent = totalUnowned;
+    unEl.className = "stat-num " + (totalUnowned > 0 ? "warn" : "ok");
+    document.getElementById("g-stat-members").textContent = memberCount;
+  }
+
+  updateGuildSortUI();
+  updateGuildFlowerList();
+}
+
+function updateGuildSortUI() {
+  const container = document.getElementById("guild-sort-container");
+  if (!container) return;
+
+  // 정렬 버튼들 렌더링
+  let html = `
+    <div class="sort-pills" style="margin-bottom:.75rem">
+      ${[["name","이름순"],["grade","등급순"],["cond","조건순"],["member","길드원순"]].map(([v,l])=>`<button class="sort-pill${guildSortBy===v?" active":""}" onclick="setGuildSort('${v}')">${l}</button>`).join("")}
+      <button class="sort-pill ${guildSortReverse ? "active" : ""}" onclick="toggleGuildReverseSort()">↕ 역순</button>
+    </div>
+  `;
+  if (guildSortBy === "member") {
+    html += `
+    <div class="sort-pills" style="margin-bottom:.75rem">
+      <span style="font-size:12px;color:var(--text3);margin-right:4px">검색결과 정렬:</span>
+      ${[["name","이름순"],["grade","등급순"],["cond","조건순"]].map(([v,l])=>`<button class="sort-pill${memberSubSort===v?" active":""}" onclick="setMemberSubSort('${v}')">${l}</button>`).join("")}
+    </div>`;
+  }
+  container.innerHTML = html;
+
+  // View 모드 토글 스타일 업데이트
+  document.querySelectorAll("#guild-shell .g-view-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.val === guildView);
   });
+
+  // 플레이스홀더 업데이트
+  const gi = document.getElementById("guild-search-input");
+  if (gi) gi.placeholder = guildSortBy === "member" ? "길드원 닉네임 검색" : "꽃 이름 검색 · 초성 가능 (예: ㄴㅁ→납매)";
+}
+
+function updateGuildFlowerList() {
+  const flowers = allFlowers();
+  let list = [...flowers];
+
+  // 필터링
+  if (guildView === "unowned") {
+    list = list.filter(f => {
+      const safeId = String(f.id).replace(/[.#$\/\[\]]/g,"_");
+      const n = selections[safeId]; 
+      return !n || Object.keys(n).length === 0;
+    });
+  }
   if (guildFilterGrade !== "전체") list = list.filter(f => f.grade === guildFilterGrade);
   if (guildFilterCond !== "전체") list = list.filter(f => f.cond === guildFilterCond);
   if (guildSearch) {
-    const q = guildSearch.toLowerCase();
     if (guildSortBy === "member") {
       list = list.filter(f => {
-        const nicks = selections[f.id] ? Object.keys(selections[f.id]) : [];
-        return nicks.some(n => n.toLowerCase().includes(q));
+        const safeId = String(f.id).replace(/[.#$\/\[\]]/g,"_");
+        const nicks = selections[safeId] ? Object.keys(selections[safeId]) : [];
+        // 길드원 검색 시에도 초성 검색을 활용
+        return nicks.some(n => matchSearch(n, guildSearch)); 
       });
     } else {
-      list = list.filter(f => {
-        const core = f.name.split(" ").slice(-1)[0];
-        return f.name.toLowerCase().includes(q) || core.toLowerCase().includes(q);
-      });
+      list = list.filter(f => matchSearch(f.name, guildSearch));
     }
   }
+
   // 정렬
   list.sort((a,b) => {
     let result = 0;
-    // 길드원 검색 모드: memberSubSort 기준으로 세부 정렬
     const activeSortBy = (guildSortBy === "member") ? memberSubSort : guildSortBy;
     if (activeSortBy === "grade") {
       result = (GRADE_ORDER[a.grade] - GRADE_ORDER[b.grade]) || sortKey(a.name).localeCompare(sortKey(b.name), "ko");
@@ -829,7 +932,6 @@ function renderGuild() {
     } else if (guildSortBy === "member" && activeSortBy === "name") {
       result = sortKey(a.name).localeCompare(sortKey(b.name), "ko");
     } else if (guildSortBy === "member") {
-      // 길드원순(기본): 보유 길드원 많은 순
       const safeA = String(a.id).replace(/[.#$\/\[\]]/g,"_");
       const safeB = String(b.id).replace(/[.#$\/\[\]]/g,"_");
       const ca = selections[safeA] ? Object.keys(selections[safeA]).length : 0;
@@ -842,75 +944,37 @@ function renderGuild() {
     return result;
   });
 
-  document.getElementById("content").innerHTML = `
-    <div class="stat-grid">
-      <div class="stat-card"><div class="stat-num">${flowers.length}</div><div class="stat-label">전체 꽃</div></div>
-      <div class="stat-card"><div class="stat-num ok">${totalOwned}</div><div class="stat-label">보유됨</div></div>
-      <div class="stat-card"><div class="stat-num ${totalUnowned>0?"warn":"ok"}">${totalUnowned}</div><div class="stat-label">미보유</div></div>
-      <div class="stat-card"><div class="stat-num">${memberCount}</div><div class="stat-label">길드원</div></div>
-    </div>
-    <div class="filters">
-      <div class="search-wrap">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input class="search-input" id="guild-search-input" placeholder="${guildSortBy==="member"?"길드원 닉네임 검색":"꽃 이름 검색 (예: 백합)"}" value="${guildSearch}">
+  // 목록 렌더링 (입력창 건드리지 않고 리스트 영역만 교체)
+  const gl = document.getElementById("guild-flower-list");
+  if (!gl) return;
+  gl.innerHTML = list.map(f => {
+    const safeId = String(f.id).replace(/[.#$\/\[\]]/g,"_");
+    const nicks = selections[safeId] ? Object.keys(selections[safeId]) : [];
+    const has = nicks.length > 0;
+    const isCustom = typeof f.id === "string" && f.id.startsWith("c_");
+    return `<div class="guild-row${has?"":" unowned"}">
+      <div class="guild-row-top">
+        <span class="grade-badge grade-${f.grade}">${f.grade}</span>
+        <span class="flower-name">${f.name}</span>
+        ${isCustom && isNewFlower(f) ? '<span class="custom-tag">추가됨</span>' : ""}
+        ${!has?'<span class="unowned-badge">미보유</span>':""}
       </div>
-      <select class="filter-select" id="guild-grade-filter">
-        ${["전체","N","R","SR","SSR","UR"].map(g=>`<option${guildFilterGrade===g?" selected":""}>${g}</option>`).join("")}
-      </select>
-      <select class="filter-select" id="guild-cond-filter">
-        ${getAllConds().map(c=>`<option${guildFilterCond===c?" selected":""}>${c}</option>`).join("")}
-      </select>
-    </div>
-    <div class="sort-pills" style="margin-bottom:.75rem">
-      ${[["name","이름순"],["grade","등급순"],["cond","조건순"],["member","길드원순"]].map(([v,l])=>`<button class="sort-pill${guildSortBy===v?" active":""}" onclick="setGuildSort('${v}')">${l}</button>`).join("")}
-      <button class="sort-pill ${guildSortReverse ? "active" : ""}" onclick="toggleGuildReverseSort()">↕ 역순</button>
-    </div>
-    ${guildSortBy==="member" ? `
-    <div class="sort-pills" style="margin-bottom:.75rem">
-      <span style="font-size:12px;color:var(--text3);margin-right:4px">검색결과 정렬:</span>
-      ${[["name","이름순"],["grade","등급순"],["cond","조건순"]].map(([v,l])=>`<button class="sort-pill${memberSubSort===v?" active":""}" onclick="setMemberSubSort('${v}')">${l}</button>`).join("")}
-    </div>` : ""}
-    <div class="sort-pills" style="margin-bottom:1rem">
-      <button class="sort-pill${guildView==="all"?" active":""}" onclick="setGuildView('all')">전체 보기</button>
-      <button class="sort-pill${guildView==="unowned"?" active":""}" onclick="setGuildView('unowned')">⚠️ 미보유만</button>
-    </div>
-    <div class="flower-list">
-      ${list.map(f => {
-        const safeId = String(f.id).replace(/[.#$\/\[\]]/g,"_");
-        const rawNicks = selections[safeId] ? Object.keys(selections[safeId]) : [];
-        // safeNick -> 원본 닉네임 복원은 어려우므로 members 키와 매핑
-        const nicks = rawNicks;
-        const has = nicks.length > 0;
-        const isCustom = typeof f.id === "string" && f.id.startsWith("c_");
-        return `<div class="guild-row${has?"":" unowned"}">
-          <div class="guild-row-top">
-            <span class="grade-badge grade-${f.grade}">${f.grade}</span>
-            <span class="flower-name">${f.name}</span>
-            ${isCustom && isNewFlower(f) ? '<span class="custom-tag">추가됨</span>' : ""}
-            ${!has?'<span class="unowned-badge">미보유</span>':""}
-          </div>
-          ${has?`<div class="owner-chips">${nicks.map(n=>`<span class="owner-chip">${n}</span>`).join("")}</div>`:""}
-        </div>`;
-      }).join("")}
-      ${list.length===0?'<div class="empty">검색 결과가 없거나 모든 꽃이 보유되어 있어요 🎉</div>':""}
-    </div>
-  `;
-
-  // 이벤트
-  let gComposing = false;
-  const gi = document.getElementById("guild-search-input");
-  gi.addEventListener("compositionstart", () => { gComposing = true; });
-  gi.addEventListener("compositionend", e => { gComposing = false; guildSearch = e.target.value; renderGuild(); });
-  gi.addEventListener("input", e => { if (!gComposing) { guildSearch = e.target.value; renderGuild(); } });
-  document.getElementById("guild-grade-filter").addEventListener("change", e => { guildFilterGrade=e.target.value; renderGuild(); });
-  document.getElementById("guild-cond-filter").addEventListener("change", e => { guildFilterCond=e.target.value; renderGuild(); });
-  if (guildSearch) { gi.focus(); gi.setSelectionRange(gi.value.length,gi.value.length); }
+      ${has?`<div class="owner-chips">${nicks.map(n=>`<span class="owner-chip">${n}</span>`).join("")}</div>`:""}
+    </div>`;
+  }).join("") + (list.length === 0 ? '<div class="empty">검색 결과가 없거나 모든 꽃이 보유되어 있어요 🎉</div>' : "");
 }
 
 window.setGuildView = function(v) { guildView=v; renderGuild(); }
-window.setGuildSort = function(v) { guildSortBy=v; guildSearch=""; memberSubSort="name"; renderGuild(); }
+window.setGuildSort = function(v) { 
+  guildSortBy=v; 
+  guildSearch=""; 
+  memberSubSort="name"; 
+  const gi = document.getElementById("guild-search-input");
+  if (gi) gi.value = ""; // 검색어 초기화 시 인풋창 내용도 물리적으로 비우기
+  renderGuild(); 
+}
 window.setMemberSubSort = function(v) { memberSubSort=v; renderGuild(); }
-
+window.toggleGuildReverseSort = function() { guildSortReverse = !guildSortReverse; renderGuild(); }
 // ── 교환코드 탭 ────────────────────────────────────────────
 const CPN_API = 'https://script.google.com/macros/s/AKfycbwO46f6lACpHSiegY7RbqdUwq-fB7WYPQq4x7EwlceNCIbQmMHVKcmbHn3vutfpYDx6Uw/exec';
 const CPN_SVGS = [
