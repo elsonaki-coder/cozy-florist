@@ -117,8 +117,25 @@
   /* EMPTY */
   .empty{text-align:center;padding:3rem 1rem;color:var(--text2);font-size:14px;}
 
-  /* LOADING */
-  .loading{display:flex;align-items:center;justify-content:center;padding:3rem;color:var(--text2);font-size:14px;gap:8px;}
+  /* 헤더 로그인 영역 */
+  .login-inline{display:flex;align-items:center;gap:6px;}
+  .login-inline-input{padding:5px 10px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;color:var(--text);background:#fff;outline:none;width:100px;}
+  .login-inline-input:focus{border-color:var(--green);}
+  .login-inline-btn{padding:5px 12px;border-radius:var(--radius-sm);border:none;background:var(--green);color:#fff;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;}
+  .login-inline-btn:hover{background:#388e3c;}
+
+  /* 읽기전용 배너 */
+  .readonly-banner{display:none;background:#fff3e0;border-bottom:1px solid #ffcc80;padding:7px 1rem;font-size:12px;color:#e65100;font-weight:500;text-align:center;}
+  .readonly-banner.on{display:block;}
+
+  /* 긴급버튼 */
+  .danger-section{background:#fff5f5;border:1.5px solid #ef9a9a;border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem;}
+  .danger-section-title{font-size:14px;font-weight:700;color:#c62828;margin-bottom:.6rem;}
+  .readonly-toggle-btn{width:100%;padding:12px;border-radius:var(--radius-sm);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;border:none;transition:all .2s;}
+  .readonly-toggle-btn.enable{background:#e53935;color:#fff;}
+  .readonly-toggle-btn.enable:hover{background:#c62828;}
+  .readonly-toggle-btn.disable{background:#43a047;color:#fff;}
+  .readonly-toggle-btn.disable:hover{background:#2e7d32;}
   @keyframes spin{to{transform:rotate(360deg)}}
   .spinner{width:18px;height:18px;border:2px solid var(--border2);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;}
 
@@ -224,36 +241,36 @@
   .cpn-toggle-expire.set-expired{border-color:#e8d9c4;color:#8a7060;background:#fff9f0;}
   .cpn-toggle-expire.set-active{border-color:var(--green-mid);color:#2e7d32;background:var(--green-light);}
 
+  .cpn-loading{text-align:center;padding:2rem;font-size:13px;color:var(--text2);}
+  .cpn-error{background:#fff5f5;border:1px solid #f5c0c0;border-radius:var(--radius);padding:14px;font-size:12px;color:#c05030;text-align:center;margin-bottom:1rem;}
   .cpn-notice{text-align:center;font-size:11px;color:var(--text3);margin-top:1.5rem;padding-bottom:.5rem;}
 </style>
 </head>
 <body>
 
 <!-- LOGIN -->
-<div id="login-screen">
-  <div class="login-card">
-    <div class="login-emoji">🌸</div>
-    <div class="login-title">코지 플로리스트 길드</div>
-    <div class="login-sub">꽃 보유 현황을 함께 관리해요</div>
-    <input class="login-input" id="nick-input" placeholder="게임 닉네임 입력" maxlength="20" />
-    <button class="login-btn" onclick="doLogin()">입장하기</button>
-    <div class="login-note"><strong>정원산책_길드원</strong>만 이용 가능합니다<br></div>
-  </div>
-</div>
-
-<!-- APP -->
-<div id="app-screen">
+<!-- APP (항상 표시) -->
+<div id="app-screen" style="display:flex;flex-direction:column;min-height:100vh;">
+  <div class="readonly-banner" id="readonly-banner">🔒 현재 읽기 전용 상태입니다 — 길드장이 로그인을 일시 차단했어요</div>
   <div class="header">
     <div class="header-title">🌸 <span>코지 플로리스트 정원산책길드 소유꽃확인<span class="header-credit">ㅣ제작_별별_배포금지</span></span></div>
-    <div class="header-right">
-      <span class="nick-badge" id="header-nick"></span>
-      <button class="logout-btn" onclick="doLogout()">로그아웃</button>
+    <div class="header-right" id="header-right">
+      <!-- 비로그인: 인라인 로그인 폼 -->
+      <div class="login-inline" id="login-inline-form">
+        <input class="login-inline-input" id="nick-input" placeholder="닉네임" maxlength="20" />
+        <button class="login-inline-btn" onclick="doLogin()">로그인</button>
+      </div>
+      <!-- 로그인 후: 닉네임 + 로그아웃 -->
+      <div style="display:none;align-items:center;gap:8px;" id="login-inline-user">
+        <span class="nick-badge" id="header-nick"></span>
+        <button class="logout-btn" onclick="doLogout()">로그아웃</button>
+      </div>
     </div>
   </div>
   <div class="tabs" id="tabs">
-    <button class="tab active" onclick="switchTab('my')">내 꽃 관리</button>
-    <button class="tab" onclick="switchTab('guild')">길드 현황</button>
-    <button class="tab" onclick="switchTab('coupon')">🎟 교환코드</button>
+    <button class="tab" id="tab-my" onclick="switchTab('my')" style="display:none">내 꽃 관리</button>
+    <button class="tab active" id="tab-guild" onclick="switchTab('guild')">길드 현황</button>
+    <button class="tab" id="tab-coupon" onclick="switchTab('coupon')">🎟 교환코드</button>
     <button class="tab" id="admin-tab" style="display:none" onclick="switchTab('admin')">관리자 ⚙️</button>
   </div>
   <div id="save-bar" class="save-bar" style="display:none">저장 중...</div>
@@ -324,10 +341,10 @@ const GRADE_ORDER = {N:0,R:1,SR:2,SSR:3,UR:4};
 
 // ── 상태 ──────────────────────────────────────────────────
 let nickname = "";
-let selections = {};
+let selections = {};   // { flowerIndex: {nickname: true} }
 let blocked = [];
-let members = {};
-let currentTab = "my";
+let members = {};      // { nickname: true }
+let currentTab = "guild";
 let myFlowerSet = new Set();
 let searchText = "";
 let filterGrade = "전체";
@@ -338,17 +355,19 @@ let guildView = "all";
 let guildSearch = "";
 let guildFilterGrade = "전체";
 let guildFilterCond = "전체";
-let guildSortBy = "name";
+let guildSortBy = "name"; // name | grade | cond | member
 let guildSortReverse = false;
 let unsub = null;
 let composing = false;
-let customFlowers = [];
-let editingFlowerKey = null;
+let customFlowers = [];   // [{ fbKey, id, grade, cond, name }, ...]
+let editingFlowerKey = null;  // fbKey of flower being edited, null = new
 
+// ── 커스텀 꽃 합산 (FLOWERS + customFlowers) ─────────────────
 function allFlowers() {
   return [...FLOWERS, ...customFlowers];
 }
 
+// ── 유틸 ───────────────────────────────────────────────────
 function sortKey(name) {
   const parts = name.split(" ");
   return parts[parts.length - 1] + "|" + name;
@@ -365,6 +384,9 @@ function setSaveBar(msg, show) {
   el.textContent = msg;
 }
 
+// ── Firebase 구독 ──────────────────────────────────────────
+let readOnly = false;  // Firebase에서 읽어온 읽기전용 상태
+
 function subscribeDB() {
   if (unsub) unsub();
   const r = ref(db, "/");
@@ -373,67 +395,111 @@ function subscribeDB() {
     selections = data.selections || {};
     blocked = data.blocked || [];
     members = data.members || {};
+    readOnly = data.readOnly === true;
+
+    // 커스텀 꽃 로드
     const raw = data.customFlowers || {};
     customFlowers = Object.entries(raw).map(([fbKey, v]) => {
       const safeId = ("c_" + fbKey).replace(/[.#$\/\[\]]/g,"_");
-      return {
-        fbKey,
-        id: safeId,
-        grade: v.grade,
-        cond: v.cond,
-        name: v.name,
-        addedBy: v.addedBy || "",
-      };
+      return { fbKey, id: safeId, grade: v.grade, cond: v.cond, name: v.name, addedBy: v.addedBy || "" };
     });
+
+    // 내 꽃 세트 갱신
     const safeNick = nickname.replace(/[.#$\/\[\]]/g,"_");
     myFlowerSet = new Set(
       Object.entries(selections)
         .filter(([, nicks]) => nicks && nicks[safeNick])
         .map(([key]) => key)
     );
+
+    // 읽기전용 배너 업데이트
+    const banner = document.getElementById("readonly-banner");
+    if (banner) banner.classList.toggle("on", readOnly);
+
+    // readOnly 전환 시 로그인 상태였으면 강제 로그아웃 (길드장 제외)
+    if (readOnly && nickname && nickname !== "길드장") {
+      showToast("읽기 전용 상태로 전환됐어요. 자동 로그아웃됩니다.");
+      setTimeout(() => doLogout(), 1500);
+      return;
+    }
+
     renderContent();
   });
 }
 
+// ── 로그인 ─────────────────────────────────────────────────
 window.doLogin = async function() {
   const nick = document.getElementById("nick-input").value.trim();
   if (!nick) { showToast("닉네임을 입력해주세요"); return; }
+
+  // 읽기전용 상태 확인 (길드장은 허용)
+  const roSnap = await get(ref(db, "readOnly"));
+  if (roSnap.val() === true && nick !== "길드장") {
+    showToast("현재 읽기 전용 상태예요. 길드장이 해제할 때까지 로그인할 수 없어요.");
+    return;
+  }
+
+  // 차단 확인
   const snap = await get(ref(db, "blocked"));
   const bl = snap.val() || [];
   if (bl.includes(nick)) { showToast("길드장에 의해 사용이 제한된 계정입니다."); return; }
+
   nickname = nick;
   await set(ref(db, `members/${nick.replace(/[.#$\/\[\]]/g,"_")}`), true);
-  document.getElementById("login-screen").style.display = "none";
-  document.getElementById("app-screen").style.display = "flex";
+
+  // UI 전환
+  document.getElementById("login-inline-form").style.display = "none";
+  document.getElementById("login-inline-user").style.display = "flex";
   document.getElementById("header-nick").textContent = nick;
+  document.getElementById("tab-my").style.display = "flex";
   if (nick === "길드장") document.getElementById("admin-tab").style.display = "flex";
+
+  // 내 꽃 관리 탭으로 이동
+  switchTab("my");
   subscribeDB();
 }
 
 window.doLogout = function() {
   if (unsub) unsub();
   nickname = "";
-  document.getElementById("login-screen").style.display = "flex";
-  document.getElementById("app-screen").style.display = "none";
+  document.getElementById("login-inline-form").style.display = "flex";
+  document.getElementById("login-inline-user").style.display = "none";
   document.getElementById("nick-input").value = "";
+  document.getElementById("tab-my").style.display = "none";
   document.getElementById("admin-tab").style.display = "none";
+  // 길드 현황으로 이동 후 비로그인 구독 시작
+  currentTab = "guild";
+  document.querySelectorAll(".tab").forEach(el => el.classList.remove("active"));
+  document.getElementById("tab-guild").classList.add("active");
+  subscribeDB();
 }
 
 document.getElementById("nick-input").addEventListener("keydown", e => {
   if (e.key === "Enter") window.doLogin();
 });
 
+// 페이지 첫 로드: 비로그인 상태로 구독 시작 (길드 현황 표시)
+subscribeDB();
+renderContent();
+
+// ── 탭 ────────────────────────────────────────────────────
 window.switchTab = function(tab) {
+  // 비로그인이면 my/admin 탭 접근 불가
+  if (!nickname && (tab === "my" || tab === "admin")) {
+    showToast("로그인 후 이용할 수 있어요");
+    return;
+  }
   currentTab = tab;
   document.querySelectorAll(".tab").forEach(el => el.classList.remove("active"));
-  const tabEls = document.querySelectorAll(".tab");
-  if(tab==="my") tabEls[0].classList.add("active");
-  else if(tab==="guild") tabEls[1].classList.add("active");
-  else if(tab==="coupon") tabEls[2].classList.add("active");
-  else if(tab==="admin") tabEls[tabEls.length-1].classList.add("active");
+  if(tab==="my")     document.getElementById("tab-my").classList.add("active");
+  else if(tab==="guild")  document.getElementById("tab-guild").classList.add("active");
+  else if(tab==="coupon") document.getElementById("tab-coupon").classList.add("active");
+  else if(tab==="admin")  document.getElementById("admin-tab").classList.add("active");
+  if(tab==="coupon" && (!cpnLoaded || cpnLoaded==='error')) cpnSubscribe();
   renderContent();
 }
 
+// ── 관리자: 차단 토글 ─────────────────────────────────────
 window.toggleBlock = async function(nick) {
   const bl = [...blocked];
   const idx = bl.indexOf(nick);
@@ -442,6 +508,7 @@ window.toggleBlock = async function(nick) {
   showToast(idx >= 0 ? `${nick} 차단 해제됨` : `${nick} 차단됨`);
 }
 
+// ── 관리자: 멤버 삭제 ─────────────────────────────────────
 window.deleteMember = async function(nick) {
   const ok = confirm(`${nick} 계정을 삭제할까요?`);
   if (!ok) return;
@@ -455,7 +522,9 @@ window.deleteMember = async function(nick) {
   showToast(`${nick} 삭제 완료`);
 }
 
+// ── 꽃 토글 ──────────────────────────────────────────────
 window.toggleFlower = async function(safeId) {
+  // safeId: data-fid 에서 온 문자열 (이미 safe 처리됨)
   setSaveBar("저장 중...", true);
   const safeNick = nickname.replace(/[.#$\/\[\]]/g,"_");
   const has = myFlowerSet.has(safeId);
@@ -464,6 +533,7 @@ window.toggleFlower = async function(safeId) {
   setTimeout(() => setSaveBar("", false), 1500);
 }
 
+// ── 꽃 추가 모달 ──────────────────────────────────────────
 window.openAddFlowerModal = function() {
   editingFlowerKey = null;
   document.getElementById("modal-title").textContent = "🌸 꽃 추가";
@@ -500,10 +570,13 @@ window.submitFlower = async function() {
   const name  = document.getElementById("modal-name").value.trim();
   if (!cond) { showToast("얻는 방법을 입력해주세요"); return; }
   if (!name) { showToast("꽃 이름을 입력해주세요"); return; }
+
   if (editingFlowerKey) {
+    // 수정
     await update(ref(db, `customFlowers/${editingFlowerKey}`), { grade, cond, name });
     showToast("꽃 정보가 수정됐어요 ✓");
   } else {
+    // 새 꽃 추가
     await push(ref(db, "customFlowers"), { grade, cond, name, addedBy: nickname });
     showToast("새 꽃이 추가됐어요 🌸");
   }
@@ -523,8 +596,9 @@ window.deleteCustomFlower = async function() {
   document.getElementById("flower-modal").style.display = "none";
   editingFlowerKey = null;
 }
-
 function renderContent() {
+  // 비로그인인데 my/admin 탭이면 guild로 강제
+  if (!nickname && (currentTab === "my" || currentTab === "admin")) currentTab = "guild";
   if (currentTab === "my") renderMy();
   else if (currentTab === "guild") renderGuild();
   else if (currentTab === "coupon") renderCoupon();
@@ -563,16 +637,32 @@ function getAllConds() {
 
 function renderMy() {
   const list = getFiltered();
-  const myOwned = myFlowerSet.size;
-  const totalFlowers = allFlowers().length;
-  const myMissing = totalFlowers - myOwned;
+
+ const myOwned = myFlowerSet.size;
+ const totalFlowers = allFlowers().length;
+ const myMissing = totalFlowers - myOwned;
   document.getElementById("content").innerHTML = `
-    <div class="stat-grid">
-      <div class="stat-card"><div class="stat-num">${totalFlowers}</div><div class="stat-label">전체 꽃</div></div>
-      <div class="stat-card"><div class="stat-num ok">${myOwned}</div><div class="stat-label">보유</div></div>
-      <div class="stat-card"><div class="stat-num ${myMissing > 0 ? "warn" : "ok"}">${myMissing}</div><div class="stat-label">미보유</div></div>
-      <div class="stat-card"><div class="stat-num">${Math.floor((myOwned / totalFlowers) * 100)}%</div><div class="stat-label">수집률</div></div>
-    </div>
+   <div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-num">${totalFlowers}</div>
+    <div class="stat-label">전체 꽃</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-num ok">${myOwned}</div>
+    <div class="stat-label">보유</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-num ${myMissing > 0 ? "warn" : "ok"}">${myMissing}</div>
+    <div class="stat-label">미보유</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-num">${Math.floor((myOwned / totalFlowers) * 100)}%</div>
+    <div class="stat-label">수집률</div>
+  </div>
+</div>
     <div class="filters">
       <div class="search-wrap">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -586,7 +676,10 @@ function renderMy() {
       </select>
       <div class="sort-pills">
         ${[["name","이름순"],["grade","등급순"],["cond","조건순"]].map(([v,l])=>`<button class="sort-pill${sortBy===v?" active":""}" onclick="setSortBy('${v}')">${l}</button>`).join("")}
-        <button class="sort-pill ${sortReverse ? "active" : ""}" onclick="toggleReverseSort()">↕ 역순</button>
+      <button class="sort-pill ${sortReverse ? "active" : ""}"
+onclick="toggleReverseSort()">
+↕ 역순
+</button>
       </div>
     </div>
     <button class="add-flower-btn" onclick="openAddFlowerModal()">＋ 새 꽃 추가하기</button>
@@ -607,6 +700,7 @@ function renderMy() {
       ${list.length===0?'<div class="empty">검색 결과가 없어요</div>':""}
     </div>
   `;
+  // 꽃 클릭 이벤트 — data-fid로 안전하게 id 전달
   document.getElementById("flower-list").addEventListener("click", e => {
     const editBtn = e.target.closest(".edit-btn");
     if (editBtn) { openEditFlowerModal(editBtn.dataset.fbkey); return; }
@@ -625,8 +719,10 @@ function renderMy() {
 }
 
 window.setSortBy = function(v) { sortBy=v; renderMy(); }
-window.toggleReverseSort = function() { sortReverse = !sortReverse; renderMy(); }
-
+window.toggleReverseSort = function() {
+  sortReverse = !sortReverse;
+  renderMy();
+}
 function renderGuild() {
   const flowers = allFlowers();
   const totalOwned = flowers.filter(f => {
@@ -636,6 +732,8 @@ function renderGuild() {
   }).length;
   const totalUnowned = flowers.length - totalOwned;
   const memberCount = Object.keys(members).length;
+
+  // 필터링
   let list = [...flowers];
   if (guildView === "unowned") list = list.filter(f => {
     const safeId = String(f.id).replace(/[.#$\/\[\]]/g,"_");
@@ -657,22 +755,50 @@ function renderGuild() {
       });
     }
   }
-  list.sort((a,b) => {
-    let result = 0;
-    if (guildSortBy === "grade") {
-      result = (GRADE_ORDER[a.grade] - GRADE_ORDER[b.grade]) || sortKey(a.name).localeCompare(sortKey(b.name), "ko");
-    } else if (guildSortBy === "cond") {
-      result = a.cond.localeCompare(b.cond, "ko") || sortKey(a.name).localeCompare(sortKey(b.name), "ko");
-    } else if (guildSortBy === "member") {
-      const ca = selections[a.id] ? Object.keys(selections[a.id]).length : 0;
-      const cb = selections[b.id] ? Object.keys(selections[b.id]).length : 0;
-      result = cb - ca || sortKey(a.name).localeCompare(sortKey(b.name), "ko");
-    } else {
-      result = sortKey(a.name).localeCompare(sortKey(b.name), "ko");
-    }
-    if (guildSortBy !== "cond" && guildSortReverse) result *= -1;
-    return result;
-  });
+  // 정렬
+list.sort((a,b) => {
+
+  let result = 0;
+
+  if (guildSortBy === "grade") {
+    result =
+      (GRADE_ORDER[a.grade] - GRADE_ORDER[b.grade]) ||
+      sortKey(a.name).localeCompare(sortKey(b.name), "ko");
+  }
+
+  else if (guildSortBy === "cond") {
+    result =
+      a.cond.localeCompare(b.cond, "ko") ||
+      sortKey(a.name).localeCompare(sortKey(b.name), "ko");
+  }
+
+  else if (guildSortBy === "member") {
+
+    const ca = selections[a.id]
+      ? Object.keys(selections[a.id]).length
+      : 0;
+
+    const cb = selections[b.id]
+      ? Object.keys(selections[b.id]).length
+      : 0;
+
+    result =
+      cb - ca ||
+      sortKey(a.name).localeCompare(sortKey(b.name), "ko");
+  }
+
+  else {
+    result =
+      sortKey(a.name).localeCompare(sortKey(b.name), "ko");
+  }
+
+  // 조건순 제외
+  if (guildSortBy !== "cond" && guildSortReverse) {
+    result *= -1;
+  }
+
+  return result;
+});
 
   document.getElementById("content").innerHTML = `
     <div class="stat-grid">
@@ -695,7 +821,12 @@ function renderGuild() {
     </div>
     <div class="sort-pills" style="margin-bottom:.75rem">
       ${[["name","이름순"],["grade","등급순"],["cond","조건순"],["member","길드원순"]].map(([v,l])=>`<button class="sort-pill${guildSortBy===v?" active":""}" onclick="setGuildSort('${v}')">${l}</button>`).join("")}
-      <button class="sort-pill ${guildSortReverse ? "active" : ""}" onclick="toggleGuildReverseSort()">↕ 역순</button>
+
+ <button class="sort-pill ${guildSortReverse ? "active" : ""}"
+onclick="toggleGuildReverseSort()">
+↕ 역순
+</button>
+
     </div>
     <div class="sort-pills" style="margin-bottom:1rem">
       <button class="sort-pill${guildView==="all"?" active":""}" onclick="setGuildView('all')">전체 보기</button>
@@ -705,6 +836,7 @@ function renderGuild() {
       ${list.map(f => {
         const safeId = String(f.id).replace(/[.#$\/\[\]]/g,"_");
         const rawNicks = selections[safeId] ? Object.keys(selections[safeId]) : [];
+        // safeNick -> 원본 닉네임 복원은 어려우므로 members 키와 매핑
         const nicks = rawNicks;
         const has = nicks.length > 0;
         const isCustom = typeof f.id === "string" && f.id.startsWith("c_");
@@ -722,6 +854,7 @@ function renderGuild() {
     </div>
   `;
 
+  // 이벤트
   let gComposing = false;
   const gi = document.getElementById("guild-search-input");
   gi.addEventListener("compositionstart", () => { gComposing = true; });
@@ -734,10 +867,9 @@ function renderGuild() {
 
 window.setGuildView = function(v) { guildView=v; renderGuild(); }
 window.setGuildSort = function(v) { guildSortBy=v; guildSearch=""; renderGuild(); }
-window.toggleGuildReverseSort = function() { guildSortReverse = !guildSortReverse; renderGuild(); }
 
 // ── 교환코드 탭 ────────────────────────────────────────────
-// ※ 구글 API 제거 → 하드코딩 데이터 (신규→오래된 순)
+const CPN_API = 'https://script.google.com/macros/s/AKfycbwO46f6lACpHSiegY7RbqdUwq-fB7WYPQq4x7EwlceNCIbQmMHVKcmbHn3vutfpYDx6Uw/exec';
 const CPN_SVGS = [
   `<svg viewBox="0 0 24 24" fill="none" stroke="#c8a882" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="6" rx="2" ry="3"/><ellipse cx="12" cy="18" rx="2" ry="3"/><ellipse cx="6" cy="12" rx="3" ry="2"/><ellipse cx="18" cy="12" rx="3" ry="2"/><ellipse cx="7.8" cy="7.8" rx="2" ry="3" transform="rotate(45 7.8 7.8)"/><ellipse cx="16.2" cy="16.2" rx="2" ry="3" transform="rotate(45 16.2 16.2)"/><ellipse cx="16.2" cy="7.8" rx="2" ry="3" transform="rotate(-45 16.2 7.8)"/><ellipse cx="7.8" cy="16.2" rx="2" ry="3" transform="rotate(-45 7.8 16.2)"/></svg>`,
   `<svg viewBox="0 0 24 24" fill="none" stroke="#8ab87a" stroke-width="1.5"><path d="M12 22C6 16 4 10 6 5c4-2 10 0 12 6-2 4-4 8-6 11z"/><path d="M12 22 9 13"/></svg>`,
@@ -748,45 +880,32 @@ const CPN_SVGS = [
   `<svg viewBox="0 0 24 24" fill="none" stroke="#e0b840" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><line x1="12" y1="3" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="21"/><line x1="3" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="21" y2="12"/></svg>`,
   `<svg viewBox="0 0 24 24" fill="none" stroke="#8ab87a" stroke-width="1.5"><circle cx="9" cy="9" r="3"/><circle cx="15" cy="9" r="3"/><circle cx="9" cy="15" r="3"/><circle cx="15" cy="15" r="3"/><path d="M12 18v3"/></svg>`,
 ];
-
-// 신규 → 오래된 순 (위가 최신)
-let cpnCoupons = [
-  { code:"Pa355be4",       expired:false, isNew:false },
-  { code:"COZYKongHyoJin", expired:false, isNew:false },
-  { code:"KongHyoJin2019", expired:false, isNew:false },
-  { code:"KongHyoJin1999", expired:false, isNew:false },
-  { code:"KongHyoJin0404", expired:false, isNew:false },
-  { code:"Md1ce400",       expired:false, isNew:false },
-  { code:"C63d337b",       expired:false, isNew:false },
-  { code:"Z924ce9c",       expired:false, isNew:false },
-  { code:"COZYINS10K",     expired:false, isNew:false },
-  { code:"J453c758",       expired:false, isNew:false },
-  { code:"LOF777",         expired:false, isNew:false },
-  { code:"vb0c17d9",       expired:true,  isNew:false },
-  { code:"Ef606e2a",       expired:false, isNew:false },
-  { code:"C8ebb2b0",       expired:true,  isNew:false },
-  { code:"nb5b4d0a",       expired:false, isNew:false },
-  { code:"grandopen777",   expired:false, isNew:false },
-  { code:"COZY666",        expired:false, isNew:false },
-  { code:"COZY888",        expired:false, isNew:false },
-  { code:"COZY999",        expired:false, isNew:false },
-  { code:"cca788ce",       expired:true,  isNew:false },
-  { code:"Ed451f04",       expired:true,  isNew:false },
-  { code:"robin",          expired:false, isNew:false },
-  { code:"pomflr2026",     expired:false, isNew:false },
-  { code:"TaekyungTV",     expired:false, isNew:false },
-  { code:"PrettyHerb",     expired:false, isNew:false },
-  { code:"SEONENG",        expired:false, isNew:false },
-  { code:"JAHEE",          expired:false, isNew:false },
-  { code:"J3bb2be6",       expired:false, isNew:false },
-];
-
+let cpnCoupons = [];
 let cpnFilter = 'all';
+let cpnLoaded = false;
+let cpnLoading = false;
 
 function cpnIconIdx(code) {
   let n = 0; for (let c of code) n += c.charCodeAt(0);
   return n % CPN_SVGS.length;
 }
+
+async function cpnLoad() {
+  if (cpnLoading) return;
+  cpnLoading = true;
+  renderCoupon();
+  try {
+    const res = await fetch(`${CPN_API}?action=get`);
+    const data = await res.json();
+    if (data.status === 'ok') {
+      cpnCoupons = data.coupons;
+      cpnLoaded = true;
+    } else { cpnLoaded = 'error'; }
+  } catch(e) { cpnLoaded = 'error'; }
+  cpnLoading = false;
+  if (currentTab === 'coupon') renderCoupon();
+}
+const cpnSubscribe = cpnLoad;
 
 function renderCoupon() {
   const isAdmin = nickname === "길드장";
@@ -804,11 +923,11 @@ function renderCoupon() {
     <div class="coupon-hero">
       <div class="coupon-hero-title">🎟 정원산책 교환코드</div>
       <div class="coupon-hero-sub">코드를 복사해 게임 내에서 입력하세요</div>
-      <div class="coupon-stats">
+      ${cpnLoaded===true ? `<div class="coupon-stats">
         <div class="coupon-stat"><span class="coupon-stat-num">${total}</span><span class="coupon-stat-label">전체</span></div>
         <div class="coupon-stat"><span class="coupon-stat-num" style="color:#43a047">${active}</span><span class="coupon-stat-label">사용 가능</span></div>
         <div class="coupon-stat"><span class="coupon-stat-num" style="color:#9e9e9e">${expired}</span><span class="coupon-stat-label">만료됨</span></div>
-      </div>
+      </div>` : ''}
     </div>
     <div class="content" style="padding-top:0">
       <div class="howto-box">
@@ -825,6 +944,9 @@ function renderCoupon() {
           <div class="howto-tip">💡 만료된 코드는 입력해도 보상이 지급되지 않아요. 사용 가능한 코드만 먼저 확인해 보세요!</div>
         </div>
       </div>
+
+      ${cpnLoading ? `<div class="cpn-loading"><div class="spinner"></div> 불러오는 중...</div>` :
+        cpnLoaded==='error' ? `<div class="cpn-error">⚠️ 코드를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.<br><br><button class="cpn-admin-btn" onclick="cpnCoupons=[];cpnLoaded=false;cpnLoad()">다시 시도</button></div>` : `
       <div class="cpn-filter-bar">
         ${[['all','전체'],['active','사용 가능'],['expired','만료됨'],['new','신규 추가']].map(([v,l])=>
           `<button class="cpn-filter-btn${cpnFilter===v?' active':''}" onclick="cpnSetFilter('${v}')">${l}</button>`
@@ -867,16 +989,18 @@ function renderCoupon() {
             ${cpnCoupons.map((c,i)=>`
               <div class="cpn-expire-row">
                 <span class="cpn-expire-code${c.expired?' is-expired':''}">${c.code}</span>
-                <button class="cpn-toggle-expire ${c.expired?'set-active':'set-expired'}" onclick="cpnToggleExpire(${i})">
+                <button class="cpn-toggle-expire ${c.expired?'set-active':'set-expired'}" onclick="cpnToggleExpire(${i},'${c.code}')">
                   ${c.expired?'활성화':'만료 처리'}
                 </button>
               </div>`).join('')}
           </div>
         </div>` : ''}
       <div class="cpn-notice">💐 더 코지 플로리스트 [정원산책] 교환코드</div>
+      `}
     </div>
   `;
 
+  // 관리자 input 엔터키
   const ci = document.getElementById("cpn-code-input");
   if (ci) ci.addEventListener("keydown", e => { if(e.key==="Enter") cpnAddCode(); });
 }
@@ -901,36 +1025,48 @@ window.cpnCopy = function(code, btnId) {
   btn.textContent = '복사됨 ✓'; btn.classList.add('copied');
   setTimeout(()=>{ btn.textContent='복사'; btn.classList.remove('copied'); }, 1800);
 }
-
-// 관리자 메뉴: 코드 추가 (로컬 상태만 반영)
-window.cpnAddCode = function() {
+window.cpnAddCode = async function() {
   const input = document.getElementById('cpn-code-input');
-  const val = input.value.trim();
-  if (!val) return;
-  const exists = cpnCoupons.some(c => c.code === val);
-  if (exists) {
-    input.style.borderColor='#e28080';
-    input.placeholder='이미 존재하는 코드예요!';
-    input.value='';
-    setTimeout(()=>{ input.style.borderColor=''; input.placeholder='새 교환코드 입력'; }, 2000);
-    return;
-  }
-  cpnCoupons.unshift({ code: val, expired: false, isNew: true });
-  input.value = '';
-  renderCoupon();
-  showToast('코드가 추가됐어요 🎟');
+  const val = input.value.trim(); if (!val) return;
+  input.disabled = true;
+  try {
+    const res = await fetch(`${CPN_API}?action=add&code=${encodeURIComponent(val)}`);
+    const data = await res.json();
+    if (data.status==='ok') {
+      input.value = ''; cpnCoupons=[]; cpnLoaded=false; await cpnLoad();
+    } else if (data.message==='Already exists') {
+      input.style.borderColor='#e28080'; input.placeholder='이미 존재하는 코드예요!'; input.value='';
+      setTimeout(()=>{ input.style.borderColor=''; input.placeholder='새 교환코드 입력'; },2000);
+    }
+  } catch(e) { showToast('저장 중 오류가 발생했어요'); }
+  input.disabled = false;
 }
-
-// 관리자 메뉴: 만료 토글 (로컬 상태만 반영)
-window.cpnToggleExpire = function(idx) {
-  cpnCoupons[idx].expired = !cpnCoupons[idx].expired;
-  renderCoupon();
-  showToast(cpnCoupons[idx].expired ? '만료 처리됐어요' : '활성화됐어요');
+window.cpnToggleExpire = async function(idx, code) {
+  const newExpired = !cpnCoupons[idx].expired;
+  cpnCoupons[idx].expired = newExpired; renderCoupon();
+  try {
+    const res = await fetch(`${CPN_API}?action=update&code=${encodeURIComponent(code)}&expired=${newExpired}`);
+    const data = await res.json();
+    if (data.status!=='ok') { cpnCoupons[idx].expired=!newExpired; renderCoupon(); showToast('저장 오류가 발생했어요'); }
+  } catch(e) { cpnCoupons[idx].expired=!newExpired; renderCoupon(); showToast('저장 오류가 발생했어요'); }
 }
-
+window.toggleGuildReverseSort = function() {
+  guildSortReverse = !guildSortReverse;
+  renderGuild();
+}
 function renderAdmin() {
   const memberList = Object.keys(members);
   document.getElementById("content").innerHTML = `
+    <div class="danger-section">
+      <div class="danger-section-title">⚡ 긴급 제어</div>
+      <div style="font-size:12px;color:#c62828;margin-bottom:10px;line-height:1.6">
+        읽기 전용으로 전환하면 길드장을 제외한 <strong>모든 로그인이 차단</strong>돼요.<br>
+        현재 상태: <strong>${readOnly ? '🔒 읽기 전용 (로그인 차단 중)' : '🟢 정상 운영 중'}</strong>
+      </div>
+      <button class="readonly-toggle-btn ${readOnly ? 'disable' : 'enable'}" onclick="toggleReadOnly()">
+        ${readOnly ? '🟢 읽기 전용 해제 (로그인 허용)' : '🔒 읽기 전용으로 전환 (로그인 차단)'}
+      </button>
+    </div>
     <div class="admin-section">
       <div class="section-title">길드원 차단 관리</div>
       <div style="font-size:13px;color:var(--text2);margin-bottom:.75rem;line-height:1.6">차단된 닉네임은 프로그램 접속이 불가합니다.</div>
@@ -958,6 +1094,16 @@ function renderAdmin() {
     </div>
   `;
   document.getElementById("block-input").addEventListener("keydown", e => { if(e.key==="Enter") window.doBlock(); });
+}
+
+window.toggleReadOnly = async function() {
+  const newState = !readOnly;
+  const msg = newState
+    ? "읽기 전용으로 전환할까요?\n길드장 외 모든 로그인이 차단됩니다."
+    : "읽기 전용을 해제할까요?\n길드원들이 다시 로그인할 수 있어요.";
+  if (!confirm(msg)) return;
+  await set(ref(db, "readOnly"), newState);
+  showToast(newState ? "🔒 읽기 전용으로 전환됐어요" : "🟢 정상 운영으로 전환됐어요");
 }
 
 window.doBlock = function() {
