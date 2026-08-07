@@ -372,10 +372,15 @@ let unsub = null;
 let composing = false;
 let customFlowers = [];   // [{ fbKey, id, grade, cond, name }, ...]
 let editingFlowerKey = null;  // fbKey of flower being edited, null = new
+let deletedFlowerIds = new Set(); // Firebase에서 삭제 처리된 기본 꽃 id
+let adminDeleteMode = false;  // 관리자 삭제 모드 토글
 
-// ── 커스텀 꽃 합산 (FLOWERS + customFlowers) ─────────────────
+// ── 커스텀 꽃 합산 (FLOWERS + customFlowers, 삭제된 것 제외) ──
 function allFlowers() {
-  return [...FLOWERS, ...customFlowers];
+  return [
+    ...FLOWERS.filter(f => !deletedFlowerIds.has(f.id)),
+    ...customFlowers
+  ];
 }
 
 // addedAt 기준 8일 이내인지 판별
@@ -421,6 +426,10 @@ function subscribeDB() {
       const safeId = ("c_" + fbKey).replace(/[.#$\/\[\]]/g,"_");
       return { fbKey, id: safeId, grade: v.grade, cond: v.cond, name: v.name, addedBy: v.addedBy || "", addedAt: v.addedAt || null };
     });
+
+    // 삭제된 기본 꽃 id 로드
+    const delRaw = data.deletedFlowers || {};
+    deletedFlowerIds = new Set(Object.keys(delRaw).map(k => Number(k)));
 
     // 내 꽃 세트 갱신 (길드장은 별별 기준)
     const effectiveNick = (nickname === "길드장") ? "별별" : nickname;
@@ -718,6 +727,9 @@ function renderMy() {
           </div>
         </div>
         <button class="add-flower-btn" onclick="openAddFlowerModal()">＋ 새 꽃 추가하기</button>
+        ${nickname === "길드장" ? `<button id="admin-del-mode-btn" class="add-flower-btn" style="border-color:${adminDeleteMode?"#e53935":"var(--border2)"};color:${adminDeleteMode?"#e53935":"var(--text2)"};background:${adminDeleteMode?"#fff5f5":"transparent"}" onclick="toggleAdminDeleteMode()">
+          ${adminDeleteMode ? "🗑 삭제 모드 ON — 누르면 종료" : "🗑 꽃 삭제 모드 (관리자)"}
+        </button>` : ""}
         <div class="flower-list" id="flower-list"></div>
       </div>
     `;
@@ -738,8 +750,10 @@ function renderMy() {
     document.getElementById("flower-list").addEventListener("click", e => {
       const editBtn = e.target.closest(".edit-btn");
       if (editBtn) { openEditFlowerModal(editBtn.dataset.fbkey); return; }
+      const delBtn = e.target.closest(".del-btn");
+      if (delBtn) { adminDeleteFlower(delBtn); return; }
       const row = e.target.closest(".flower-row");
-      if (row) toggleFlower(row.dataset.fid);
+      if (row && !adminDeleteMode) toggleFlower(row.dataset.fid);
     });
   } else {
     // 탭 재진입 또는 Firebase 갱신 시 통계만 업데이트
@@ -760,24 +774,63 @@ function updateFlowerList() {
   const list = getFiltered();
   const fl = document.getElementById("flower-list");
   if (!fl) return;
+  const isAdmin = nickname === "길드장";
   fl.innerHTML = list.map(f => {
     const safeId = String(f.id).replace(/[.#$\/\[\]]/g,"_");
     const sel = myFlowerSet.has(safeId);
     const isCustom = typeof f.id === "string" && f.id.startsWith("c_");
+    const showDelBtn = adminDeleteMode && isAdmin;
     return `<div class="flower-row${sel?" selected":""}" data-fid="${safeId}">
       <span class="grade-badge grade-${f.grade}">${f.grade}</span>
       <span class="flower-name">${f.name}</span>
       ${isCustom && isNewFlower(f) ? `<span class="custom-tag">추가됨</span>` : ""}
       <span class="flower-cond">${f.cond}</span>
-      ${isCustom ? `<span class="flower-actions"><button class="flower-action-btn edit-btn" data-fbkey="${f.fbKey}" title="수정">✏️</button></span>` : ""}
+      <span class="flower-actions">
+        ${isCustom ? `<button class="flower-action-btn edit-btn" data-fbkey="${f.fbKey}" title="수정">✏️</button>` : ""}
+        ${showDelBtn ? `<button class="flower-action-btn del del-btn" data-fid="${safeId}" data-iscustom="${isCustom}" ${isCustom?`data-fbkey="${f.fbKey}"`:`data-numid="${f.id}"`} title="삭제">🗑</button>` : ""}
+      </span>
       <span class="check-icon ${sel?"on":"off"}">${sel?"✓":""}</span>
     </div>`;
   }).join("") + (list.length===0?'<div class="empty">검색 결과가 없어요</div>':"");
-  // sort pill 활성화 상태 동기화 (정렬 바뀔 때)
   document.querySelectorAll("#my-shell .sort-pill").forEach(btn => {
     const v = btn.getAttribute("onclick")?.match(/'(\w+)'/)?.[1];
     if (v) btn.classList.toggle("active", v===sortBy || (v==="역순" && sortReverse));
   });
+}
+
+// ── 관리자 삭제 모드 ──────────────────────────────────────
+window.toggleAdminDeleteMode = function() {
+  adminDeleteMode = !adminDeleteMode;
+  // 버튼 스타일 즉시 반영
+  const btn = document.getElementById("admin-del-mode-btn");
+  if (btn) {
+    btn.style.borderColor = adminDeleteMode ? "#e53935" : "var(--border2)";
+    btn.style.color = adminDeleteMode ? "#e53935" : "var(--text2)";
+    btn.style.background = adminDeleteMode ? "#fff5f5" : "transparent";
+    btn.textContent = adminDeleteMode ? "🗑 삭제 모드 ON — 누르면 종료" : "🗑 꽃 삭제 모드 (관리자)";
+  }
+  updateFlowerList();
+}
+
+window.adminDeleteFlower = async function(btn) {
+  const isCustom = btn.dataset.iscustom === "true";
+  const flowerName = btn.closest(".flower-row")?.querySelector(".flower-name")?.textContent || "이 꽃";
+  if (!confirm(`"${flowerName}"을 목록에서 삭제할까요?\n선택 기록도 함께 삭제됩니다.`)) return;
+
+  if (isCustom) {
+    // 커스텀 꽃: 기존 deleteCustomFlower 로직
+    const fbKey = btn.dataset.fbkey;
+    const safeId = btn.dataset.fid;
+    await remove(ref(db, `selections/${safeId}`));
+    await remove(ref(db, `customFlowers/${fbKey}`));
+  } else {
+    // 기본 꽃: deletedFlowers에 id 추가 + selections에서 제거
+    const numId = btn.dataset.numid;
+    const safeId = btn.dataset.fid;
+    await set(ref(db, `deletedFlowers/${numId}`), true);
+    await remove(ref(db, `selections/${safeId}`));
+  }
+  showToast(`"${flowerName}" 삭제 완료`);
 }
 
 window.setSortBy = function(v) {
@@ -1130,6 +1183,23 @@ function renderAdmin() {
       </div>
     </div>
     <div class="admin-section">
+      <div class="section-title">🗑 삭제된 기본 꽃 복구</div>
+      ${deletedFlowerIds.size === 0
+        ? `<div style="font-size:13px;color:var(--text3)">삭제된 기본 꽃이 없습니다.</div>`
+        : `<div style="font-size:12px;color:var(--text2);margin-bottom:.75rem">삭제된 꽃을 다시 목록에 표시합니다.</div>
+           ${[...deletedFlowerIds].map(id => {
+               const f = FLOWERS.find(fl => fl.id === id);
+               if (!f) return "";
+               return `<div class="member-row">
+                 <span class="grade-badge grade-${f.grade}" style="flex-shrink:0">${f.grade}</span>
+                 <span class="member-name">${f.name}</span>
+                 <span class="member-count">${f.cond}</span>
+                 <button class="rename-btn" onclick="restoreFlower(${id})">복구</button>
+               </div>`;
+             }).join("")}`
+      }
+    </div>
+    <div class="admin-section">
       <div class="section-title">길드원 차단 관리</div>
       <div style="font-size:13px;color:var(--text2);margin-bottom:.75rem;line-height:1.6">차단된 닉네임은 프로그램 접속이 불가합니다.</div>
       <div class="admin-input-row">
@@ -1246,6 +1316,14 @@ window.toggleReadOnly = async function() {
 }
 
 // 길드장 → 별별 닉네임 일괄 마이그레이션
+// 삭제된 기본 꽃 복구
+window.restoreFlower = async function(id) {
+  const f = FLOWERS.find(fl => fl.id === id);
+  if (!f) return;
+  await remove(ref(db, `deletedFlowers/${id}`));
+  showToast(`"${f.name}" 복구 완료`);
+}
+
 window.migrateGuildMasterNick = async function() {
   if (!confirm('"길드장" 닉네임으로 체크된 꽃을 전부 "별별"로 바꿀까요?')) return;
   const snap = await get(ref(db, "selections"));
