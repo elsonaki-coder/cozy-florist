@@ -253,6 +253,41 @@
 
   .cpn-loading{text-align:center;padding:2rem;font-size:13px;color:var(--text2);}
   .cpn-error{background:#fff5f5;border:1px solid #f5c0c0;border-radius:var(--radius);padding:14px;font-size:12px;color:#c05030;text-align:center;margin-bottom:1rem;}
+  /* ── PIN 보안 ── */
+  @keyframes pinShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+  .pin-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;display:flex;align-items:center;justify-content:center;padding:1rem;}
+  .pin-modal{background:var(--card);border-radius:var(--radius);padding:1.75rem 1.5rem;width:100%;max-width:300px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.2);}
+  .pin-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px;}
+  .pin-sub{font-size:12px;color:var(--text2);margin-bottom:1.1rem;line-height:1.5;}
+  .pin-dots{display:flex;justify-content:center;gap:14px;margin-bottom:.75rem;}
+  .pin-dot{width:14px;height:14px;border-radius:50%;background:var(--border2);transition:background .12s;}
+  .pin-dot.filled{background:var(--green);}
+  .pin-dots.shake{animation:pinShake .4s ease;}
+  .pin-error{font-size:12px;color:#e53935;min-height:16px;margin-bottom:.75rem;}
+  .pin-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:.9rem;}
+  .pin-key{padding:13px 0;border-radius:var(--radius-sm);border:1px solid var(--border2);background:#fff;font-size:17px;font-weight:700;font-family:inherit;cursor:pointer;color:var(--text);transition:background .1s;-webkit-tap-highlight-color:transparent;}
+  .pin-key:active{background:var(--green-light);}
+  .pin-key.del{font-size:13px;color:var(--text2);}
+  .pin-key.empty{border:none;background:transparent;pointer-events:none;}
+  .pin-autologin-row{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;color:var(--text2);margin-bottom:.9rem;}
+  .pin-actions{display:flex;gap:8px;justify-content:center;}
+  .pin-skip-btn{font-size:12px;color:var(--text2);background:none;border:1px solid var(--border2);border-radius:20px;padding:5px 14px;cursor:pointer;font-family:inherit;}
+  .pin-skip-btn:hover{background:var(--bg);}
+  .pin-cancel-btn{font-size:12px;color:var(--text2);background:none;border:none;cursor:pointer;font-family:inherit;padding:5px 14px;}
+
+  /* 헤더 PIN 버튼 */
+  .pin-lock-btn{font-size:12px;color:var(--text3);background:none;border:1px solid var(--border);border-radius:20px;padding:4px 10px;cursor:pointer;font-family:inherit;}
+  .pin-lock-btn:hover{color:var(--text);}
+  .pin-lock-btn.secured{color:var(--green);border-color:var(--green-mid);}
+
+  /* PIN 설정 패널 (내 설정) */
+  .pin-setting-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:1rem;}
+  .pin-setting-title{font-size:14px;font-weight:700;margin-bottom:.5rem;color:var(--text);}
+  .pin-setting-desc{font-size:12px;color:var(--text2);margin-bottom:.75rem;line-height:1.6;}
+  .pin-setting-btn{padding:9px 18px;border-radius:var(--radius-sm);font-size:13px;font-family:inherit;cursor:pointer;font-weight:500;}
+  .pin-setting-btn.set{background:var(--green);color:#fff;border:none;}
+  .pin-setting-btn.remove{background:var(--red-light);color:#c62828;border:1px solid var(--red-mid);}
+
   /* ── 게시판 ── */
   .board-write-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:12px;background:var(--green);color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;margin-bottom:1rem;transition:background .15s;}
   .board-write-btn:hover{background:#388e3c;}
@@ -330,9 +365,10 @@
         <input class="login-inline-input" id="nick-input" placeholder="닉네임" maxlength="20" />
         <button class="login-inline-btn" onclick="doLogin()">로그인</button>
       </div>
-      <!-- 로그인 후: 닉네임 + 로그아웃 -->
-      <div style="display:none;align-items:center;gap:8px;" id="login-inline-user">
+      <!-- 로그인 후: 닉네임 + PIN 버튼 + 로그아웃 -->
+      <div style="display:none;align-items:center;gap:6px;" id="login-inline-user">
         <span class="nick-badge" id="header-nick"></span>
+        <button class="pin-lock-btn" id="pin-lock-btn" onclick="openPinSetting()" title="PIN 설정">🔓 PIN</button>
         <button class="logout-btn" onclick="doLogout()">로그아웃</button>
       </div>
     </div>
@@ -346,6 +382,43 @@
   </div>
   <div id="save-bar" class="save-bar" style="display:none">저장 중...</div>
   <div class="content" id="content"></div>
+</div>
+
+<!-- PIN 모달 -->
+<div class="pin-backdrop" id="pin-modal" style="display:none">
+  <div class="pin-modal">
+    <div class="pin-title" id="pin-title">🔐 PIN 입력</div>
+    <div class="pin-sub" id="pin-sub">PIN 4자리를 입력하세요</div>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-error" id="pin-error"></div>
+    <div class="pin-keypad">
+      <button class="pin-key" onclick="pinKey('1')">1</button>
+      <button class="pin-key" onclick="pinKey('2')">2</button>
+      <button class="pin-key" onclick="pinKey('3')">3</button>
+      <button class="pin-key" onclick="pinKey('4')">4</button>
+      <button class="pin-key" onclick="pinKey('5')">5</button>
+      <button class="pin-key" onclick="pinKey('6')">6</button>
+      <button class="pin-key" onclick="pinKey('7')">7</button>
+      <button class="pin-key" onclick="pinKey('8')">8</button>
+      <button class="pin-key" onclick="pinKey('9')">9</button>
+      <button class="pin-key empty" disabled></button>
+      <button class="pin-key" onclick="pinKey('0')">0</button>
+      <button class="pin-key del" onclick="pinDel()">⌫</button>
+    </div>
+    <div class="pin-autologin-row" id="pin-autologin-row" style="display:none">
+      <input type="checkbox" id="pin-autologin" style="accent-color:var(--green);width:15px;height:15px">
+      <label for="pin-autologin">자동 로그인</label>
+    </div>
+    <div class="pin-actions">
+      <button class="pin-skip-btn" id="pin-skip-btn" style="display:none" onclick="skipPinLogin()">PIN 없이 로그인</button>
+      <button class="pin-cancel-btn" onclick="closePinModal()">취소</button>
+    </div>
+  </div>
 </div>
 
 <!-- BOARD WRITE MODAL -->
@@ -432,7 +505,7 @@ const db = getDatabase(fbApp);
 
 // ── 꽃 데이터 ──────────────────────────────────────────────
 const FLOWERS = [
-  {id:0,grade:"N",cond:"레벨",name:"붉은 장미"},{id:1,grade:"N",cond:"레벨",name:"은방울꽃"},{id:2,grade:"N",cond:"레벨",name:"자색 도라지"},{id:3,grade:"N",cond:"레벨",name:"노란 장미"},{id:4,grade:"N",cond:"레벨",name:"카네이션"},{id:5,grade:"N",cond:"레벨",name:"노란 튤립"},{id:6,grade:"N",cond:"레벨",name:"제비꽃"},{id:7,grade:"N",cond:"레벨",name:"분홍 튤립"},{id:8,grade:"N",cond:"레벨",name:"호접란"},{id:9,grade:"N",cond:"레벨",name:"분홍 장미"},{id:10,grade:"N",cond:"레벨",name:"흰 백합"},{id:11,grade:"N",cond:"레벨",name:"데이지"},{id:12,grade:"N",cond:"레벨",name:"분홍 백합"},{id:13,grade:"N",cond:"레벨",name:"푸른별꽃"},{id:14,grade:"N",cond:"레벨",name:"노란 백합"},{id:15,grade:"N",cond:"레벨",name:"자색 수국"},{id:16,grade:"N",cond:"레벨",name:"동백꽃"},{id:17,grade:"N",cond:"레벨",name:"분홍 수국"},{id:18,grade:"N",cond:"레벨",name:"구즈마니아"},{id:19,grade:"N",cond:"레벨",name:"파란 수국"},{id:20,grade:"N",cond:"레벨",name:"해바라기"},{id:21,grade:"N",cond:"레벨",name:"프리지아"},{id:22,grade:"N",cond:"레벨",name:"금술 국화"},{id:23,grade:"N",cond:"레벨",name:"수선화"},{id:24,grade:"N",cond:"레벨",name:"거베라"},{id:25,grade:"N",cond:"레벨",name:"붉은 카라"},{id:26,grade:"N",cond:"레벨",name:"초롱꽃"},{id:27,grade:"N",cond:"레벨",name:"노란 카라"},{id:28,grade:"N",cond:"레벨",name:"민들레"},{id:29,grade:"N",cond:"레벨",name:"자색 카라"},{id:30,grade:"N",cond:"레벨",name:"연보라 히아신스"},{id:31,grade:"N",cond:"레벨",name:"자귀나무꽃"},{id:32,grade:"N",cond:"레벨",name:"연분홍 히아신스"},{id:33,grade:"N",cond:"레벨",name:"재스민"},{id:34,grade:"N",cond:"레벨",name:"연노랑 히아신스"},{id:35,grade:"N",cond:"레벨",name:"황금 여의 국화"},{id:36,grade:"N",cond:"레벨",name:"치자꽃"},{id:37,grade:"N",cond:"레벨",name:"연분홍 여의 국화"},{id:38,grade:"N",cond:"레벨",name:"분홍 복사꽃"},{id:39,grade:"N",cond:"레벨",name:"연귤색 여의 국화"},{id:40,grade:"N",cond:"레벨",name:"비취 리시안셔스"},{id:41,grade:"N",cond:"레벨",name:"자운 라일락"},{id:42,grade:"N",cond:"레벨",name:"붉은구름 리시안셔스"},{id:43,grade:"N",cond:"레벨",name:"연노랑 라일락"},{id:44,grade:"N",cond:"레벨",name:"호박 리시안셔스"},{id:45,grade:"N",cond:"레벨",name:"자홍색 부겐빌레아"},{id:46,grade:"N",cond:"레벨",name:"물망초"},{id:47,grade:"N",cond:"레벨",name:"연노랑 부겐빌레아"},{id:48,grade:"N",cond:"레벨",name:"설혼 구리향"},{id:49,grade:"N",cond:"레벨",name:"연벚꽃 부겐빌레아"},{id:50,grade:"N",cond:"레벨",name:"탐스러운 덩굴장미"},{id:51,grade:"N",cond:"레벨",name:"성심 백합"},{id:52,grade:"N",cond:"레벨",name:"자색 폭스테일"},{id:53,grade:"N",cond:"레벨",name:"서리꽃 석곡"},{id:54,grade:"N",cond:"레벨",name:"분홍색 폭스테일"},{id:55,grade:"N",cond:"레벨",name:"청백 로벨리아"},{id:56,grade:"N",cond:"레벨",name:"노란 폭스테일"},{id:57,grade:"N",cond:"레벨",name:"자색 괭이밥"},{id:58,grade:"N",cond:"레벨",name:"주황색 괭이밥"},{id:59,grade:"N",cond:"레벨",name:"빛나는 노란 괭이밥"},
+  {id:0,grade:"N",cond:"레벨",name:"붉은 장미"},{id:1,grade:"N",cond:"레벨",name:"은방울꽃"},{id:2,grade:"N",cond:"레벨",name:"자색 도라지"},{id:3,grade:"N",cond:"레벨",name:"노란장미"},{id:4,grade:"N",cond:"레벨",name:"카네이션"},{id:5,grade:"N",cond:"레벨",name:"노란 튤립"},{id:6,grade:"N",cond:"레벨",name:"제비꽃"},{id:7,grade:"N",cond:"레벨",name:"분홍 튤립"},{id:8,grade:"N",cond:"레벨",name:"호접란"},{id:9,grade:"N",cond:"레벨",name:"분홍 장미"},{id:10,grade:"N",cond:"레벨",name:"흰 백합"},{id:11,grade:"N",cond:"레벨",name:"데이지"},{id:12,grade:"N",cond:"레벨",name:"분홍 백합"},{id:13,grade:"N",cond:"레벨",name:"푸른볓꽃"},{id:14,grade:"N",cond:"레벨",name:"노란 백합"},{id:15,grade:"N",cond:"레벨",name:"자색 수국"},{id:16,grade:"N",cond:"레벨",name:"동백꽃"},{id:17,grade:"N",cond:"레벨",name:"분홍 수국"},{id:18,grade:"N",cond:"레벨",name:"구즈마니아"},{id:19,grade:"N",cond:"레벨",name:"파란 수국"},{id:20,grade:"N",cond:"레벨",name:"해바라기"},{id:21,grade:"N",cond:"레벨",name:"프리지아"},{id:22,grade:"N",cond:"레벨",name:"금술 국화"},{id:23,grade:"N",cond:"레벨",name:"수선화"},{id:24,grade:"N",cond:"레벨",name:"거베라"},{id:25,grade:"N",cond:"레벨",name:"붉은 카라"},{id:26,grade:"N",cond:"레벨",name:"초롱꽃"},{id:27,grade:"N",cond:"레벨",name:"노란 카라"},{id:28,grade:"N",cond:"레벨",name:"민들레"},{id:29,grade:"N",cond:"레벨",name:"자색 카라"},{id:30,grade:"N",cond:"레벨",name:"연보라 히아신스"},{id:31,grade:"N",cond:"레벨",name:"자귀나무꽃"},{id:32,grade:"N",cond:"레벨",name:"연분홍 히아신스"},{id:33,grade:"N",cond:"레벨",name:"재스민"},{id:34,grade:"N",cond:"레벨",name:"연노랑 히아신스"},{id:35,grade:"N",cond:"레벨",name:"황금 여의 국화"},{id:36,grade:"N",cond:"레벨",name:"치자꽃"},{id:37,grade:"N",cond:"레벨",name:"연분홍 여의 국화"},{id:38,grade:"N",cond:"레벨",name:"분홍 복사꽃"},{id:39,grade:"N",cond:"레벨",name:"연귤색 여의 국화"},{id:40,grade:"N",cond:"레벨",name:"비취 리시안셔스"},{id:41,grade:"N",cond:"레벨",name:"자운 라일락"},{id:42,grade:"N",cond:"레벨",name:"붉은구름 리시안셔스"},{id:43,grade:"N",cond:"레벨",name:"연노랑 라일락"},{id:44,grade:"N",cond:"레벨",name:"호박 리시안셔스"},{id:45,grade:"N",cond:"레벨",name:"자홍색 부겐빌레아"},{id:46,grade:"N",cond:"레벨",name:"물망초"},{id:47,grade:"N",cond:"레벨",name:"연노랑 부겐빌레아"},{id:48,grade:"N",cond:"레벨",name:"설혼 구리향"},{id:49,grade:"N",cond:"레벨",name:"연벚꽃 부겐빌레아"},{id:50,grade:"N",cond:"레벨",name:"탐스러운 덩굴장미"},{id:51,grade:"N",cond:"레벨",name:"성심 백합"},{id:52,grade:"N",cond:"레벨",name:"자색 폭스테일"},{id:53,grade:"N",cond:"레벨",name:"서리꽃 석곡"},{id:54,grade:"N",cond:"레벨",name:"분홍색 폭스테일"},{id:55,grade:"N",cond:"레벨",name:"청백 로벨리아"},{id:56,grade:"N",cond:"레벨",name:"노란 폭스테일"},{id:57,grade:"N",cond:"레벨",name:"자색 괭이밥"},{id:58,grade:"N",cond:"레벨",name:"주황색 괭이밥"},{id:59,grade:"N",cond:"레벨",name:"빛나는 노란 괭이밥"},
   {id:60,grade:"R",cond:"꽃시장 현상금",name:"수정빛 페튜니아"},{id:61,grade:"R",cond:"꽃시장 현상금",name:"금살구 페튜니아"},{id:62,grade:"R",cond:"꽃시장 현상금",name:"연분홍 폼폼 국화"},{id:63,grade:"R",cond:"꽃시장 현상금",name:"연귤색 폼폼 국화"},{id:64,grade:"R",cond:"꽃시장 현상금",name:"순백 폼폼 국화"},{id:65,grade:"R",cond:"꽃시장 현상금",name:"스파티필룸"},{id:66,grade:"R",cond:"꽃시장 현상금",name:"안스리움"},{id:67,grade:"R",cond:"꽃시장 현상금",name:"라이트 클레마티스"},{id:68,grade:"R",cond:"꽃시장 현상금",name:"향수 백합"},{id:69,grade:"R",cond:"꽃시장 현상금",name:"극락조화"},{id:70,grade:"R",cond:"꽃시장 현상금",name:"개나리"},{id:71,grade:"R",cond:"별똥별의 향기",name:"연노랑 녹융호"},{id:72,grade:"R",cond:"별똥별의 향기",name:"금살구 온시디움"},{id:73,grade:"R",cond:"별똥별의 향기",name:"순백 코스모스"},{id:74,grade:"R",cond:"꽃시장 교환",name:"다투라"},{id:75,grade:"R",cond:"꽃시장 교환",name:"석산"},{id:76,grade:"R",cond:"꽃시장 교환",name:"개상사화"},{id:77,grade:"R",cond:"꽃시장 교환",name:"복숭아빛 노루오줌"},{id:78,grade:"R",cond:"꽃시장 교환",name:"반쯤 핀 칼랑코에"},{id:79,grade:"R",cond:"꽃시장 교환",name:"핑크 심비디움"},{id:80,grade:"R",cond:"꽃시장 교환",name:"붉은 노을 아부틸론"},{id:81,grade:"R",cond:"꽃시장 교환",name:"연분홍 협죽도"},{id:82,grade:"R",cond:"꽃시장 교환",name:"자홍색 협죽도"},{id:83,grade:"R",cond:"꽃시장 교환",name:"보랏빛 아부틸론"},{id:84,grade:"R",cond:"꽃시장 교환",name:"진홍빛 아부틸론"},{id:85,grade:"R",cond:"꽃시장 교환",name:"금살구 진달래"},{id:86,grade:"R",cond:"꽃시장 교환",name:"아리따운 진달래"},{id:87,grade:"R",cond:"꽃시장 교환",name:"비취잎 소철"},{id:88,grade:"R",cond:"꽃향기 조향",name:"하늘빛 재클린"},{id:89,grade:"R",cond:"VIP 상점",name:"자홍깃 재클린"},{id:90,grade:"R",cond:"꽃의 밀령",name:"복숭아빛 재클린"},{id:91,grade:"R",cond:"꽃시장 교환",name:"촉영 해당화"},{id:92,grade:"R",cond:"꽃시장 교환",name:"취한뺨 해당화"},{id:93,grade:"R",cond:"꽃시장 교환",name:"금박 베고니아"},{id:94,grade:"R",cond:"VIP 상점",name:"푸른 솜털 안개꽃"},{id:95,grade:"R",cond:"꽃시장 교환",name:"금술 접시꽃"},{id:96,grade:"R",cond:"꽃시장 교환",name:"안개 자색 아프리칸바이올렛"},{id:97,grade:"R",cond:"꽃시장 교환",name:"연분홍 아프리칸바이올렛"},{id:98,grade:"R",cond:"꽃시장 교환",name:"연지 아프리칸바이올렛"},{id:99,grade:"R",cond:"꽃시장 교환",name:"그윽한 보랏빛 델피니움"},{id:100,grade:"R",cond:"꽃시장 교환",name:"복숭아빛 델피니움"},{id:101,grade:"R",cond:"꽃시장 교환",name:"구름빛 델피니움"},{id:102,grade:"R",cond:"펫",name:"백설 노루귀"},{id:103,grade:"R",cond:"미식 파티",name:"레트로 코코아"},{id:104,grade:"R",cond:"향기로운 회랑",name:"앵규다정"},{id:234,grade:"R",cond:"기타",name:"라넌큘러스"},
   {id:105,grade:"SR",cond:"꽃시장 현상금",name:"연분홍 페튜니아"},{id:106,grade:"SR",cond:"별똥별의 향기",name:"붉은 벚꽃 달맞이꽃"},{id:107,grade:"SR",cond:"별똥별의 향기",name:"푸른빛 달맞이꽃"},{id:108,grade:"SR",cond:"별똥별의 향기",name:"진홍 벚꽃 나비무 장미"},{id:109,grade:"SR",cond:"별똥별의 향기",name:"영롱한 얼음빛 납매"},{id:110,grade:"SR",cond:"누적 충전",name:"붉은노을 접시꽃"},{id:111,grade:"SR",cond:"꽃의 밀령",name:"달계곡 등나무"},{id:112,grade:"SR",cond:"꽃시장 교환",name:"윤기나는 작약"},{id:113,grade:"SR",cond:"누적 충전",name:"창공빛 산호초"},{id:114,grade:"SR",cond:"누적 충전",name:"베들레헴의 별"},{id:115,grade:"SR",cond:"누적 충전",name:"별꿈 해파리"},{id:116,grade:"SR",cond:"꽃시장 교환",name:"분홍 수레국화"},{id:117,grade:"SR",cond:"꽃시장 교환",name:"우아한 보랏빛 알리움"},{id:118,grade:"SR",cond:"꽃시장 교환",name:"푸른 소철"},{id:119,grade:"SR",cond:"꽃시장 교환",name:"브룬펠시아"},{id:120,grade:"SR",cond:"꽃시장 교환",name:"타오르는 불꽃 레난테라"},{id:121,grade:"SR",cond:"꽃시장 교환",name:"꿀처럼 부드러운 달맞이꽃"},{id:122,grade:"SR",cond:"꽃시장 교환",name:"금서리 붓꽃"},{id:123,grade:"SR",cond:"꽃시장 교환",name:"분홍 수정 루위시아"},{id:124,grade:"SR",cond:"꽃시장 교환",name:"따뜻한 노랑 루위시아"},{id:125,grade:"SR",cond:"꽃시장 교환",name:"서리꽃 맥문동"},{id:126,grade:"SR",cond:"꽃시장 교환",name:"분홍 안개 맥문동"},{id:127,grade:"SR",cond:"꽃시장 교환",name:"홍시 칼랑코에"},{id:128,grade:"SR",cond:"꽃시장 교환",name:"연지빛 헬레보루스"},{id:129,grade:"SR",cond:"꽃시장 교환",name:"차홍색 헬레보루스"},{id:130,grade:"SR",cond:"꽃시장 교환",name:"유벽 메코놉시스"},{id:131,grade:"SR",cond:"꽃시장 교환",name:"흑자색 메코놉시스"},{id:132,grade:"SR",cond:"꽃시장 교환",name:"연분홍 조팝나무"},{id:133,grade:"SR",cond:"꽃시장 교환",name:"우아한 보라 코스모스"},{id:134,grade:"SR",cond:"꽃시장 교환",name:"진홍색 달리아"},{id:135,grade:"SR",cond:"꽃시장 교환",name:"흑수정 달리아"},{id:136,grade:"SR",cond:"꽃시장 교환",name:"분홍 스파티필룸"},{id:137,grade:"SR",cond:"꽃시장 교환",name:"연홍색 접시꽃"},{id:138,grade:"SR",cond:"꽃시장 교환",name:"붉은불꽃 아네모네"},{id:139,grade:"SR",cond:"꽃시장 교환",name:"황금잎 금목서"},{id:140,grade:"SR",cond:"꽃시장 교환",name:"진사 단목서"},{id:141,grade:"SR",cond:"꽃시장 교환",name:"창봉 은목서"},{id:142,grade:"SR",cond:"꽃시장 교환",name:"노을빛 산호꽃"},{id:143,grade:"SR",cond:"꽃시장 교환",name:"연자색 산호꽃"},{id:144,grade:"SR",cond:"꽃시장 교환",name:"달빛 아네모네"},{id:145,grade:"SR",cond:"꽃시장 교환",name:"구름자수 작약"},{id:146,grade:"SR",cond:"꽃시장 교환",name:"연지 작약"},{id:147,grade:"SR",cond:"꽃 패키지",name:"황혼 등나무"},{id:148,grade:"SR",cond:"패키지 화단",name:"연지빛 개양귀비"},{id:149,grade:"SR",cond:"패키지 화단",name:"흑자색 개양귀비"},{id:150,grade:"SR",cond:"패키지 화단",name:"햇살 개양귀비"},{id:151,grade:"SR",cond:"패키지 화단",name:"꿈의 보라 으아리"},{id:152,grade:"SR",cond:"패키지 화단",name:"연분홍 버베나"},{id:153,grade:"SR",cond:"패키지 화단",name:"오렌지꿀 버베나"},{id:154,grade:"SR",cond:"패키지 화단",name:"자색 수레국화"},{id:155,grade:"SR",cond:"패키지 화단",name:"푸른 수레국화"},{id:156,grade:"SR",cond:"패키지 화단",name:"아련한 자색 아스틸베"},{id:157,grade:"SR",cond:"패키지 화단",name:"구름빛 아스틸베"},{id:158,grade:"SR",cond:"패키지 화단",name:"분홍안개 붓꽃"},{id:159,grade:"SR",cond:"패키지 화단",name:"비홍 붓꽃"},{id:160,grade:"SR",cond:"패키지 화단",name:"흑자색 목련"},{id:161,grade:"SR",cond:"패키지 화단",name:"금빛 목련"},{id:162,grade:"SR",cond:"패키지 화단",name:"청영 루위시아"},{id:163,grade:"SR",cond:"패키지 화단",name:"자색 맥문동"},{id:164,grade:"SR",cond:"패키지 화단",name:"윤분홍 칼랑코에"},{id:165,grade:"SR",cond:"패키지 화단",name:"병아리색 헬레보루스"},{id:166,grade:"SR",cond:"패키지 화단",name:"핑크화이트 심비디움"},{id:167,grade:"SR",cond:"패키지 화단",name:"봄빛 심비디움"},{id:168,grade:"SR",cond:"패키지 화단",name:"금종 개나리"},{id:169,grade:"SR",cond:"패키지 화단",name:"새하얀 조팝나무"},{id:170,grade:"SR",cond:"패키지 화단",name:"벚꽃 온시디움"},{id:171,grade:"SR",cond:"패키지 화단",name:"단풍 온시디움"},{id:172,grade:"SR",cond:"패키지 화단",name:"분홍구름 코스모스"},{id:173,grade:"SR",cond:"패키지 화단",name:"분홍 복숭아 달리아"},{id:174,grade:"SR",cond:"패키지 화단",name:"향설 목향장미"},{id:175,grade:"SR",cond:"패키지 화단",name:"용금 아네모네"},{id:176,grade:"SR",cond:"패키지 화단",name:"창벽 협죽도"},{id:177,grade:"SR",cond:"패키지 화단",name:"진홍 진달래"},{id:178,grade:"SR",cond:"패키지 화단",name:"꾀꼬리 장미"},{id:179,grade:"SR",cond:"패키지 화단",name:"맑은 봉우리 장미"},{id:180,grade:"SR",cond:"패키지 화단",name:"아지랑이빛 장미"},{id:181,grade:"SR",cond:"꽃시장 교환",name:"묵옥 아네모네"},{id:182,grade:"SR",cond:"꽃시장 교환",name:"먹술 아네모네"},{id:183,grade:"SR",cond:"꽃의 밀령",name:"자색 글라디올러스"},{id:184,grade:"SR",cond:"패키지 화단",name:"주황 불꽃 글라디올러스"},{id:185,grade:"SR",cond:"별똥별의 향기",name:"연지 아네모네"},{id:186,grade:"SR",cond:"패키지 화단",name:"옥빛 글라디올러스"},{id:187,grade:"SR",cond:"꽃시장 교환",name:"노을빛 아마릴리스"},{id:188,grade:"SR",cond:"패키지 화단",name:"황금목 아마릴리스"},{id:189,grade:"SR",cond:"패키지 화단",name:"붉은 깃털 아마릴리스"},{id:190,grade:"SR",cond:"꽃시장 교환",name:"붉은 눈 목향장미"},{id:191,grade:"SR",cond:"꽃시장 교환",name:"새벽빛 목향장미"},{id:192,grade:"SR",cond:"첫 충전 특별 선물",name:"반짝 솜토끼"},{id:193,grade:"SR",cond:"7일 접속",name:"윤생 호랑가시나무"},{id:194,grade:"SR",cond:"성장의 길",name:"연지 무궁화"},{id:195,grade:"SR",cond:"누적 충전",name:"취한 별의 꿈"},{id:196,grade:"SR",cond:"풍요의 별그림",name:"따스한 여름 햇살"},{id:197,grade:"SR",cond:"풍요의 별그림",name:"진주 제비난"},{id:230,grade:"SR",cond:"꽃 패키지",name:"창공빛 등나무"},
   {id:198,grade:"SSR",cond:"별똥별의 향기",name:"옥구슬 목련"},{id:199,grade:"SSR",cond:"누적 충전",name:"별빛 꿈의 방주"},{id:200,grade:"SSR",cond:"스타소울 상점",name:"행운의 올리브"},{id:201,grade:"SSR",cond:"스타소울 상점",name:"크리스마스의 밤"},{id:202,grade:"SSR",cond:"패키지 화단",name:"홍운 납매"},{id:203,grade:"SSR",cond:"패키지 화단",name:"진홍빛 납매"},{id:204,grade:"SSR",cond:"패키지 화단",name:"수정빛 나비춤 장미"},{id:205,grade:"SSR",cond:"패키지 화단",name:"황금 장미"},{id:206,grade:"SSR",cond:"패키지 화단",name:"몽롱한 청아"},{id:207,grade:"SSR",cond:"패키지 화단",name:"비령추란"},{id:208,grade:"SSR",cond:"패키지 화단",name:"자색 여운"},{id:209,grade:"SSR",cond:"패키지 화단",name:"분홍빛 물결꽃"},{id:210,grade:"SSR",cond:"패키지 화단",name:"푸른안개 모란"},{id:211,grade:"SSR",cond:"패키지 화단",name:"봄 살구빛 옷자락"},{id:212,grade:"SSR",cond:"패키지 화단",name:"선녀의 춤"},{id:213,grade:"SSR",cond:"패키지 화단",name:"먹빛 모란"},{id:214,grade:"SSR",cond:"패키지 화단",name:"보랏빛 꿈 부용"},{id:215,grade:"SSR",cond:"꽃 패키지",name:"분홍옥 부용"},{id:216,grade:"SSR",cond:"패키지 화단",name:"달빛 모란"},{id:217,grade:"SSR",cond:"스타소울 상점",name:"가을빛 단풍"},{id:218,grade:"SSR",cond:"미식 파티",name:"심쿵 스위트 베리"},{id:219,grade:"SSR",cond:"향기로운 회랑",name:"푸른 물결의 춤"},{id:220,grade:"SSR",cond:"향기로운 회랑",name:"황금빛 단꿈"},{id:221,grade:"SSR",cond:"향기로운 회랑",name:"보랏빛 구름의 안식"},{id:229,grade:"SSR",cond:"커플 플라워 데이트",name:"성란화의 언약"},{id:232,grade:"SSR",cond:"기타",name:"꽃케이크 바구니"},{id:233,grade:"SSR",cond:"기타",name:"차와 야옹 이야기"},{id:235,grade:"SSR",cond:"꽃 패키지",name:"귤빛 불꽃 부용"},
@@ -547,50 +620,111 @@ function subscribeDB() {
 }
 
 // ── 로그인 ─────────────────────────────────────────────────
+// ── PIN 보안 시스템 ────────────────────────────────────────
+let pinBuffer = "";
+let pinMode = "";        // "login-check" | "pin-set-new" | "pin-set-confirm" | "pin-change-old" | "pin-change-new" | "pin-change-confirm"
+let pinFirstEntry = ""; // 새 PIN 설정 시 첫 번째 입력 저장
+let pinTargetNick = ""; // 로그인 시도 중인 닉네임
+let pinHasPin = false;  // 현재 로그인 계정이 PIN 보유 여부
+let pinLoginSkippable = false; // PIN이 있어도 스킵 가능한지
+
+async function hashPin(pin, salt) {
+  const data = new TextEncoder().encode(pin + salt + "cozy_florist_2025");
+  const buf = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+function safeKey(s) { return s.replace(/[.#$\/\[\]]/g,"_"); }
+
+// ── 자동 로그인 ──────────────────────────────────────────
+async function tryAutoLogin() {
+  try {
+    const saved = localStorage.getItem("cozy_pin_autologin");
+    if (!saved) return false;
+    const {nick, pin} = JSON.parse(saved);
+    if (!nick || !pin) return false;
+    const [roSnap, blSnap, pinSnap] = await Promise.all([
+      get(ref(db,"readOnly")), get(ref(db,"blocked")), get(ref(db,`pins/${safeKey(nick)}`))
+    ]);
+    if (roSnap.val()===true && nick!=="길드장") { localStorage.removeItem("cozy_pin_autologin"); return false; }
+    if ((blSnap.val()||[]).includes(nick)) { localStorage.removeItem("cozy_pin_autologin"); return false; }
+    const stored = pinSnap.val();
+    if (!stored) { localStorage.removeItem("cozy_pin_autologin"); return false; }
+    const hashed = await hashPin(pin, stored.salt);
+    if (hashed !== stored.hash) { localStorage.removeItem("cozy_pin_autologin"); return false; }
+    await completeLogin(nick);
+    return true;
+  } catch(e) { return false; }
+}
+
+// ── 로그인 시작 ──────────────────────────────────────────
 window.doLogin = async function() {
   const nick = document.getElementById("nick-input").value.trim();
   if (!nick) { showToast("닉네임을 입력해주세요"); return; }
 
-  // 읽기전용 상태 확인 (길드장은 허용)
-  const roSnap = await get(ref(db, "readOnly"));
-  if (roSnap.val() === true && nick !== "길드장") {
-    showToast("현재 읽기 전용 상태예요. 길드장이 해제할 때까지 로그인할 수 없어요.");
-    return;
+  const roSnap = await get(ref(db,"readOnly"));
+  if (roSnap.val()===true && nick!=="길드장") {
+    showToast("현재 읽기 전용 상태예요. 길드장이 해제할 때까지 로그인할 수 없어요."); return;
   }
+  const blSnap = await get(ref(db,"blocked"));
+  if ((blSnap.val()||[]).includes(nick)) { showToast("길드장에 의해 사용이 제한된 계정입니다."); return; }
 
-  // 차단 확인
-  const snap = await get(ref(db, "blocked"));
-  const bl = snap.val() || [];
-  if (bl.includes(nick)) { showToast("길드장에 의해 사용이 제한된 계정입니다."); return; }
+  const pinSnap = await get(ref(db,`pins/${safeKey(nick)}`));
+  const hasPIN = !!pinSnap.val();
+  pinTargetNick = nick;
 
-  // 길드장으로 로그인하면 꽃 선택은 '별별' 닉네임으로 저장
+  if (hasPIN) {
+    // PIN 있음 → PIN 확인 모달 (자동로그인 체크 표시)
+    openPinModal("login-check", `🔐 ${nick}`, "PIN 4자리를 입력하세요", true, false);
+  } else {
+    // PIN 없음 → 바로 로그인
+    await completeLogin(nick);
+  }
+}
+
+// ── 로그인 완료 공통 ─────────────────────────────────────
+async function completeLogin(nick) {
+  const effectiveNick = (nick==="길드장") ? "별별" : nick;
   nickname = nick;
-  const effectiveNick = (nick === "길드장") ? "별별" : nick;
-  // selections에서 사용할 실제 닉네임 (길드장 → 별별)
   window._effectiveNick = effectiveNick;
 
-  await set(ref(db, `members/${nick.replace(/[.#$\/\[\]]/g,"_")}`), true);
+  await set(ref(db, `members/${safeKey(nick)}`), true);
 
-  // UI 전환
   document.getElementById("login-inline-form").style.display = "none";
   document.getElementById("login-inline-user").style.display = "flex";
-  document.getElementById("header-nick").textContent = nick === "길드장" ? "길드장 (별별)" : nick;
+  document.getElementById("header-nick").textContent = nick==="길드장" ? "길드장 (별별)" : nick;
   document.getElementById("tab-my").style.display = "flex";
-  if (nick === "길드장") document.getElementById("admin-tab").style.display = "flex";
+  if (nick==="길드장") document.getElementById("admin-tab").style.display = "flex";
+
+  // PIN 보유 여부 확인 후 🔒 버튼 스타일 반영
+  const pinSnap = await get(ref(db,`pins/${safeKey(nick)}`));
+  pinHasPin = !!pinSnap.val();
+  updatePinLockBtn();
 
   switchTab("my");
   subscribeDB();
 }
 
+function updatePinLockBtn() {
+  const btn = document.getElementById("pin-lock-btn");
+  if (!btn) return;
+  if (pinHasPin) {
+    btn.textContent = "🔒 PIN"; btn.className = "pin-lock-btn secured";
+    btn.title = "PIN 변경/해제";
+  } else {
+    btn.textContent = "🔓 PIN"; btn.className = "pin-lock-btn";
+    btn.title = "PIN 설정하기";
+  }
+}
+
 window.doLogout = function() {
   if (unsub) unsub();
-  nickname = "";
+  nickname = ""; pinHasPin = false; window._effectiveNick = "";
   document.getElementById("login-inline-form").style.display = "flex";
   document.getElementById("login-inline-user").style.display = "none";
   document.getElementById("nick-input").value = "";
   document.getElementById("tab-my").style.display = "none";
   document.getElementById("admin-tab").style.display = "none";
-  // 길드 현황으로 이동 후 비로그인 구독 시작
   currentTab = "guild";
   document.querySelectorAll(".tab").forEach(el => el.classList.remove("active"));
   document.getElementById("tab-guild").classList.add("active");
@@ -598,12 +732,157 @@ window.doLogout = function() {
 }
 
 document.getElementById("nick-input").addEventListener("keydown", e => {
-  if (e.key === "Enter") window.doLogin();
+  if (e.key==="Enter") window.doLogin();
 });
 
-// 페이지 첫 로드: 비로그인 상태로 구독 시작 (길드 현황 표시)
+// ── PIN 모달 공통 컨트롤 ────────────────────────────────
+function openPinModal(mode, title, sub, showAutoLogin, showSkip) {
+  pinMode = mode; pinBuffer = ""; pinFirstEntry = "";
+  document.getElementById("pin-title").textContent = title;
+  document.getElementById("pin-sub").textContent = sub;
+  document.getElementById("pin-error").textContent = "";
+  document.getElementById("pin-autologin-row").style.display = showAutoLogin ? "flex" : "none";
+  document.getElementById("pin-autologin").checked = false;
+  document.getElementById("pin-skip-btn").style.display = showSkip ? "inline-block" : "none";
+  updatePinDots();
+  document.getElementById("pin-modal").style.display = "flex";
+}
+
+window.closePinModal = function() {
+  document.getElementById("pin-modal").style.display = "none";
+  pinBuffer = ""; pinMode = ""; pinFirstEntry = "";
+}
+
+window.skipPinLogin = async function() {
+  // PIN 설정되어 있지만 스킵 → PIN 없이 로그인 (현재 사용 안함, 확장용)
+  closePinModal();
+  await completeLogin(pinTargetNick);
+}
+
+window.pinKey = function(k) {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += k;
+  updatePinDots();
+  if (pinBuffer.length === 4) setTimeout(processPIN, 120);
+}
+
+window.pinDel = function() {
+  pinBuffer = pinBuffer.slice(0,-1);
+  updatePinDots();
+  document.getElementById("pin-error").textContent = "";
+}
+
+function updatePinDots() {
+  for (let i=0;i<4;i++)
+    document.getElementById("pd"+i)?.classList.toggle("filled", i < pinBuffer.length);
+}
+
+function shakeDots() {
+  const d = document.getElementById("pin-dots");
+  d.classList.remove("shake");
+  void d.offsetWidth; // reflow
+  d.classList.add("shake");
+  if (navigator.vibrate) navigator.vibrate([60,30,60]);
+}
+
+function setPinError(msg) {
+  document.getElementById("pin-error").textContent = msg;
+  shakeDots();
+  pinBuffer = ""; updatePinDots();
+}
+
+// ── PIN 입력 처리 ────────────────────────────────────────
+async function processPIN() {
+  const pin = pinBuffer;
+  pinBuffer = ""; updatePinDots();
+
+  // 1. 로그인 시 PIN 확인
+  if (pinMode === "login-check") {
+    const pinSnap = await get(ref(db,`pins/${safeKey(pinTargetNick)}`));
+    const stored = pinSnap.val();
+    if (!stored) { setPinError("PIN 정보를 찾을 수 없어요"); return; }
+    const hashed = await hashPin(pin, stored.salt);
+    if (hashed !== stored.hash) { setPinError("PIN이 틀렸어요"); return; }
+    // 자동 로그인 저장
+    if (document.getElementById("pin-autologin").checked)
+      localStorage.setItem("cozy_pin_autologin", JSON.stringify({nick:pinTargetNick, pin}));
+    closePinModal();
+    await completeLogin(pinTargetNick);
+    return;
+  }
+
+  // 2. 새 PIN 설정 — 첫 번째 입력
+  if (pinMode === "pin-set-new") {
+    pinFirstEntry = pin;
+    document.getElementById("pin-sub").textContent = "한 번 더 입력해 확인해요";
+    document.getElementById("pin-error").textContent = "";
+    pinMode = "pin-set-confirm";
+    return;
+  }
+
+  // 3. 새 PIN 설정 — 확인 입력
+  if (pinMode === "pin-set-confirm") {
+    if (pin !== pinFirstEntry) { setPinError("PIN이 달라요. 다시 처음부터"); pinMode = "pin-set-new";
+      document.getElementById("pin-sub").textContent = "새 PIN 4자리를 입력하세요"; return; }
+    const salt = crypto.randomUUID().slice(0,8);
+    const hash = await hashPin(pin, salt);
+    await set(ref(db,`pins/${safeKey(nickname)}`), {hash, salt});
+    pinHasPin = true; updatePinLockBtn();
+    closePinModal(); showToast("🔒 PIN이 설정됐어요!");
+    return;
+  }
+
+  // 4. PIN 변경 — 기존 PIN 확인
+  if (pinMode === "pin-change-old") {
+    const pinSnap = await get(ref(db,`pins/${safeKey(nickname)}`));
+    const stored = pinSnap.val();
+    const hashed = await hashPin(pin, stored.salt);
+    if (hashed !== stored.hash) { setPinError("기존 PIN이 틀렸어요"); return; }
+    document.getElementById("pin-sub").textContent = "새 PIN 4자리를 입력하세요";
+    document.getElementById("pin-error").textContent = "";
+    pinMode = "pin-set-new"; return;
+  }
+
+  // 5. PIN 해제 — 기존 PIN 확인
+  if (pinMode === "pin-remove") {
+    const pinSnap = await get(ref(db,`pins/${safeKey(nickname)}`));
+    const stored = pinSnap.val();
+    const hashed = await hashPin(pin, stored.salt);
+    if (hashed !== stored.hash) { setPinError("PIN이 틀렸어요"); return; }
+    await remove(ref(db,`pins/${safeKey(nickname)}`));
+    localStorage.removeItem("cozy_pin_autologin");
+    pinHasPin = false; updatePinLockBtn();
+    closePinModal(); showToast("🔓 PIN이 해제됐어요");
+    return;
+  }
+}
+
+// ── PIN 설정 버튼 (헤더) ─────────────────────────────────
+window.openPinSetting = function() {
+  if (!pinHasPin) {
+    // PIN 없음 → 새로 설정
+    openPinModal("pin-set-new", "🔒 PIN 설정", "새 PIN 4자리를 입력하세요", false, false);
+  } else {
+    // PIN 있음 → 변경/해제 선택
+    const action = confirm("PIN을 변경하려면 확인을 누르세요.\n취소를 누르면 PIN을 해제합니다.");
+    if (action) {
+      openPinModal("pin-change-old", "🔑 PIN 변경", "현재 PIN을 입력하세요", false, false);
+    } else {
+      openPinModal("pin-remove", "🔓 PIN 해제", "현재 PIN을 입력하세요", false, false);
+    }
+  }
+}
+
+// ── 관리자: PIN 강제 초기화 ──────────────────────────────
+window.resetMemberPin = async function(nick) {
+  if (!confirm(`"${nick}"의 PIN을 초기화할까요?\n해당 계정은 PIN 없이 로그인 가능해져요.`)) return;
+  await remove(ref(db,`pins/${safeKey(nick)}`));
+  showToast(`"${nick}" PIN 초기화 완료`);
+}
+
+// ── 페이지 첫 로드 ───────────────────────────────────────
 subscribeDB();
-renderContent();
+tryAutoLogin().then(loggedIn => { if (!loggedIn) renderContent(); });
 
 // ── 탭 ────────────────────────────────────────────────────
 window.switchTab = function(tab) {
@@ -1375,6 +1654,7 @@ function renderAdmin() {
         ${blocked.includes(n)?'<span class="blocked-tag">차단됨</span>':""}
         <span class="member-count">꽃 ${Object.keys(selections).filter(id=>selections[id]&&selections[id][n.replace(/[.#$\/\[\]]/g,"_")]).length}개</span>
         <button class="rename-btn" onclick="startRename('${n}')">✏️ 이름변경</button>
+        <button class="rename-btn" style="color:#e65100;border-color:#ffcc80;background:#fff8e1" onclick="resetMemberPin('${n}')" title="PIN 초기화">🔓 PIN</button>
         <button class="unblock-btn" onclick="deleteMember('${n}')" style="margin-left:4px">삭제</button>
       </div>`).join("")}
       ${memberList.length===0?'<div style="font-size:13px;color:var(--text3)">아직 접속한 길드원이 없습니다.</div>':""}
