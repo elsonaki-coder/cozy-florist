@@ -253,7 +253,67 @@
 
   .cpn-loading{text-align:center;padding:2rem;font-size:13px;color:var(--text2);}
   .cpn-error{background:#fff5f5;border:1px solid #f5c0c0;border-radius:var(--radius);padding:14px;font-size:12px;color:#c05030;text-align:center;margin-bottom:1rem;}
-  .cpn-notice{text-align:center;font-size:11px;color:var(--text3);margin-top:1.5rem;padding-bottom:.5rem;}
+  /* ── 게시판 ── */
+  .board-write-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:12px;background:var(--green);color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;margin-bottom:1rem;transition:background .15s;}
+  .board-write-btn:hover{background:#388e3c;}
+  .board-login-nudge{text-align:center;padding:10px;font-size:12px;color:var(--text2);background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:1rem;}
+
+  /* 포스트잇 카드 */
+  .board-list{display:flex;flex-direction:column;gap:10px;}
+  .board-card{border-radius:var(--radius);padding:14px 14px 10px;border:none;box-shadow:0 2px 6px rgba(0,0,0,.07);position:relative;transition:box-shadow .15s;}
+  .board-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.12);}
+  .board-card.pinned{box-shadow:0 2px 8px rgba(76,175,80,.25);border:1.5px solid var(--green-mid);}
+  .board-card-colors{--c0:#fff9c4;--c1:#fce4ec;--c2:#e3f2fd;--c3:#f3e5f5;--c4:#e8f5e9;--c5:#fff3e0;--c6:#e8eaf6;--c7:#fce4ec;}
+  .bc0{background:#fff9c4;} .bc1{background:#fce4ec;} .bc2{background:#e3f2fd;}
+  .bc3{background:#f3e5f5;} .bc4{background:#e8f5e9;} .bc5{background:#fff3e0;}
+  .bc6{background:#e8eaf6;} .bc7{background:#f9fbe7;}
+
+  .board-card-header{display:flex;align-items:center;gap:6px;margin-bottom:8px;}
+  .board-avatar{width:30px;height:30px;border-radius:50%;background:var(--green);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .board-author{font-size:13px;font-weight:700;color:var(--text);flex:1;}
+  .board-time{font-size:11px;color:var(--text3);}
+  .board-pin-badge{font-size:10px;background:var(--green-light);color:#2e7d32;border:1px solid var(--green-mid);border-radius:8px;padding:1px 7px;font-weight:500;}
+  .board-notice-badge{font-size:10px;background:#fff3e0;color:#e65100;border:1px solid #ffcc80;border-radius:8px;padding:1px 7px;font-weight:500;}
+
+  .board-card-body{font-size:14px;color:var(--text);line-height:1.65;white-space:pre-wrap;word-break:break-word;margin-bottom:8px;}
+  .board-card-img{width:100%;max-height:220px;object-fit:cover;border-radius:var(--radius-sm);margin-bottom:8px;cursor:pointer;}
+
+  .board-card-footer{display:flex;align-items:center;gap:8px;border-top:1px solid rgba(0,0,0,.06);padding-top:8px;margin-top:2px;}
+  .board-action-btn{font-size:12px;color:var(--text2);background:transparent;border:none;cursor:pointer;font-family:inherit;padding:3px 6px;border-radius:6px;transition:background .1s;}
+  .board-action-btn:hover{background:rgba(0,0,0,.06);}
+  .board-action-btn.danger{color:#c62828;}
+  .board-comment-count{font-size:12px;color:var(--text2);margin-left:auto;}
+
+  /* 댓글 */
+  .board-comments{margin-top:8px;display:flex;flex-direction:column;gap:6px;}
+  .board-comment{display:flex;gap:8px;align-items:flex-start;}
+  .board-comment-avatar{width:24px;height:24px;border-radius:50%;background:var(--border2);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+  .board-comment-body{flex:1;background:rgba(255,255,255,.55);border-radius:8px;padding:6px 9px;}
+  .board-comment-nick{font-size:11px;font-weight:700;color:var(--text2);}
+  .board-comment-text{font-size:13px;color:var(--text);line-height:1.5;white-space:pre-wrap;word-break:break-word;}
+  .board-comment-del{font-size:11px;color:var(--text3);border:none;background:transparent;cursor:pointer;font-family:inherit;padding:0 2px;}
+  .board-comment-del:hover{color:#c62828;}
+  .board-comment-input-row{display:flex;gap:6px;margin-top:6px;}
+  .board-comment-input{flex:1;padding:7px 10px;border:1px solid rgba(0,0,0,.12);border-radius:20px;font-size:13px;font-family:inherit;color:var(--text);background:rgba(255,255,255,.7);outline:none;}
+  .board-comment-input:focus{border-color:var(--green);}
+  .board-comment-submit{padding:7px 13px;border-radius:20px;border:none;background:var(--green);color:#fff;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;}
+
+  /* 작성 모달 */
+  .board-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:flex;align-items:flex-end;justify-content:center;}
+  .board-modal{background:var(--card);border-radius:var(--radius) var(--radius) 0 0;padding:1.25rem;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 -4px 24px rgba(0,0,0,.15);}
+  .board-modal-title{font-size:15px;font-weight:700;margin-bottom:1rem;color:var(--text);}
+  .board-textarea{width:100%;min-height:100px;padding:10px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;color:var(--text);background:#fff;outline:none;resize:vertical;line-height:1.6;}
+  .board-textarea:focus{border-color:var(--green);}
+  .board-color-picker{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap;}
+  .board-color-dot{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .15s;}
+  .board-color-dot.selected{border-color:#333;transform:scale(1.2);}
+  .board-img-input{width:100%;padding:8px 10px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;color:var(--text2);background:#fff;outline:none;margin-bottom:10px;}
+  .board-modal-row{display:flex;gap:8px;margin-top:.5rem;}
+  .board-submit-btn{flex:1;padding:11px;background:var(--green);color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;}
+  .board-submit-btn:hover{background:#388e3c;}
+  .board-cancel-btn{padding:11px 16px;background:var(--bg);color:var(--text);border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;cursor:pointer;}
+  .board-pin-toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);margin-bottom:10px;}
+  .board-empty{text-align:center;padding:3rem 1rem;color:var(--text2);font-size:14px;}
 </style>
 </head>
 <body>
@@ -280,11 +340,42 @@
   <div class="tabs" id="tabs">
     <button class="tab" id="tab-my" onclick="switchTab('my')" style="display:none">내 꽃 관리</button>
     <button class="tab active" id="tab-guild" onclick="switchTab('guild')">길드 현황</button>
+    <button class="tab" id="tab-board" onclick="switchTab('board')">📋 게시판</button>
     <button class="tab" id="tab-coupon" onclick="switchTab('coupon')">🎟 교환코드</button>
     <button class="tab" id="admin-tab" style="display:none" onclick="switchTab('admin')">관리자 ⚙️</button>
   </div>
   <div id="save-bar" class="save-bar" style="display:none">저장 중...</div>
   <div class="content" id="content"></div>
+</div>
+
+<!-- BOARD WRITE MODAL -->
+<div class="board-modal-backdrop" id="board-modal" style="display:none" onclick="closeBoardModal(event)">
+  <div class="board-modal" onclick="event.stopPropagation()">
+    <div class="board-modal-title" id="board-modal-title">📋 새 글 쓰기</div>
+    <textarea class="board-textarea" id="board-text" placeholder="자유롭게 써주세요 🌸&#10;공지, 정보 공유, 잡담 모두 환영해요!" maxlength="500"></textarea>
+    <div style="font-size:11px;color:var(--text3);text-align:right;margin-bottom:6px" id="board-char-count">0 / 500</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:6px">🖼 이미지 URL (선택)</div>
+    <input class="board-img-input" id="board-img-url" placeholder="이미지 주소 붙여넣기 (Imgur, Gyazo 등)">
+    <div style="font-size:12px;color:var(--text2);margin-bottom:6px">🎨 카드 색상</div>
+    <div class="board-color-picker" id="board-color-picker">
+      <div class="board-color-dot selected" style="background:#fff9c4" data-ci="0" onclick="selectBoardColor(0)"></div>
+      <div class="board-color-dot" style="background:#fce4ec" data-ci="1" onclick="selectBoardColor(1)"></div>
+      <div class="board-color-dot" style="background:#e3f2fd" data-ci="2" onclick="selectBoardColor(2)"></div>
+      <div class="board-color-dot" style="background:#f3e5f5" data-ci="3" onclick="selectBoardColor(3)"></div>
+      <div class="board-color-dot" style="background:#e8f5e9" data-ci="4" onclick="selectBoardColor(4)"></div>
+      <div class="board-color-dot" style="background:#fff3e0" data-ci="5" onclick="selectBoardColor(5)"></div>
+      <div class="board-color-dot" style="background:#e8eaf6" data-ci="6" onclick="selectBoardColor(6)"></div>
+      <div class="board-color-dot" style="background:#f9fbe7" data-ci="7" onclick="selectBoardColor(7)"></div>
+    </div>
+    <div class="board-pin-toggle" id="board-pin-row" style="display:none">
+      <input type="checkbox" id="board-pin-check" style="width:16px;height:16px;accent-color:var(--green)">
+      <label for="board-pin-check">📌 공지로 고정하기</label>
+    </div>
+    <div class="board-modal-row">
+      <button class="board-cancel-btn" onclick="closeBoardModal()">취소</button>
+      <button class="board-submit-btn" onclick="submitBoard()">게시하기</button>
+    </div>
+  </div>
 </div>
 
 <!-- FLOWER MODAL -->
@@ -341,7 +432,7 @@ const db = getDatabase(fbApp);
 
 // ── 꽃 데이터 ──────────────────────────────────────────────
 const FLOWERS = [
-  {id:0,grade:"N",cond:"레벨",name:"붉은 장미"},{id:1,grade:"N",cond:"레벨",name:"은방울꽃"},{id:2,grade:"N",cond:"레벨",name:"자색 도라지"},{id:3,grade:"N",cond:"레벨",name:"노란장미"},{id:4,grade:"N",cond:"레벨",name:"카네이션"},{id:5,grade:"N",cond:"레벨",name:"노란 튤립"},{id:6,grade:"N",cond:"레벨",name:"제비꽃"},{id:7,grade:"N",cond:"레벨",name:"분홍 튤립"},{id:8,grade:"N",cond:"레벨",name:"호접란"},{id:9,grade:"N",cond:"레벨",name:"분홍 장미"},{id:10,grade:"N",cond:"레벨",name:"흰 백합"},{id:11,grade:"N",cond:"레벨",name:"데이지"},{id:12,grade:"N",cond:"레벨",name:"분홍 백합"},{id:13,grade:"N",cond:"레벨",name:"푸른볓꽃"},{id:14,grade:"N",cond:"레벨",name:"노란 백합"},{id:15,grade:"N",cond:"레벨",name:"자색 수국"},{id:16,grade:"N",cond:"레벨",name:"동백꽃"},{id:17,grade:"N",cond:"레벨",name:"분홍 수국"},{id:18,grade:"N",cond:"레벨",name:"구즈마니아"},{id:19,grade:"N",cond:"레벨",name:"파란 수국"},{id:20,grade:"N",cond:"레벨",name:"해바라기"},{id:21,grade:"N",cond:"레벨",name:"프리지아"},{id:22,grade:"N",cond:"레벨",name:"금술 국화"},{id:23,grade:"N",cond:"레벨",name:"수선화"},{id:24,grade:"N",cond:"레벨",name:"거베라"},{id:25,grade:"N",cond:"레벨",name:"붉은 카라"},{id:26,grade:"N",cond:"레벨",name:"초롱꽃"},{id:27,grade:"N",cond:"레벨",name:"노란 카라"},{id:28,grade:"N",cond:"레벨",name:"민들레"},{id:29,grade:"N",cond:"레벨",name:"자색 카라"},{id:30,grade:"N",cond:"레벨",name:"연보라 히아신스"},{id:31,grade:"N",cond:"레벨",name:"자귀나무꽃"},{id:32,grade:"N",cond:"레벨",name:"연분홍 히아신스"},{id:33,grade:"N",cond:"레벨",name:"재스민"},{id:34,grade:"N",cond:"레벨",name:"연노랑 히아신스"},{id:35,grade:"N",cond:"레벨",name:"황금 여의 국화"},{id:36,grade:"N",cond:"레벨",name:"치자꽃"},{id:37,grade:"N",cond:"레벨",name:"연분홍 여의 국화"},{id:38,grade:"N",cond:"레벨",name:"분홍 복사꽃"},{id:39,grade:"N",cond:"레벨",name:"연귤색 여의 국화"},{id:40,grade:"N",cond:"레벨",name:"비취 리시안셔스"},{id:41,grade:"N",cond:"레벨",name:"자운 라일락"},{id:42,grade:"N",cond:"레벨",name:"붉은구름 리시안셔스"},{id:43,grade:"N",cond:"레벨",name:"연노랑 라일락"},{id:44,grade:"N",cond:"레벨",name:"호박 리시안셔스"},{id:45,grade:"N",cond:"레벨",name:"자홍색 부겐빌레아"},{id:46,grade:"N",cond:"레벨",name:"물망초"},{id:47,grade:"N",cond:"레벨",name:"연노랑 부겐빌레아"},{id:48,grade:"N",cond:"레벨",name:"설혼 구리향"},{id:49,grade:"N",cond:"레벨",name:"연벚꽃 부겐빌레아"},{id:50,grade:"N",cond:"레벨",name:"탐스러운 덩굴장미"},{id:51,grade:"N",cond:"레벨",name:"성심 백합"},{id:52,grade:"N",cond:"레벨",name:"자색 폭스테일"},{id:53,grade:"N",cond:"레벨",name:"서리꽃 석곡"},{id:54,grade:"N",cond:"레벨",name:"분홍색 폭스테일"},{id:55,grade:"N",cond:"레벨",name:"청백 로벨리아"},{id:56,grade:"N",cond:"레벨",name:"노란 폭스테일"},{id:57,grade:"N",cond:"레벨",name:"자색 괭이밥"},{id:58,grade:"N",cond:"레벨",name:"주황색 괭이밥"},{id:59,grade:"N",cond:"레벨",name:"빛나는 노란 괭이밥"},
+  {id:0,grade:"N",cond:"레벨",name:"붉은 장미"},{id:1,grade:"N",cond:"레벨",name:"은방울꽃"},{id:2,grade:"N",cond:"레벨",name:"자색 도라지"},{id:3,grade:"N",cond:"레벨",name:"노란 장미"},{id:4,grade:"N",cond:"레벨",name:"카네이션"},{id:5,grade:"N",cond:"레벨",name:"노란 튤립"},{id:6,grade:"N",cond:"레벨",name:"제비꽃"},{id:7,grade:"N",cond:"레벨",name:"분홍 튤립"},{id:8,grade:"N",cond:"레벨",name:"호접란"},{id:9,grade:"N",cond:"레벨",name:"분홍 장미"},{id:10,grade:"N",cond:"레벨",name:"흰 백합"},{id:11,grade:"N",cond:"레벨",name:"데이지"},{id:12,grade:"N",cond:"레벨",name:"분홍 백합"},{id:13,grade:"N",cond:"레벨",name:"푸른별꽃"},{id:14,grade:"N",cond:"레벨",name:"노란 백합"},{id:15,grade:"N",cond:"레벨",name:"자색 수국"},{id:16,grade:"N",cond:"레벨",name:"동백꽃"},{id:17,grade:"N",cond:"레벨",name:"분홍 수국"},{id:18,grade:"N",cond:"레벨",name:"구즈마니아"},{id:19,grade:"N",cond:"레벨",name:"파란 수국"},{id:20,grade:"N",cond:"레벨",name:"해바라기"},{id:21,grade:"N",cond:"레벨",name:"프리지아"},{id:22,grade:"N",cond:"레벨",name:"금술 국화"},{id:23,grade:"N",cond:"레벨",name:"수선화"},{id:24,grade:"N",cond:"레벨",name:"거베라"},{id:25,grade:"N",cond:"레벨",name:"붉은 카라"},{id:26,grade:"N",cond:"레벨",name:"초롱꽃"},{id:27,grade:"N",cond:"레벨",name:"노란 카라"},{id:28,grade:"N",cond:"레벨",name:"민들레"},{id:29,grade:"N",cond:"레벨",name:"자색 카라"},{id:30,grade:"N",cond:"레벨",name:"연보라 히아신스"},{id:31,grade:"N",cond:"레벨",name:"자귀나무꽃"},{id:32,grade:"N",cond:"레벨",name:"연분홍 히아신스"},{id:33,grade:"N",cond:"레벨",name:"재스민"},{id:34,grade:"N",cond:"레벨",name:"연노랑 히아신스"},{id:35,grade:"N",cond:"레벨",name:"황금 여의 국화"},{id:36,grade:"N",cond:"레벨",name:"치자꽃"},{id:37,grade:"N",cond:"레벨",name:"연분홍 여의 국화"},{id:38,grade:"N",cond:"레벨",name:"분홍 복사꽃"},{id:39,grade:"N",cond:"레벨",name:"연귤색 여의 국화"},{id:40,grade:"N",cond:"레벨",name:"비취 리시안셔스"},{id:41,grade:"N",cond:"레벨",name:"자운 라일락"},{id:42,grade:"N",cond:"레벨",name:"붉은구름 리시안셔스"},{id:43,grade:"N",cond:"레벨",name:"연노랑 라일락"},{id:44,grade:"N",cond:"레벨",name:"호박 리시안셔스"},{id:45,grade:"N",cond:"레벨",name:"자홍색 부겐빌레아"},{id:46,grade:"N",cond:"레벨",name:"물망초"},{id:47,grade:"N",cond:"레벨",name:"연노랑 부겐빌레아"},{id:48,grade:"N",cond:"레벨",name:"설혼 구리향"},{id:49,grade:"N",cond:"레벨",name:"연벚꽃 부겐빌레아"},{id:50,grade:"N",cond:"레벨",name:"탐스러운 덩굴장미"},{id:51,grade:"N",cond:"레벨",name:"성심 백합"},{id:52,grade:"N",cond:"레벨",name:"자색 폭스테일"},{id:53,grade:"N",cond:"레벨",name:"서리꽃 석곡"},{id:54,grade:"N",cond:"레벨",name:"분홍색 폭스테일"},{id:55,grade:"N",cond:"레벨",name:"청백 로벨리아"},{id:56,grade:"N",cond:"레벨",name:"노란 폭스테일"},{id:57,grade:"N",cond:"레벨",name:"자색 괭이밥"},{id:58,grade:"N",cond:"레벨",name:"주황색 괭이밥"},{id:59,grade:"N",cond:"레벨",name:"빛나는 노란 괭이밥"},
   {id:60,grade:"R",cond:"꽃시장 현상금",name:"수정빛 페튜니아"},{id:61,grade:"R",cond:"꽃시장 현상금",name:"금살구 페튜니아"},{id:62,grade:"R",cond:"꽃시장 현상금",name:"연분홍 폼폼 국화"},{id:63,grade:"R",cond:"꽃시장 현상금",name:"연귤색 폼폼 국화"},{id:64,grade:"R",cond:"꽃시장 현상금",name:"순백 폼폼 국화"},{id:65,grade:"R",cond:"꽃시장 현상금",name:"스파티필룸"},{id:66,grade:"R",cond:"꽃시장 현상금",name:"안스리움"},{id:67,grade:"R",cond:"꽃시장 현상금",name:"라이트 클레마티스"},{id:68,grade:"R",cond:"꽃시장 현상금",name:"향수 백합"},{id:69,grade:"R",cond:"꽃시장 현상금",name:"극락조화"},{id:70,grade:"R",cond:"꽃시장 현상금",name:"개나리"},{id:71,grade:"R",cond:"별똥별의 향기",name:"연노랑 녹융호"},{id:72,grade:"R",cond:"별똥별의 향기",name:"금살구 온시디움"},{id:73,grade:"R",cond:"별똥별의 향기",name:"순백 코스모스"},{id:74,grade:"R",cond:"꽃시장 교환",name:"다투라"},{id:75,grade:"R",cond:"꽃시장 교환",name:"석산"},{id:76,grade:"R",cond:"꽃시장 교환",name:"개상사화"},{id:77,grade:"R",cond:"꽃시장 교환",name:"복숭아빛 노루오줌"},{id:78,grade:"R",cond:"꽃시장 교환",name:"반쯤 핀 칼랑코에"},{id:79,grade:"R",cond:"꽃시장 교환",name:"핑크 심비디움"},{id:80,grade:"R",cond:"꽃시장 교환",name:"붉은 노을 아부틸론"},{id:81,grade:"R",cond:"꽃시장 교환",name:"연분홍 협죽도"},{id:82,grade:"R",cond:"꽃시장 교환",name:"자홍색 협죽도"},{id:83,grade:"R",cond:"꽃시장 교환",name:"보랏빛 아부틸론"},{id:84,grade:"R",cond:"꽃시장 교환",name:"진홍빛 아부틸론"},{id:85,grade:"R",cond:"꽃시장 교환",name:"금살구 진달래"},{id:86,grade:"R",cond:"꽃시장 교환",name:"아리따운 진달래"},{id:87,grade:"R",cond:"꽃시장 교환",name:"비취잎 소철"},{id:88,grade:"R",cond:"꽃향기 조향",name:"하늘빛 재클린"},{id:89,grade:"R",cond:"VIP 상점",name:"자홍깃 재클린"},{id:90,grade:"R",cond:"꽃의 밀령",name:"복숭아빛 재클린"},{id:91,grade:"R",cond:"꽃시장 교환",name:"촉영 해당화"},{id:92,grade:"R",cond:"꽃시장 교환",name:"취한뺨 해당화"},{id:93,grade:"R",cond:"꽃시장 교환",name:"금박 베고니아"},{id:94,grade:"R",cond:"VIP 상점",name:"푸른 솜털 안개꽃"},{id:95,grade:"R",cond:"꽃시장 교환",name:"금술 접시꽃"},{id:96,grade:"R",cond:"꽃시장 교환",name:"안개 자색 아프리칸바이올렛"},{id:97,grade:"R",cond:"꽃시장 교환",name:"연분홍 아프리칸바이올렛"},{id:98,grade:"R",cond:"꽃시장 교환",name:"연지 아프리칸바이올렛"},{id:99,grade:"R",cond:"꽃시장 교환",name:"그윽한 보랏빛 델피니움"},{id:100,grade:"R",cond:"꽃시장 교환",name:"복숭아빛 델피니움"},{id:101,grade:"R",cond:"꽃시장 교환",name:"구름빛 델피니움"},{id:102,grade:"R",cond:"펫",name:"백설 노루귀"},{id:103,grade:"R",cond:"미식 파티",name:"레트로 코코아"},{id:104,grade:"R",cond:"향기로운 회랑",name:"앵규다정"},{id:234,grade:"R",cond:"기타",name:"라넌큘러스"},
   {id:105,grade:"SR",cond:"꽃시장 현상금",name:"연분홍 페튜니아"},{id:106,grade:"SR",cond:"별똥별의 향기",name:"붉은 벚꽃 달맞이꽃"},{id:107,grade:"SR",cond:"별똥별의 향기",name:"푸른빛 달맞이꽃"},{id:108,grade:"SR",cond:"별똥별의 향기",name:"진홍 벚꽃 나비무 장미"},{id:109,grade:"SR",cond:"별똥별의 향기",name:"영롱한 얼음빛 납매"},{id:110,grade:"SR",cond:"누적 충전",name:"붉은노을 접시꽃"},{id:111,grade:"SR",cond:"꽃의 밀령",name:"달계곡 등나무"},{id:112,grade:"SR",cond:"꽃시장 교환",name:"윤기나는 작약"},{id:113,grade:"SR",cond:"누적 충전",name:"창공빛 산호초"},{id:114,grade:"SR",cond:"누적 충전",name:"베들레헴의 별"},{id:115,grade:"SR",cond:"누적 충전",name:"별꿈 해파리"},{id:116,grade:"SR",cond:"꽃시장 교환",name:"분홍 수레국화"},{id:117,grade:"SR",cond:"꽃시장 교환",name:"우아한 보랏빛 알리움"},{id:118,grade:"SR",cond:"꽃시장 교환",name:"푸른 소철"},{id:119,grade:"SR",cond:"꽃시장 교환",name:"브룬펠시아"},{id:120,grade:"SR",cond:"꽃시장 교환",name:"타오르는 불꽃 레난테라"},{id:121,grade:"SR",cond:"꽃시장 교환",name:"꿀처럼 부드러운 달맞이꽃"},{id:122,grade:"SR",cond:"꽃시장 교환",name:"금서리 붓꽃"},{id:123,grade:"SR",cond:"꽃시장 교환",name:"분홍 수정 루위시아"},{id:124,grade:"SR",cond:"꽃시장 교환",name:"따뜻한 노랑 루위시아"},{id:125,grade:"SR",cond:"꽃시장 교환",name:"서리꽃 맥문동"},{id:126,grade:"SR",cond:"꽃시장 교환",name:"분홍 안개 맥문동"},{id:127,grade:"SR",cond:"꽃시장 교환",name:"홍시 칼랑코에"},{id:128,grade:"SR",cond:"꽃시장 교환",name:"연지빛 헬레보루스"},{id:129,grade:"SR",cond:"꽃시장 교환",name:"차홍색 헬레보루스"},{id:130,grade:"SR",cond:"꽃시장 교환",name:"유벽 메코놉시스"},{id:131,grade:"SR",cond:"꽃시장 교환",name:"흑자색 메코놉시스"},{id:132,grade:"SR",cond:"꽃시장 교환",name:"연분홍 조팝나무"},{id:133,grade:"SR",cond:"꽃시장 교환",name:"우아한 보라 코스모스"},{id:134,grade:"SR",cond:"꽃시장 교환",name:"진홍색 달리아"},{id:135,grade:"SR",cond:"꽃시장 교환",name:"흑수정 달리아"},{id:136,grade:"SR",cond:"꽃시장 교환",name:"분홍 스파티필룸"},{id:137,grade:"SR",cond:"꽃시장 교환",name:"연홍색 접시꽃"},{id:138,grade:"SR",cond:"꽃시장 교환",name:"붉은불꽃 아네모네"},{id:139,grade:"SR",cond:"꽃시장 교환",name:"황금잎 금목서"},{id:140,grade:"SR",cond:"꽃시장 교환",name:"진사 단목서"},{id:141,grade:"SR",cond:"꽃시장 교환",name:"창봉 은목서"},{id:142,grade:"SR",cond:"꽃시장 교환",name:"노을빛 산호꽃"},{id:143,grade:"SR",cond:"꽃시장 교환",name:"연자색 산호꽃"},{id:144,grade:"SR",cond:"꽃시장 교환",name:"달빛 아네모네"},{id:145,grade:"SR",cond:"꽃시장 교환",name:"구름자수 작약"},{id:146,grade:"SR",cond:"꽃시장 교환",name:"연지 작약"},{id:147,grade:"SR",cond:"꽃 패키지",name:"황혼 등나무"},{id:148,grade:"SR",cond:"패키지 화단",name:"연지빛 개양귀비"},{id:149,grade:"SR",cond:"패키지 화단",name:"흑자색 개양귀비"},{id:150,grade:"SR",cond:"패키지 화단",name:"햇살 개양귀비"},{id:151,grade:"SR",cond:"패키지 화단",name:"꿈의 보라 으아리"},{id:152,grade:"SR",cond:"패키지 화단",name:"연분홍 버베나"},{id:153,grade:"SR",cond:"패키지 화단",name:"오렌지꿀 버베나"},{id:154,grade:"SR",cond:"패키지 화단",name:"자색 수레국화"},{id:155,grade:"SR",cond:"패키지 화단",name:"푸른 수레국화"},{id:156,grade:"SR",cond:"패키지 화단",name:"아련한 자색 아스틸베"},{id:157,grade:"SR",cond:"패키지 화단",name:"구름빛 아스틸베"},{id:158,grade:"SR",cond:"패키지 화단",name:"분홍안개 붓꽃"},{id:159,grade:"SR",cond:"패키지 화단",name:"비홍 붓꽃"},{id:160,grade:"SR",cond:"패키지 화단",name:"흑자색 목련"},{id:161,grade:"SR",cond:"패키지 화단",name:"금빛 목련"},{id:162,grade:"SR",cond:"패키지 화단",name:"청영 루위시아"},{id:163,grade:"SR",cond:"패키지 화단",name:"자색 맥문동"},{id:164,grade:"SR",cond:"패키지 화단",name:"윤분홍 칼랑코에"},{id:165,grade:"SR",cond:"패키지 화단",name:"병아리색 헬레보루스"},{id:166,grade:"SR",cond:"패키지 화단",name:"핑크화이트 심비디움"},{id:167,grade:"SR",cond:"패키지 화단",name:"봄빛 심비디움"},{id:168,grade:"SR",cond:"패키지 화단",name:"금종 개나리"},{id:169,grade:"SR",cond:"패키지 화단",name:"새하얀 조팝나무"},{id:170,grade:"SR",cond:"패키지 화단",name:"벚꽃 온시디움"},{id:171,grade:"SR",cond:"패키지 화단",name:"단풍 온시디움"},{id:172,grade:"SR",cond:"패키지 화단",name:"분홍구름 코스모스"},{id:173,grade:"SR",cond:"패키지 화단",name:"분홍 복숭아 달리아"},{id:174,grade:"SR",cond:"패키지 화단",name:"향설 목향장미"},{id:175,grade:"SR",cond:"패키지 화단",name:"용금 아네모네"},{id:176,grade:"SR",cond:"패키지 화단",name:"창벽 협죽도"},{id:177,grade:"SR",cond:"패키지 화단",name:"진홍 진달래"},{id:178,grade:"SR",cond:"패키지 화단",name:"꾀꼬리 장미"},{id:179,grade:"SR",cond:"패키지 화단",name:"맑은 봉우리 장미"},{id:180,grade:"SR",cond:"패키지 화단",name:"아지랑이빛 장미"},{id:181,grade:"SR",cond:"꽃시장 교환",name:"묵옥 아네모네"},{id:182,grade:"SR",cond:"꽃시장 교환",name:"먹술 아네모네"},{id:183,grade:"SR",cond:"꽃의 밀령",name:"자색 글라디올러스"},{id:184,grade:"SR",cond:"패키지 화단",name:"주황 불꽃 글라디올러스"},{id:185,grade:"SR",cond:"별똥별의 향기",name:"연지 아네모네"},{id:186,grade:"SR",cond:"패키지 화단",name:"옥빛 글라디올러스"},{id:187,grade:"SR",cond:"꽃시장 교환",name:"노을빛 아마릴리스"},{id:188,grade:"SR",cond:"패키지 화단",name:"황금목 아마릴리스"},{id:189,grade:"SR",cond:"패키지 화단",name:"붉은 깃털 아마릴리스"},{id:190,grade:"SR",cond:"꽃시장 교환",name:"붉은 눈 목향장미"},{id:191,grade:"SR",cond:"꽃시장 교환",name:"새벽빛 목향장미"},{id:192,grade:"SR",cond:"첫 충전 특별 선물",name:"반짝 솜토끼"},{id:193,grade:"SR",cond:"7일 접속",name:"윤생 호랑가시나무"},{id:194,grade:"SR",cond:"성장의 길",name:"연지 무궁화"},{id:195,grade:"SR",cond:"누적 충전",name:"취한 별의 꿈"},{id:196,grade:"SR",cond:"풍요의 별그림",name:"따스한 여름 햇살"},{id:197,grade:"SR",cond:"풍요의 별그림",name:"진주 제비난"},{id:230,grade:"SR",cond:"꽃 패키지",name:"창공빛 등나무"},
   {id:198,grade:"SSR",cond:"별똥별의 향기",name:"옥구슬 목련"},{id:199,grade:"SSR",cond:"누적 충전",name:"별빛 꿈의 방주"},{id:200,grade:"SSR",cond:"스타소울 상점",name:"행운의 올리브"},{id:201,grade:"SSR",cond:"스타소울 상점",name:"크리스마스의 밤"},{id:202,grade:"SSR",cond:"패키지 화단",name:"홍운 납매"},{id:203,grade:"SSR",cond:"패키지 화단",name:"진홍빛 납매"},{id:204,grade:"SSR",cond:"패키지 화단",name:"수정빛 나비춤 장미"},{id:205,grade:"SSR",cond:"패키지 화단",name:"황금 장미"},{id:206,grade:"SSR",cond:"패키지 화단",name:"몽롱한 청아"},{id:207,grade:"SSR",cond:"패키지 화단",name:"비령추란"},{id:208,grade:"SSR",cond:"패키지 화단",name:"자색 여운"},{id:209,grade:"SSR",cond:"패키지 화단",name:"분홍빛 물결꽃"},{id:210,grade:"SSR",cond:"패키지 화단",name:"푸른안개 모란"},{id:211,grade:"SSR",cond:"패키지 화단",name:"봄 살구빛 옷자락"},{id:212,grade:"SSR",cond:"패키지 화단",name:"선녀의 춤"},{id:213,grade:"SSR",cond:"패키지 화단",name:"먹빛 모란"},{id:214,grade:"SSR",cond:"패키지 화단",name:"보랏빛 꿈 부용"},{id:215,grade:"SSR",cond:"꽃 패키지",name:"분홍옥 부용"},{id:216,grade:"SSR",cond:"패키지 화단",name:"달빛 모란"},{id:217,grade:"SSR",cond:"스타소울 상점",name:"가을빛 단풍"},{id:218,grade:"SSR",cond:"미식 파티",name:"심쿵 스위트 베리"},{id:219,grade:"SSR",cond:"향기로운 회랑",name:"푸른 물결의 춤"},{id:220,grade:"SSR",cond:"향기로운 회랑",name:"황금빛 단꿈"},{id:221,grade:"SSR",cond:"향기로운 회랑",name:"보랏빛 구름의 안식"},{id:229,grade:"SSR",cond:"커플 플라워 데이트",name:"성란화의 언약"},{id:232,grade:"SSR",cond:"기타",name:"꽃케이크 바구니"},{id:233,grade:"SSR",cond:"기타",name:"차와 야옹 이야기"},{id:235,grade:"SSR",cond:"꽃 패키지",name:"귤빛 불꽃 부용"},
@@ -534,9 +625,11 @@ window.switchTab = function(tab) {
   document.querySelectorAll(".tab").forEach(el => el.classList.remove("active"));
   if(tab==="my")     document.getElementById("tab-my").classList.add("active");
   else if(tab==="guild")  document.getElementById("tab-guild").classList.add("active");
+  else if(tab==="board")  document.getElementById("tab-board").classList.add("active");
   else if(tab==="coupon") document.getElementById("tab-coupon").classList.add("active");
   else if(tab==="admin")  document.getElementById("admin-tab").classList.add("active");
   if(tab==="coupon" && (!cpnLoaded || cpnLoaded==='error')) cpnSubscribe();
+  if(tab==="board" && !boardSubbed) boardSubscribe();
   renderContent();
 }
 
@@ -639,10 +732,10 @@ window.deleteCustomFlower = async function() {
   editingFlowerKey = null;
 }
 function renderContent() {
-  // 비로그인인데 my/admin 탭이면 guild로 강제
   if (!nickname && (currentTab === "my" || currentTab === "admin")) currentTab = "guild";
   if (currentTab === "my") renderMy();
   else if (currentTab === "guild") renderGuild();
+  else if (currentTab === "board") renderBoard();
   else if (currentTab === "coupon") renderCoupon();
   else if (currentTab === "admin") renderAdmin();
 }
@@ -1408,6 +1501,234 @@ window.doBlock = function() {
   if (!nick) return;
   window.toggleBlock(nick);
   document.getElementById("block-input").value = "";
+}
+
+// ══════════════════════════════════════════════════════════
+// ── 게시판 ────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════
+let boardPosts   = {};   // { postId: { author, text, imgUrl, color, pinned, notice, createdAt, comments:{} } }
+let boardSubbed  = false;
+let boardEditId  = null; // 수정 중인 postId
+let boardColorIdx = 0;
+const BOARD_COLORS = ['#fff9c4','#fce4ec','#e3f2fd','#f3e5f5','#e8f5e9','#fff3e0','#e8eaf6','#f9fbe7'];
+const AVATAR_COLORS = ['#81c784','#f48fb1','#64b5f6','#ce93d8','#ffb74d','#4db6ac','#a1887f','#90a4ae'];
+
+function avatarColor(nick) {
+  let n=0; for(let c of (nick||'')) n+=c.charCodeAt(0);
+  return AVATAR_COLORS[n % AVATAR_COLORS.length];
+}
+function avatarLetter(nick) { return (nick||'?')[0].toUpperCase(); }
+function timeAgo(ts) {
+  const d = Date.now() - ts;
+  if (d < 60000) return '방금';
+  if (d < 3600000) return Math.floor(d/60000)+'분 전';
+  if (d < 86400000) return Math.floor(d/3600000)+'시간 전';
+  const dt = new Date(ts);
+  return `${dt.getMonth()+1}/${dt.getDate()}`;
+}
+
+function boardSubscribe() {
+  boardSubbed = true;
+  onValue(ref(db, "board"), snap => {
+    boardPosts = snap.val() || {};
+    if (currentTab === "board") renderBoard();
+  });
+}
+
+function renderBoard() {
+  const isAdmin = nickname === "길드장";
+  const loggedIn = !!nickname;
+
+  // 게시물 정렬: 공지 먼저, 그 다음 최신순
+  const posts = Object.entries(boardPosts)
+    .map(([id, p]) => ({id, ...p}))
+    .sort((a,b) => {
+      if (a.pinned && !b.pinned) return -1;
+      if (!a.pinned && b.pinned) return 1;
+      return (b.createdAt||0) - (a.createdAt||0);
+    });
+
+  document.getElementById("content").innerHTML = `
+    ${loggedIn
+      ? `<button class="board-write-btn" onclick="openBoardModal()">✏️ 새 글 쓰기</button>`
+      : `<div class="board-login-nudge">💬 글을 쓰려면 로그인해주세요</div>`
+    }
+    <div class="board-list" id="board-list">
+      ${posts.length === 0 ? `<div class="board-empty">아직 게시물이 없어요 🌸<br>첫 글을 남겨보세요!</div>` :
+        posts.map(p => renderBoardCard(p, isAdmin, loggedIn)).join("")}
+    </div>
+  `;
+
+  // 댓글 입력창 이벤트 (이벤트 위임)
+  document.getElementById("board-list")?.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey && e.target.classList.contains("board-comment-input")) {
+      e.preventDefault();
+      const postId = e.target.dataset.pid;
+      submitComment(postId, e.target.value.trim());
+      e.target.value = "";
+    }
+  });
+}
+
+function renderBoardCard(p, isAdmin, loggedIn) {
+  const ci = p.color ?? 0;
+  const bg = BOARD_COLORS[ci] || BOARD_COLORS[0];
+  const comments = p.comments ? Object.entries(p.comments).sort((a,b)=>(a[1].createdAt||0)-(b[1].createdAt||0)) : [];
+  const canDelete = isAdmin || p.author === nickname;
+  const canEdit   = p.author === nickname;
+  const canPin    = isAdmin;
+
+  return `<div class="board-card${p.pinned?' pinned':''}" style="background:${bg}">
+    <div class="board-card-header">
+      <div class="board-avatar" style="background:${avatarColor(p.author)}">${avatarLetter(p.author)}</div>
+      <span class="board-author">${p.author||'?'}</span>
+      <span class="board-time">${timeAgo(p.createdAt||0)}</span>
+      ${p.pinned ? '<span class="board-pin-badge">📌 공지</span>' : ''}
+    </div>
+    ${p.imgUrl ? `<img class="board-card-img" src="${p.imgUrl}" alt="이미지" onerror="this.style.display='none'" onclick="window.open('${p.imgUrl}','_blank')">` : ''}
+    <div class="board-card-body">${escHtml(p.text||'')}</div>
+    <div class="board-card-footer">
+      ${canEdit   ? `<button class="board-action-btn" onclick="openEditBoard('${p.id}')">✏️ 수정</button>` : ''}
+      ${canDelete ? `<button class="board-action-btn danger" onclick="deleteBoard('${p.id}')">🗑 삭제</button>` : ''}
+      ${canPin    ? `<button class="board-action-btn" onclick="togglePin('${p.id}',${!!p.pinned})">${p.pinned?'📌 고정 해제':'📌 공지 고정'}</button>` : ''}
+      <span class="board-comment-count">💬 ${comments.length}</span>
+    </div>
+    <div class="board-comments">
+      ${comments.map(([cid, c]) => `
+        <div class="board-comment">
+          <div class="board-comment-avatar" style="background:${avatarColor(c.author)}">${avatarLetter(c.author)}</div>
+          <div class="board-comment-body">
+            <div style="display:flex;align-items:center;gap:6px">
+              <span class="board-comment-nick">${c.author||'?'}</span>
+              <span style="font-size:10px;color:var(--text3)">${timeAgo(c.createdAt||0)}</span>
+              ${(isAdmin || c.author===nickname) ? `<button class="board-comment-del" onclick="deleteComment('${p.id}','${cid}')">✕</button>` : ''}
+            </div>
+            <div class="board-comment-text">${escHtml(c.text||'')}</div>
+          </div>
+        </div>`).join('')}
+      ${loggedIn ? `<div class="board-comment-input-row">
+        <input class="board-comment-input" data-pid="${p.id}" placeholder="댓글 달기… (Enter로 전송)" maxlength="200">
+        <button class="board-comment-submit" onclick="submitCommentBtn('${p.id}',this)">전송</button>
+      </div>` : ''}
+    </div>
+  </div>`;
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── 모달 ──────────────────────────────────────────────────
+window.openBoardModal = function() {
+  boardEditId = null;
+  document.getElementById("board-modal-title").textContent = "📋 새 글 쓰기";
+  document.getElementById("board-text").value = "";
+  document.getElementById("board-img-url").value = "";
+  document.getElementById("board-char-count").textContent = "0 / 500";
+  boardColorIdx = Math.floor(Math.random() * BOARD_COLORS.length);
+  updateColorPicker();
+  document.getElementById("board-pin-row").style.display = nickname==="길드장" ? "flex" : "none";
+  document.getElementById("board-pin-check").checked = false;
+  document.getElementById("board-modal").style.display = "flex";
+  setTimeout(() => document.getElementById("board-text").focus(), 100);
+
+  document.getElementById("board-text").oninput = function() {
+    document.getElementById("board-char-count").textContent = this.value.length + " / 500";
+  };
+}
+
+window.openEditBoard = function(postId) {
+  const p = boardPosts[postId];
+  if (!p) return;
+  boardEditId = postId;
+  document.getElementById("board-modal-title").textContent = "✏️ 글 수정";
+  document.getElementById("board-text").value = p.text || "";
+  document.getElementById("board-img-url").value = p.imgUrl || "";
+  document.getElementById("board-char-count").textContent = (p.text||'').length + " / 500";
+  boardColorIdx = p.color ?? 0;
+  updateColorPicker();
+  document.getElementById("board-pin-row").style.display = "none";
+  document.getElementById("board-modal").style.display = "flex";
+  setTimeout(() => document.getElementById("board-text").focus(), 100);
+
+  document.getElementById("board-text").oninput = function() {
+    document.getElementById("board-char-count").textContent = this.value.length + " / 500";
+  };
+}
+
+window.closeBoardModal = function(e) {
+  if (e && e.target !== document.getElementById("board-modal")) return;
+  document.getElementById("board-modal").style.display = "none";
+  boardEditId = null;
+}
+
+window.selectBoardColor = function(idx) {
+  boardColorIdx = idx;
+  updateColorPicker();
+}
+
+function updateColorPicker() {
+  document.querySelectorAll("#board-color-picker .board-color-dot").forEach((d,i) => {
+    d.classList.toggle("selected", i === boardColorIdx);
+  });
+}
+
+window.submitBoard = async function() {
+  const text = document.getElementById("board-text").value.trim();
+  const imgUrl = document.getElementById("board-img-url").value.trim();
+  if (!text) { showToast("내용을 입력해주세요"); return; }
+
+  if (boardEditId) {
+    // 수정
+    await update(ref(db, `board/${boardEditId}`), { text, imgUrl, color: boardColorIdx });
+    showToast("수정됐어요 ✓");
+  } else {
+    // 새 글
+    const pinned = (nickname === "길드장") && document.getElementById("board-pin-check").checked;
+    await push(ref(db, "board"), {
+      author: nickname,
+      text, imgUrl,
+      color: boardColorIdx,
+      pinned: pinned || false,
+      createdAt: Date.now()
+    });
+    showToast("게시됐어요 🌸");
+  }
+  document.getElementById("board-modal").style.display = "none";
+  boardEditId = null;
+}
+
+window.deleteBoard = async function(postId) {
+  if (!confirm("이 글을 삭제할까요?")) return;
+  await remove(ref(db, `board/${postId}`));
+  showToast("삭제됐어요");
+}
+
+window.togglePin = async function(postId, currentPinned) {
+  await set(ref(db, `board/${postId}/pinned`), !currentPinned);
+  showToast(!currentPinned ? "📌 공지로 고정됐어요" : "고정이 해제됐어요");
+}
+
+window.submitComment = async function(postId, text) {
+  if (!text || !nickname) return;
+  await push(ref(db, `board/${postId}/comments`), {
+    author: nickname,
+    text,
+    createdAt: Date.now()
+  });
+}
+
+window.submitCommentBtn = function(postId, btn) {
+  const inp = btn.previousElementSibling;
+  const text = inp.value.trim();
+  if (!text) return;
+  submitComment(postId, text);
+  inp.value = "";
+}
+
+window.deleteComment = async function(postId, commentId) {
+  await remove(ref(db, `board/${postId}/comments/${commentId}`));
+  showToast("댓글이 삭제됐어요");
 }
 </script>
 </body>
