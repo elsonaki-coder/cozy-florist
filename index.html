@@ -1047,12 +1047,19 @@ function matchSearch(name, q) {
   return false;
 }
 
+// 신규꽃 우선 정렬 키 (isNewFlower면 0, 아니면 1 → 오름차순으로 신규가 앞)
+function newFirst(f) { return isNewFlower(f) ? 0 : 1; }
+
 function getFiltered() {
   let list = allFlowers();
   if (filterGrade !== "전체") list = list.filter(f => f.grade === filterGrade);
   if (filterCond !== "전체") list = list.filter(f => f.cond === filterCond);
   if (searchText) list = list.filter(f => matchSearch(f.name, searchText));
   list.sort((a,b) => {
+    // 1순위: 신규꽃(추가됨 표기) 최상단
+    const nf = newFirst(a) - newFirst(b);
+    if (nf !== 0) return nf;
+    // 2순위: 기존 정렬
     let result = 0;
     if (sortBy === "grade") {
       result = (GRADE_ORDER[a.grade] - GRADE_ORDER[b.grade]) || sortKey(a.name).localeCompare(sortKey(b.name), "ko");
@@ -1287,7 +1294,7 @@ function renderGuild() {
   // 정렬 pill 갱신
   const sp = document.getElementById("g-sort-pills");
   if (sp) sp.innerHTML =
-    [["name","이름순"],["grade","등급순"],["cond","획득 방법순"],["member","길드원순"],["count","수량순"]].map(([v,l])=>
+    [["name","이름순"],["grade","등급순"],["cond","획득 방법순"],["member","길드원순"],["count","수량순"],["register","등록순"]].map(([v,l])=>
       `<button class="sort-pill${guildSortBy===v?" active":""}" onclick="setGuildSort('${v}')">${l}</button>`
     ).join("") +
     `<button class="sort-pill${guildSortReverse?" active":""}" onclick="toggleGuildReverseSort()">↕ 역순</button>`;
@@ -1340,6 +1347,12 @@ function updateGuildList() {
 
   // 정렬
   list.sort((a,b) => {
+    // 1순위: 신규꽃(추가됨) 최상단 — 단, 등록순 모드일 때는 예외
+    if (guildSortBy !== "register") {
+      const nf = newFirst(a) - newFirst(b);
+      if (nf !== 0) return nf;
+    }
+    // 2순위: 선택된 정렬
     let result = 0;
     const activeSortBy = (guildSortBy==="member") ? memberSubSort : guildSortBy;
     if (guildSortBy==="count") {
@@ -1348,6 +1361,11 @@ function updateGuildList() {
       const ca = selections[safeA] ? Object.keys(selections[safeA]).length : 0;
       const cb = selections[safeB] ? Object.keys(selections[safeB]).length : 0;
       result = cb - ca || sortKey(a.name).localeCompare(sortKey(b.name),"ko");
+    } else if (guildSortBy==="register") {
+      // 등록순: 기본꽃(addedAt없음)은 id 오름차순, 커스텀꽃은 addedAt 오름차순
+      const atA = a.addedAt ?? (typeof a.id==="number" ? a.id : 999999);
+      const atB = b.addedAt ?? (typeof b.id==="number" ? b.id : 999999);
+      result = atA - atB || sortKey(a.name).localeCompare(sortKey(b.name),"ko");
     } else if (activeSortBy==="grade") {
       result = (GRADE_ORDER[a.grade]-GRADE_ORDER[b.grade]) || sortKey(a.name).localeCompare(sortKey(b.name),"ko");
     } else if (activeSortBy==="cond") {
