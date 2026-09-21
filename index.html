@@ -1673,7 +1673,6 @@ function eventAvailableCandidates(data=eventData){
 }
 function eventReelMarkup(names){
   if(!names.length) return "";
-  // 같은 후보군을 여러 번 이어 붙여 슬롯머신처럼 끊김 없이 위로 흐르게 한다.
   const sequence = [...names,...names,...names,...names];
   return sequence.map(n=>`<div class="event-reel-item">${eventEsc(n)}</div>`).join("");
 }
@@ -1701,7 +1700,7 @@ function renderEvent(){
   let reelClass = "";
   if(winner){
     reelClass = "winner-track";
-    reelHTML = `<div class="event-reel-item event-name-winner">${eventEsc(winner)}</div>`;
+    reelHTML = `<div class="event-reel-item event-name-winner">🎉 ${eventEsc(winner)} 🎉</div>`;
   }else if(reelNames.length && status==="rolling"){
     reelHTML = eventReelMarkup(reelNames);
   }
@@ -1709,14 +1708,65 @@ function renderEvent(){
   const infoMeta = announcement ? eventFormatKoreanDate(announcement) : "";
   const giftHTML = gifts.map((g,i)=>`<span class="event-gift-pill">🎁 ${eventEsc(g)}</span>`).join("");
 
-  document.getElementById("content").innerHTML = `
+  // 새로 적용된 디자인 CSS 스타일 (나무 질감 + 화사한 꽃 정원 느낌 + 1칸 슬롯머신)
+  const styleHTML = `
+    <style>
+      .event-page { font-family: 'Malgun Gothic', sans-serif; text-align: center; background-color: #f7fceb; padding: 20px; border-radius: 20px; position: relative; overflow: hidden; }
+      .event-clock { font-size: 1.2rem; color: #5c3a18; font-weight: bold; margin-bottom: 10px; }
+      .event-title-main { font-size: 2.2rem; font-weight: bold; color: #fff; text-shadow: 2px 2px 4px #5c3a18; margin-bottom: 20px; background: #8b5a2b; border-radius: 30px; padding: 10px 30px; display: inline-block; border: 3px dashed #f5deb3; box-shadow: 0 5px 10px rgba(0,0,0,0.2); }
+      
+      .event-board-wrap { background: linear-gradient(to bottom, #a06a41, #6b4221); padding: 15px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); margin: 0 auto 30px auto; max-width: 650px; position: relative; }
+      .event-board { background: url('https://www.transparenttextures.com/patterns/wood-pattern.png'), #d4a373; border: 4px solid #4a2e16; border-radius: 15px; padding: 40px 20px; position: relative; box-shadow: inset 0 0 20px rgba(0,0,0,0.3); }
+      
+      .event-flower-corner { position: absolute; font-size: 2.5rem; text-shadow: 0 3px 5px rgba(0,0,0,0.2); z-index: 2; }
+      .event-flower-corner.tl { top: -20px; left: -20px; transform: rotate(-15deg); }
+      .event-flower-corner.tr { top: -20px; right: -20px; transform: rotate(15deg); }
+      .event-flower-corner.bl { bottom: -20px; left: -20px; transform: rotate(-10deg); }
+      .event-flower-corner.br { bottom: -20px; right: -20px; transform: rotate(10deg); }
+
+      .event-info-card { margin-bottom: 25px; color: #3d2314; }
+      .event-info-message { font-size: 1.3rem; font-weight: bold; margin-bottom: 10px; background: rgba(255,255,255,0.6); display: inline-block; padding: 5px 15px; border-radius: 15px; }
+      
+      .event-slot-shell { background: #fffdf5; padding: 20px; border-radius: 15px; border: 3px solid #8b5a2b; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+      .event-slot-top { font-size: 1.4rem; font-weight: bold; color: #d64045; margin-bottom: 15px; }
+      
+      /* 딱 1칸만 보이도록 설정 */
+      .event-name-window {
+        height: 70px;
+        line-height: 70px;
+        overflow: hidden;
+        background: #fff;
+        border: 4px inset #d4a373;
+        border-radius: 10px;
+        font-size: 2.2rem;
+        font-weight: bold;
+        color: #333;
+        margin: 0 auto;
+        width: 80%;
+        position: relative;
+        box-shadow: inset 0 5px 10px rgba(0,0,0,0.15);
+      }
+      .event-reel-track { display: flex; flex-direction: column; animation: rollSlot var(--reel-speed, 0.1s) linear infinite; }
+      .event-reel-item { height: 70px; display: flex; align-items: center; justify-content: center; }
+      .winner-track { animation: none !important; color: #e63946; font-size: 2.5rem; text-shadow: 1px 1px 3px rgba(0,0,0,0.2); }
+      
+      @keyframes rollSlot { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
+      
+      .event-countdown { margin-top: 15px; font-size: 1.5rem; font-weight: bold; color: #ff6b6b; }
+      .event-result-title { font-size: 1.6rem; color: #4a2e16; font-weight: bold; margin: 20px 0; }
+      .event-result-card { background: #fff; border: 2px solid #ffb6b9; border-radius: 10px; padding: 15px; margin: 10px; display: inline-block; width: 40%; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+      .event-result-gift { font-size: 1rem; color: #888; margin-bottom: 5px; }
+      .event-result-name { font-size: 1.3rem; font-weight: bold; color: #d64045; }
+    </style>
+  `;
+
+  document.getElementById("content").innerHTML = styleHTML + `
     <div class="event-page">
       <div class="event-clock" id="event-clock">오전 12:00:00</div>
-      <div class="event-floral-arch"></div>
 
       ${title || message || gifts.length || announcement ? `
       <div class="event-title">
-        <div class="event-title-main">${eventEsc(title)}</div>
+        <div class="event-title-main">👑 ${eventEsc(title)} 👑</div>
       </div>` : ""}
 
       <div class="event-board-wrap">
@@ -1731,14 +1781,12 @@ function renderEvent(){
             <div class="event-info-card">
               ${message ? `<div class="event-info-message">${eventEsc(message)}</div>` : ""}
               ${infoMeta ? `<div class="event-info-meta">발표 예정 · ${eventEsc(infoMeta)}</div>` : ""}
-              ${giftHTML ? `<div class="event-info-gifts">${giftHTML}</div>` : ""}
             </div>` : ""}
 
             <div class="event-slot-shell">
-              ${activeGift ? `<div class="event-slot-top">🌸 ${eventEsc(activeGift)} 🌸</div>` : ""}
+              ${activeGift ? `<div class="event-slot-top">🎁 획득 상품 : ${eventEsc(activeGift)} 🎁</div>` : ""}
               <div class="event-name-window">
                 <div class="event-reel-track ${reelClass}" id="event-reel-track">${reelHTML}</div>
-                <div class="event-fireworks" id="event-fireworks"></div>
               </div>
               <div class="event-countdown" id="event-countdown">${announcement ? eventCountdownText(announcement) : ""}</div>
             </div>
@@ -1763,7 +1811,7 @@ function renderEvent(){
 
   const track = document.getElementById("event-reel-track");
   if(track && status==="rolling"){
-    track.style.setProperty("--reel-speed","4.5s");
+    track.style.setProperty("--reel-speed","0.1s");
   }
   startEventClock();
 }
@@ -1785,8 +1833,8 @@ function renderEventAdmin(candidates,gifts,announcement,title,message){
     ? new Intl.DateTimeFormat("sv-SE",{timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}).format(localDate).replace(" ","T")
     : "";
   return `
-    <div class="event-admin">
-      <h3>⚙️ 길드장 전용 이벤트 설정</h3>
+    <div class="event-admin" style="margin-top: 40px; text-align: left; background: #fff; padding: 20px; border-radius: 10px; border: 2px dashed #aaa;">
+      <h3 style="margin-top:0;">⚙️ 길드장 전용 이벤트 설정</h3>
       <div class="event-admin-grid">
         <div class="event-admin-field">
           <div class="event-admin-label">이벤트 이름</div>
@@ -1798,11 +1846,11 @@ function renderEventAdmin(candidates,gifts,announcement,title,message){
         </div>
         <div class="event-admin-field full">
           <div class="event-admin-label">화면에 보여줄 이벤트 안내</div>
-          <textarea class="event-admin-textarea" id="event-message-input" placeholder="예: 길드전 참여자를 위한 9월 특별 이벤트입니다.">${eventEsc(message)}</textarea>
+          <textarea class="event-admin-textarea" id="event-message-input" style="width:100%;" placeholder="예: 길드전 참여자를 위한 9월 특별 이벤트입니다.">${eventEsc(message)}</textarea>
         </div>
         <div class="event-admin-field full">
           <div class="event-admin-label">당첨 선물 — 한 줄에 하나씩</div>
-          <textarea class="event-admin-textarea" id="event-gifts-input" placeholder="예:&#10;🌷 특별 꽃다발&#10;🎁 1,000 코인">${gifts.join("\n")}</textarea>
+          <textarea class="event-admin-textarea" id="event-gifts-input" style="width:100%;" placeholder="예:&#10;🌷 특별 꽃다발&#10;🎁 1,000 코인">${gifts.join("\n")}</textarea>
         </div>
         <div class="event-admin-field full">
           <div class="event-admin-label">당첨자 후보군 선택 (${candidates.length}명)</div>
@@ -1811,13 +1859,9 @@ function renderEventAdmin(candidates,gifts,announcement,title,message){
           </div>
         </div>
       </div>
-      <div class="event-admin-actions">
-        <button class="event-admin-btn primary" onclick="saveEventSettings()">🌸 이벤트 저장 / 발표 예약</button>
-        <button class="event-admin-btn" onclick="clearEvent()">🗑 이벤트 초기화</button>
-      </div>
-      <div class="event-admin-note">
-        발표 시간은 한국시간 기준입니다. 저장하면 모든 접속자에게 동일한 후보군·선물·발표 시간이 표시됩니다.
-        당첨자는 한 번 결정되면 결과를 모든 화면에서 동일하게 표시합니다.
+      <div class="event-admin-actions" style="margin-top: 15px;">
+        <button class="event-admin-btn primary" onclick="saveEventSettings()" style="padding:10px; background:#4CAF50; color:#fff; border:none; border-radius:5px;">🌸 이벤트 저장 / 발표 예약</button>
+        <button class="event-admin-btn" onclick="clearEvent()" style="padding:10px; background:#f44336; color:#fff; border:none; border-radius:5px;">🗑 이벤트 초기화</button>
       </div>
     </div>`;
 }
@@ -1862,30 +1906,33 @@ window.clearEvent = async function(){
 
 function eventCountdownText(iso){
   const diff = new Date(iso).getTime() - Date.now();
-  if(diff<=0) return "✨";
+  if(diff<=0) return "✨두구두구두구✨";
   const sec = Math.ceil(diff/1000);
   const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
   return h ? `${h}시간 ${String(m).padStart(2,"0")}분 ${String(s).padStart(2,"0")}초`
            : `${m}분 ${String(s).padStart(2,"0")}초`;
 }
 
+// 2. 슬롯머신 속도 조절 (긴장감 조성)
 function eventSetReelSpeed(diff){
   const track = document.getElementById("event-reel-track");
   if(!track || track.classList.contains("winner-track")) return;
 
   let duration;
-  // 첫 발표는 60초 전부터 서서히 감속.
-  // 연속 발표는 10초 빠르게 → 마지막 5초 감속.
-  if(diff > 60000){
-    duration = 4.5;
+  if(diff > 7000){
+    // 7초 이상 남았을 때: 아주 빠르게 돌아감 (긴장감 고조)
+    duration = 0.08;
+  }else if(diff > 3000){
+    // 7초 ~ 3초 전: 속도가 점차 느려짐
+    duration = 0.4;
   }else if(diff > 0){
-    const slowWindow = eventData?.results?.length ? 5000 : 60000;
-    const p = Math.max(0,Math.min(1,(slowWindow-diff)/slowWindow));
-    duration = 4.5 + p*8.5;
+    // 3초 전: 뚜뚜뚜... 한 칸씩 딸깍거리며 멈추기 직전 느낌
+    duration = 1.2;
   }else{
-    duration = 13;
+    duration = 0;
   }
-  track.style.setProperty("--reel-speed",duration.toFixed(2)+"s");
+  
+  track.style.setProperty("--reel-speed", duration + "s");
 }
 
 function startEventSchedule(){
@@ -1942,7 +1989,6 @@ async function eventTryDraw(){
 
   launchFireworks();
 
-  // 당첨자 공개 후 3초 동안 완전히 멈춘다.
   const nextTimer=setTimeout(async ()=>{
     const latest=(await get(ref(db,"event"))).val();
     if(!latest) return;
@@ -1956,8 +2002,6 @@ async function eventTryDraw(){
       return;
     }
 
-    // 3초 정지 후 다음 상품을 띄우고 10초 빠르게 돌린다.
-    // 그 뒤 5초 동안 감속한 후 다음 당첨자를 발표한다.
     const nextAt=Date.now()+15000;
     await update(ref(db,"event"),{
       status:"rolling",
@@ -1965,25 +2009,79 @@ async function eventTryDraw(){
       rollingName:"",
       announcementAt:new Date(nextAt).toISOString()
     });
-  },3000);
+  },4000); // 폭죽 감상을 위해 다음 추첨까지 4초 정지
   eventAnimationTimers.push(nextTimer);
 
   eventDrawLock=false;
 }
 
+// 3. 화면 전체를 뒤덮는 화려한 캔버스 폭죽 효과
 function launchFireworks(){
-  const box=document.getElementById("event-fireworks");
-  if(!box) return;
-  box.innerHTML="";
-  const icons=["🎆","🎇","✨","🌸","💐","⭐","🌟"];
-  for(let i=0;i<18;i++){
-    const f=document.createElement("div");
-    f.className="firework";f.textContent=icons[i%icons.length];
-    f.style.left=(5+Math.random()*90)+"%";f.style.top=(5+Math.random()*80)+"%";
-    f.style.animationDelay=(Math.random()*.45)+"s";
-    box.appendChild(f);
+  const container = document.body;
+  let canvas = document.getElementById("mega-fireworks");
+  
+  // 이미 캔버스가 없으면 생성
+  if(!canvas) {
+    canvas = document.createElement("canvas");
+    canvas.id = "mega-fireworks";
+    canvas.style.position = "fixed";
+    canvas.style.top = "0";
+    canvas.style.left = "0";
+    canvas.style.width = "100vw";
+    canvas.style.height = "100vh";
+    canvas.style.pointerEvents = "none";
+    canvas.style.zIndex = "99999";
+    container.appendChild(canvas);
   }
-  setTimeout(()=>{if(box) box.innerHTML="";},2300);
+  
+  const ctx = canvas.getContext("2d");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const particles = [];
+  const colors = ['#FF5733', '#FFC300', '#DAF7A6', '#C70039', '#900C3F', '#4285F4', '#34A853', '#FBBC05', '#EA4335'];
+
+  // 폭죽 입자 400개 생성 (요란하고 화려하게)
+  for(let i=0; i<400; i++){
+    particles.push({
+      x: canvas.width / 2, // 화면 중앙에서 시작
+      y: canvas.height / 2 + 100, 
+      vx: (Math.random() - 0.5) * 40, // 좌우로 넓게 퍼짐
+      vy: (Math.random() - 1) * 40,   // 위로 강하게 솟구침
+      life: Math.random() * 0.8 + 0.2, // 수명 (사라지는 시간)
+      color: colors[Math.floor(Math.random() * colors.length)],
+      size: Math.random() * 8 + 3 // 크기 다양하게
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let alive = false;
+    particles.forEach(p => {
+      if (p.life > 0) {
+        alive = true;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.6; // 중력 효과 (아래로 떨어짐)
+        p.life -= 0.01; // 점차 투명해짐
+        
+        ctx.globalAlpha = p.life;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+        ctx.fill();
+      }
+    });
+    
+    // 입자가 살아있으면 계속 애니메이션 진행
+    if (alive) {
+      requestAnimationFrame(draw);
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+  
+  draw();
 }
 
 let lastEventResultCount = 0;
