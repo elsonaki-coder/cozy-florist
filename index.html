@@ -186,16 +186,37 @@
 
 
 
-  /* ── 이벤트 페이지 ── */
-  .event-page{
-    position:relative;min-height:calc(100vh - 110px);overflow:hidden;
-    padding:18px 14px 48px;
-    background:
-      radial-gradient(circle at 14% 8%,rgba(255,255,255,.95) 0 2px,transparent 3px),
-      radial-gradient(circle at 84% 14%,rgba(255,255,255,.9) 0 3px,transparent 4px),
-      radial-gradient(circle at 52% 0%,rgba(255,244,193,.95) 0 95px,transparent 230px),
-      linear-gradient(180deg,#ccefb8 0%,#f9e8b9 34%,#f5d69f 63%,#b8d98f 100%);
-  }
+/* =========================================================
+   🌸 정원 이벤트 - 반응형 배경
+========================================================= */
+
+.event-page {
+  position: relative !important;
+
+  width: 100% !important;
+
+  /*
+    원본 이미지 비율을 유지하기 위한 영역
+  */
+  min-height: 0 !important;
+
+  padding: 0 !important;
+
+  overflow: hidden !important;
+
+  background-image: url("event-garden.png") !important;
+
+  /*
+    PC에서도 이미지가 찌그러지지 않도록
+  */
+  background-size: 100% auto !important;
+
+  background-position: center top !important;
+
+  background-repeat: no-repeat !important;
+
+  background-color: #fff5e8 !important;
+}
   .event-page::before{
     content:"";position:absolute;inset:0;pointer-events:none;
     background:
@@ -430,6 +451,42 @@
     .event-flower-corner{font-size:31px}
   }
 
+.event-page::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  width: min(100%, 1024px);
+
+  /*
+    원본 1024 : 1536
+  */
+  aspect-ratio: 1024 / 1536;
+
+  background-image: url("event-garden.png");
+
+  background-size: 100% 100%;
+
+  background-repeat: no-repeat;
+
+  background-position: center top;
+
+  z-index: 0;
+
+  pointer-events: none;
+}
+
+ .event-page > * {
+  position: relative;
+
+  z-index: 5;
+}
+ 
   /* ── PIN 보안 ── */
   @keyframes pinShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
   .pin-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;display:flex;align-items:center;justify-content:center;padding:1rem;}
