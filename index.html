@@ -526,6 +526,650 @@
   .board-cancel-btn{padding:11px 16px;background:var(--bg);color:var(--text);border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;cursor:pointer;}
   .board-pin-toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);margin-bottom:10px;}
   .board-empty{text-align:center;padding:3rem 1rem;color:var(--text2);font-size:14px;}
+
+/* =========================================================
+   🌸 정원산책 이벤트 탭 - 새 정원 배경
+   기존 이벤트 기능은 그대로 유지하고 디자인만 변경
+========================================================= */
+
+/* 전체 이벤트 장면 */
+.event-page {
+  position: relative !important;
+
+  min-height: 1536px !important;
+
+  padding: 0 !important;
+
+  overflow: hidden !important;
+
+  background-image: url("event-garden.png") !important;
+  background-size: 100% auto !important;
+  background-position: center top !important;
+  background-repeat: no-repeat !important;
+
+  background-color: #fff4df !important;
+}
+
+
+/* 기존 배경 장식 제거 */
+.event-page::before,
+.event-page::after {
+  display: none !important;
+}
+
+
+/* ---------------------------------------------------------
+   현재 시간 표시
+   너무 튀지 않게 오른쪽 위에 작은 글씨로
+--------------------------------------------------------- */
+
+.event-clock {
+  position: absolute !important;
+
+  top: 18px !important;
+  right: 22px !important;
+
+  z-index: 30 !important;
+
+  padding: 6px 12px !important;
+
+  border-radius: 20px !important;
+
+  background: rgba(255,255,255,.42) !important;
+
+  color: #80634e !important;
+
+  font-size: 11px !important;
+
+  text-shadow: 0 1px 2px rgba(255,255,255,.8);
+
+  box-shadow: 0 2px 8px rgba(100,70,40,.08);
+
+  backdrop-filter: blur(2px);
+}
+
+
+/* ---------------------------------------------------------
+   기존 꽃 아치 제거
+   이미 배경 이미지에 꽃 아치가 있으므로 필요 없음
+--------------------------------------------------------- */
+
+.event-floral-arch {
+  display: none !important;
+}
+
+
+/* =========================================================
+   🌷 제목
+   이미지 중앙 나무판 위쪽에 직접 얹기
+========================================================= */
+
+.event-title {
+  position: absolute !important;
+
+  z-index: 20 !important;
+
+  top: 19% !important;
+  left: 20% !important;
+
+  width: 60% !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  background: transparent !important;
+
+  border: none !important;
+
+  box-shadow: none !important;
+
+  text-align: center !important;
+}
+
+
+.event-title-main {
+  padding: 0 !important;
+
+  background: transparent !important;
+
+  border: none !important;
+
+  box-shadow: none !important;
+
+  font-family:
+    "Noto Serif KR",
+    "Nanum Myeongjo",
+    Georgia,
+    serif !important;
+
+  font-size: clamp(27px, 4vw, 45px) !important;
+
+  font-weight: 800 !important;
+
+  letter-spacing: 4px !important;
+
+  line-height: 1.25 !important;
+
+  color: #704832 !important;
+
+  text-shadow:
+    1px 1px 0 rgba(255,255,255,.85),
+    2px 2px 3px rgba(92,58,35,.18) !important;
+}
+
+
+/* =========================================================
+   🌳 기존 CSS 나무판 완전히 투명하게
+========================================================= */
+
+.event-board-wrap {
+  position: absolute !important;
+
+  z-index: 10 !important;
+
+  top: 17% !important;
+  left: 20% !important;
+
+  width: 60% !important;
+  max-width: none !important;
+
+  height: 44% !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  background: transparent !important;
+
+  border: none !important;
+
+  border-radius: 0 !important;
+
+  box-shadow: none !important;
+}
+
+
+.event-board {
+  position: relative !important;
+
+  width: 100% !important;
+  height: 100% !important;
+
+  min-height: 0 !important;
+
+  padding: 0 !important;
+
+  overflow: visible !important;
+
+  background: transparent !important;
+
+  border: none !important;
+
+  border-radius: 0 !important;
+
+  box-shadow: none !important;
+}
+
+
+/* 기존 네 귀퉁이 꽃 이모티콘 제거 */
+.event-flower-corner {
+  display: none !important;
+}
+
+
+/* =========================================================
+   📜 나무판 위의 실제 내용
+========================================================= */
+
+.event-screen {
+  position: relative !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  height: 100% !important;
+
+  margin: 0 !important;
+
+  padding: 0 !important;
+
+  text-align: center !important;
+
+  z-index: 20 !important;
+}
+
+
+/* =========================================================
+   📝 기존 안내 카드 제거
+   글자만 나무판 위에 직접 표시
+========================================================= */
+
+.event-info-card {
+  position: absolute !important;
+
+  top: 15% !important;
+  left: 8% !important;
+
+  width: 84% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  background: transparent !important;
+
+  border: none !important;
+
+  border-radius: 0 !important;
+
+  box-shadow: none !important;
+}
+
+
+.event-info-message {
+  margin: 0 !important;
+
+  color: #80604a !important;
+
+  font-size: clamp(11px, 1.5vw, 15px) !important;
+
+  line-height: 1.7 !important;
+
+  text-shadow:
+    1px 1px 0 rgba(255,255,255,.8) !important;
+}
+
+
+.event-info-meta {
+  margin-top: 8px !important;
+
+  color: #a0765c !important;
+
+  font-size: clamp(10px, 1.2vw, 13px) !important;
+
+  text-shadow:
+    1px 1px 0 rgba(255,255,255,.8) !important;
+}
+
+
+/* 선물 목록도 작은 글자만 */
+.event-info-gifts {
+  margin-top: 10px !important;
+
+  display: flex !important;
+
+  justify-content: center !important;
+
+  gap: 5px !important;
+
+  flex-wrap: wrap !important;
+}
+
+
+.event-gift-pill {
+  padding: 0 !important;
+
+  background: transparent !important;
+
+  border: none !important;
+
+  color: #95684e !important;
+
+  font-size: 11px !important;
+
+  text-shadow:
+    1px 1px 0 rgba(255,255,255,.8) !important;
+}
+
+
+/* =========================================================
+   🎁 슬롯머신 → 완전히 투명하게
+   이름만 나무판 위에 보이게
+========================================================= */
+
+.event-slot-shell {
+  position: absolute !important;
+
+  left: 5% !important;
+  right: 5% !important;
+
+  top: 30% !important;
+
+  width: 90% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+
+  padding: 0 !important;
+
+  background: transparent !important;
+
+  border: none !important;
+
+  border-radius: 0 !important;
+
+  box-shadow: none !important;
+}
+
+
+/* 현재 상품명 */
+.event-slot-top {
+  display: flex !important;
+
+  justify-content: center !important;
+  align-items: center !important;
+
+  margin: 0 0 10px !important;
+
+  padding: 0 !important;
+
+  background: transparent !important;
+
+  color: #9a624e !important;
+
+  font-family:
+    "Noto Serif KR",
+    "Nanum Myeongjo",
+    serif !important;
+
+  font-size: clamp(13px, 1.8vw, 19px) !important;
+
+  font-weight: 800 !important;
+
+  text-shadow:
+    1px 1px 0 rgba(255,255,255,.9) !important;
+}
+
+
+.event-slot-top::before,
+.event-slot-top::after {
+  color: #e8a0a0 !important;
+
+  font-size: 13px !important;
+}
+
+
+/* =========================================================
+   🎰 이름 표시 영역
+   초록 슬롯머신을 없애고 나무판 자체가 보이게
+========================================================= */
+
+.event-name-window {
+  position: relative !important;
+
+  width: 100% !important;
+
+  height: 105px !important;
+
+  overflow: hidden !important;
+
+  background: transparent !important;
+
+  border: none !important;
+
+  border-radius: 0 !important;
+
+  box-shadow: none !important;
+}
+
+
+/* 위아래 어두운 그라데이션 제거 */
+.event-name-window::before,
+.event-name-window::after {
+  display: none !important;
+}
+
+
+/* 당첨자 이름 */
+.event-reel-item {
+  height: 72px !important;
+
+  flex-basis: 72px !important;
+
+  padding: 0 10px !important;
+
+  font-family:
+    "Noto Serif KR",
+    "Nanum Myeongjo",
+    serif !important;
+
+  font-size: clamp(27px, 4vw, 43px) !important;
+
+  font-weight: 800 !important;
+
+  color: #704832 !important;
+
+  text-shadow:
+    1px 1px 0 rgba(255,255,255,.9),
+    2px 2px 3px rgba(92,58,35,.18) !important;
+}
+
+
+/* 가운데 선택 표시선 제거 */
+.event-reel-window::before {
+  display: none !important;
+}
+
+
+/* =========================================================
+   ✨ 당첨자
+========================================================= */
+
+.event-reel-track.winner-track {
+  animation: none !important;
+
+  top: 50% !important;
+
+  transform: translateY(-50%) !important;
+}
+
+
+.event-reel-track.winner-track .event-reel-item {
+  height: 90px !important;
+
+  flex-basis: 90px !important;
+
+  font-size: clamp(38px, 6vw, 62px) !important;
+
+  color: #bd6c72 !important;
+
+  text-shadow:
+    1px 1px 0 rgba(255,255,255,.95),
+    0 0 14px rgba(255,190,150,.55) !important;
+}
+
+
+/* =========================================================
+   ⏰ 카운트다운
+========================================================= */
+
+.event-countdown {
+  margin-top: 8px !important;
+
+  min-height: 20px !important;
+
+  color: #9b7158 !important;
+
+  font-size: clamp(10px, 1.2vw, 13px) !important;
+
+  font-weight: 700 !important;
+
+  text-shadow:
+    1px 1px 0 rgba(255,255,255,.9) !important;
+}
+
+
+/* =========================================================
+   🎆 폭죽은 그대로 살리되 부드럽게
+========================================================= */
+
+.event-fireworks {
+  z-index: 30 !important;
+}
+
+
+/* =========================================================
+   🌸 당첨 결과
+   이미지 아래쪽에 자연스럽게 표시
+========================================================= */
+
+.event-result {
+  position: relative !important;
+
+  z-index: 20 !important;
+
+  margin: 25px auto 0 !important;
+
+  max-width: 850px !important;
+
+  padding: 15px !important;
+
+  background: rgba(255,248,235,.72) !important;
+
+  border: 1px solid rgba(180,135,91,.45) !important;
+
+  border-radius: 18px !important;
+
+  box-shadow:
+    0 6px 20px rgba(100,70,40,.12) !important;
+
+  backdrop-filter: blur(3px);
+}
+
+
+.event-result-title {
+  font-family:
+    "Noto Serif KR",
+    "Nanum Myeongjo",
+    serif !important;
+
+  font-size: 24px !important;
+
+  color: #78503a !important;
+}
+
+
+.event-result-card {
+  background: rgba(255,255,255,.55) !important;
+
+  border: 1px solid rgba(200,165,125,.4) !important;
+
+  box-shadow: none !important;
+}
+
+
+.event-result-name {
+  color: #76503c !important;
+}
+
+
+/* =========================================================
+   관리자 화면은 기존 기능 유지
+========================================================= */
+
+.event-admin {
+  position: relative !important;
+
+  z-index: 20 !important;
+}
+
+
+/* =========================================================
+   📱 모바일
+========================================================= */
+
+@media (max-width: 600px) {
+
+  .event-page {
+    min-height: 920px !important;
+
+    background-size: auto 920px !important;
+
+    background-position: center top !important;
+  }
+
+  .event-clock {
+    top: 8px !important;
+    right: 8px !important;
+
+    font-size: 9px !important;
+  }
+
+  .event-title {
+    top: 18.5% !important;
+
+    left: 17% !important;
+
+    width: 66% !important;
+  }
+
+  .event-title-main {
+    font-size: 25px !important;
+
+    letter-spacing: 2px !important;
+  }
+
+  .event-board-wrap {
+    top: 17% !important;
+
+    left: 17% !important;
+
+    width: 66% !important;
+
+    height: 43% !important;
+  }
+
+  .event-info-card {
+    top: 15% !important;
+
+    left: 4% !important;
+
+    width: 92% !important;
+  }
+
+  .event-info-message {
+    font-size: 10px !important;
+  }
+
+  .event-slot-shell {
+    left: 2% !important;
+
+    width: 96% !important;
+
+    top: 30% !important;
+  }
+
+  .event-slot-top {
+    font-size: 12px !important;
+  }
+
+  .event-name-window {
+    height: 80px !important;
+  }
+
+  .event-reel-item {
+    height: 60px !important;
+
+    flex-basis: 60px !important;
+
+    font-size: 25px !important;
+  }
+
+  .event-reel-track.winner-track .event-reel-item {
+    font-size: 39px !important;
+
+    height: 75px !important;
+
+    flex-basis: 75px !important;
+  }
+
+  .event-countdown {
+    font-size: 9px !important;
+  }
+
+  .event-result {
+    margin: 15px 8px 0 !important;
+  }
+}
 </style>
 </head>
 <body>
