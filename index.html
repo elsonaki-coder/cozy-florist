@@ -184,181 +184,198 @@
     .flower-cond{display:none;}
   }
 
-  /* ── 이벤트 페이지 : 파스텔 블럭 UI ── */
-  .event-page{
-    width:100%;
-    min-height:calc(100vh - 110px);
-    padding:20px 14px 48px;
-    background:linear-gradient(180deg,#fffaf7 0%,#fff7fb 52%,#f8fbff 100%);
-    font-family:'Noto Sans KR',sans-serif;
-  }
-  .event-wrap{width:min(100%,960px);margin:0 auto;}
 
-  /* 이벤트 선택 */
+
+  /* ── 이벤트 페이지 : 다중 이벤트 + event-garden.png ── */
+  .event-page{
+    position:relative;
+    width:100%;
+    min-height:0;
+    padding:18px 12px 48px;
+    overflow:visible;
+    background:linear-gradient(180deg,#fff8ee 0%,#fff1dc 100%);
+    font-family:"Jua","Hi Melody","Noto Sans KR",sans-serif;
+  }
+  .event-garden-stage{
+    position:relative;
+    width:min(100%,900px);
+    aspect-ratio:1024 / 1536;
+    margin:0 auto;
+    overflow:hidden;
+    border-radius:18px;
+    background:#fff3df url("event-garden.png") center top / 100% 100% no-repeat;
+    box-shadow:0 12px 30px rgba(88,61,35,.16);
+  }
+  .event-garden-overlay{position:absolute;inset:0;z-index:2;}
+
+  .event-clock{
+    position:absolute;top:1.2%;right:1.5%;z-index:30;
+    padding:4px 9px;border-radius:999px;background:rgba(255,250,241,.72);
+    border:1px solid rgba(126,98,68,.24);color:#705b4a;font:700 10px "Jua",sans-serif;
+    box-shadow:0 2px 8px rgba(80,55,35,.08);backdrop-filter:blur(2px);
+  }
+  .event-floral-arch,.event-flower-corner{display:none!important;}
+
+  /* 여러 이벤트를 고르는 작은 리본 메뉴 */
   .event-switcher{
-    display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;
-    padding:2px 1px 10px;margin-bottom:6px;
+    position:absolute;top:17.2%;left:10%;width:80%;z-index:18;
+    display:flex;justify-content:center;gap:6px;overflow-x:auto;padding:2px 2px 5px;
+    scrollbar-width:none;
   }
   .event-switcher::-webkit-scrollbar{display:none;}
   .event-switch-btn{
-    flex:0 0 auto;padding:9px 14px;border:1px solid #e8dadd;border-radius:13px;
-    background:#fff0f4;color:#916878;font:700 13px 'Noto Sans KR',sans-serif;
-    cursor:pointer;box-shadow:0 2px 5px rgba(120,90,100,.06);transition:.16s;
-    white-space:nowrap;
+    flex:0 0 auto;max-width:46%;padding:5px 12px;border:1px solid rgba(157,104,77,.28);
+    border-radius:999px;background:rgba(255,248,235,.66);color:#8d5d48;
+    font:400 clamp(10px,1.25vw,13px) "Jua",sans-serif;white-space:nowrap;cursor:pointer;
+    text-shadow:1px 1px 0 rgba(255,255,255,.9);box-shadow:0 2px 6px rgba(95,61,39,.06);
+    transition:.18s;
   }
-  .event-switch-btn:nth-child(3n+2){background:#eef7ff;border-color:#d9e9f7;color:#66839a;}
-  .event-switch-btn:nth-child(3n){background:#f2f8ec;border-color:#dcead2;color:#6f8b63;}
-  .event-switch-btn.active{transform:translateY(-1px);box-shadow:0 5px 12px rgba(100,80,90,.10);border-color:#cfa6b2;background:#fff!important;color:#8a5266!important;}
+  .event-switch-btn:hover{transform:translateY(-1px);background:rgba(255,255,248,.84);}
+  .event-switch-btn.active{background:rgba(255,255,250,.9);border-color:#d58f91;color:#a25f65;font-weight:700;box-shadow:0 3px 8px rgba(130,80,60,.12);}
 
-  /* 상단 */
-  .event-head{
-    display:grid;grid-template-columns:1fr auto;gap:14px;align-items:start;
-    background:linear-gradient(135deg,#fff1f5,#fffaf1 55%,#eef8ff);
-    border:1px solid #eadfe2;border-radius:22px;padding:20px 20px 18px;
-    box-shadow:0 6px 18px rgba(120,90,100,.07);margin-bottom:14px;
+  /* 제목 */
+  .event-title{
+    position:absolute;top:23.5%;left:14%;width:72%;z-index:12;
+    margin:0;padding:0;text-align:center;
   }
-  .event-clock{
-    grid-column:2;grid-row:1;
-    padding:7px 11px;border-radius:999px;background:rgba(255,255,255,.8);
-    border:1px solid #e6dde0;color:#7c6b72;font-size:11px;font-weight:700;
-    white-space:nowrap;
-  }
-  .event-title-block{grid-column:1;grid-row:1;}
-  .event-kicker{font-size:11px;color:#c18397;font-weight:800;letter-spacing:1px;margin-bottom:5px;}
+  .event-title::before,.event-title::after{display:none!important;}
   .event-title-main{
-    font-size:clamp(24px,4vw,38px);line-height:1.25;font-weight:800;color:#574b50;
-    letter-spacing:-1px;word-break:keep-all;
+    font-family:"Jua","Hi Melody",sans-serif;
+    font-size:clamp(25px,4.2vw,42px);
+    line-height:1.2;font-weight:400;letter-spacing:2px;color:#68442f;
+    text-shadow:1px 2px 0 rgba(255,255,255,.9),0 2px 4px rgba(91,58,36,.13);
+    white-space:normal;word-break:keep-all;
   }
-  .event-subcopy{font-size:12px;color:#897d82;margin-top:5px;}
 
-  /* 본문 정보 */
-  .event-info-panel{
-    background:#fff;border:1px solid #ece5e8;border-radius:18px;padding:17px 18px;margin-bottom:14px;
-    box-shadow:0 4px 12px rgba(110,90,100,.05);
-  }
-  .event-info-message{font-size:14px;line-height:1.7;color:#665d61;white-space:pre-line;word-break:keep-all;}
-  .event-info-meta-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;}
-  .event-info-meta{padding:7px 10px;border-radius:10px;background:#f7f4f6;color:#7a6e73;font-size:11px;}
-  .event-info-gifts{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
-  .event-gift-pill{padding:7px 11px;border-radius:10px;background:#fff0f4;border:1px solid #f0d9e0;color:#9a6475;font-size:12px;font-weight:700;}
-  .event-gift-pill:nth-child(3n+2){background:#eef7ff;border-color:#dbeaf7;color:#6b8ba0;}
-  .event-gift-pill:nth-child(3n){background:#f2f8ec;border-color:#dcead3;color:#6d8a63;}
+  /* 이미지 안에서는 모든 요소를 투명하게 겹침 */
+  .event-board-wrap{position:absolute;inset:0;z-index:5;margin:0;padding:0;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;pointer-events:none;}
+  .event-board{position:absolute;inset:0;min-height:0;padding:0;overflow:visible;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;}
+  .event-board::before,.event-board::after{display:none!important;}
+  .event-screen{position:absolute;inset:0;width:100%;max-width:none;margin:0;text-align:center;z-index:10;pointer-events:none;}
 
-  /* 룰렛 */
-  .event-roulette-card{
-    background:linear-gradient(135deg,#f8f1ff,#fff2f7 52%,#eef8ff);
-    border:1px solid #e7dfe9;border-radius:22px;padding:18px;margin-bottom:14px;
-    box-shadow:0 7px 20px rgba(105,85,120,.07);
+  /* 이벤트 설명 */
+  .event-info-card{
+    position:absolute;top:31.3%;left:13%;width:74%;max-width:none;margin:0;padding:0;
+    background:transparent!important;border:0!important;border-radius:0;box-shadow:none!important;pointer-events:none;
   }
-  .event-roulette-label{text-align:center;font-size:12px;font-weight:800;color:#a06f87;letter-spacing:.4px;margin-bottom:9px;}
-  .event-slot-top{text-align:center;font-size:16px;font-weight:800;color:#6d6169;margin-bottom:7px;}
-  .event-name-window{
-    position:relative;width:100%;height:108px;overflow:hidden;border-radius:16px;
-    background:rgba(255,255,255,.78);border:2px solid rgba(222,211,226,.9);
-    box-shadow:inset 0 0 18px rgba(120,100,130,.07);
+  .event-info-card::before,.event-info-card::after{display:none!important;}
+  .event-info-message{
+    margin:0;color:#79523d;font-family:"Jua","Hi Melody","Noto Sans KR",sans-serif;
+    font-size:clamp(12px,1.7vw,17px);line-height:1.55;white-space:pre-line;
+    text-shadow:1px 1px 0 rgba(255,255,255,.9);
   }
-  .event-name-window::after{
-    content:'♥';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-    color:rgba(213,153,176,.18);font-size:42px;pointer-events:none;
+  .event-info-meta{
+    margin-top:8px;color:#9b6d53;font-family:"Jua",sans-serif;
+    font-size:clamp(10px,1.25vw,13px);line-height:1.4;text-shadow:1px 1px 0 rgba(255,255,255,.9);
   }
-  .event-reel-track{
-    position:absolute;left:0;right:0;top:0;display:flex;flex-direction:column;align-items:center;
-    will-change:transform;animation:eventReelScroll var(--reel-speed,4.5s) linear infinite;z-index:2;
+  .event-info-gifts{margin-top:8px;display:flex;justify-content:center;gap:6px;flex-wrap:wrap;}
+  .event-gift-pill{
+    padding:3px 8px;border:0;border-radius:999px;background:rgba(255,248,235,.68);
+    color:#8d6048;font:400 clamp(10px,1.15vw,13px) "Jua",sans-serif;
+    text-shadow:1px 1px 0 rgba(255,255,255,.8);
   }
+
+  /* 하나뿐인 룰렛 영역 */
+  .event-slot-shell{position:absolute;top:43.7%;left:15%;width:70%;max-width:none;margin:0;padding:0;border:0!important;border-radius:0;background:transparent!important;box-shadow:none!important;pointer-events:none;}
+  .event-slot-top{
+    display:flex;align-items:center;justify-content:center;gap:6px;margin:0 0 6px;padding:0;
+    font-family:"Jua","Hi Melody",sans-serif;font-size:clamp(13px,1.7vw,18px);line-height:1.3;font-weight:400;color:#90604b;
+    text-shadow:1px 1px 0 rgba(255,255,255,.95);
+  }
+  .event-slot-top::before,.event-slot-top::after{color:#e69a9a;font-size:.9em;}
+  .event-name-window{position:relative;width:100%;height:120px;overflow:hidden;background:transparent!important;border:0!important;border-radius:0;box-shadow:none!important;}
+  .event-name-window::before,.event-name-window::after{display:none!important;}
+  .event-reel-track{position:absolute;left:0;right:0;top:0;display:flex;flex-direction:column;align-items:center;will-change:transform;animation:eventReelScroll var(--reel-speed,4.5s) linear infinite;}
   .event-reel-item{
-    width:100%;height:72px;flex:0 0 72px;display:flex;align-items:center;justify-content:center;
-    padding:0 12px;font-size:clamp(25px,5vw,38px);line-height:1;font-weight:800;color:#655a60;
-    white-space:nowrap;word-break:keep-all;
+    width:100%;height:82px;flex:0 0 82px;display:flex;align-items:center;justify-content:center;padding:0 6px;
+    font-family:"Jua","Hi Melody",sans-serif;font-size:clamp(28px,4.5vw,46px);line-height:1;font-weight:400;color:#704832;
+    text-shadow:1px 1px 0 rgba(255,255,255,.95),2px 2px 3px rgba(91,58,36,.16);white-space:nowrap;word-break:keep-all;
   }
   .event-reel-track.winner-track{animation:none;top:50%;transform:translateY(-50%);}
-  .event-reel-track.winner-track .event-reel-item{height:88px;flex-basis:88px;font-size:clamp(34px,6vw,48px);color:#bd7186;}
+  .event-reel-track.winner-track .event-reel-item{
+    height:100px;flex-basis:100px;font-size:clamp(40px,6vw,64px);color:#c66d73;
+    text-shadow:1px 1px 0 rgba(255,255,255,.98),0 0 12px rgba(255,190,150,.5);
+  }
+  .event-reel-window::before{display:none!important;}
   @keyframes eventReelScroll{from{transform:translateY(0)}to{transform:translateY(-50%)}}
-  .event-name-winner{animation:eventWinnerPop .7s cubic-bezier(.2,.85,.3,1.25) both;}
-  @keyframes eventWinnerPop{0%{transform:scale(.65);opacity:.2}55%{transform:scale(1.08);opacity:1}100%{transform:scale(1);opacity:1}}
-  .event-countdown{text-align:center;min-height:18px;margin-top:8px;color:#8c7d85;font-size:11px;font-weight:700;}
-  .event-fireworks{position:absolute;inset:-20%;pointer-events:none;overflow:visible;z-index:10;}
-  .firework{position:absolute;font-size:28px;animation:fw 1.8s ease-out forwards;}
+  .event-name-winner{animation:eventWinnerPop .75s cubic-bezier(.2,.85,.3,1.3) both;}
+  @keyframes eventWinnerPop{0%{transform:scale(.45);opacity:.1}55%{transform:scale(1.12);opacity:1}100%{transform:scale(1);opacity:1}}
+  .event-countdown{margin-top:3px;min-height:18px;color:#98745b;font:400 clamp(10px,1.2vw,13px) "Jua",sans-serif;text-shadow:1px 1px 0 rgba(255,255,255,.9);}
+  .event-fireworks{position:absolute;inset:-25%;pointer-events:none;overflow:visible;z-index:20;}
+  .firework{position:absolute;font-size:32px;animation:fw 1.8s ease-out forwards;}
   @keyframes fw{0%{transform:scale(.2);opacity:0}20%{opacity:1}100%{transform:scale(1.8) translateY(-30px);opacity:0}}
 
-  /* 진행 결과 */
-  .event-results-panel{
-    background:#fff;border:1px solid #e9e3e7;border-radius:20px;padding:18px;margin-bottom:14px;
-    box-shadow:0 5px 14px rgba(110,90,100,.05);
+  /* 이벤트별 당첨 결과: 각 이벤트가 자기 results를 가짐 */
+  .event-result{
+    position:absolute;left:12%;top:61.5%;width:76%;z-index:14;margin:0;padding:0;
+    background:transparent!important;border:0!important;border-radius:0;box-shadow:none!important;
+    text-align:center;pointer-events:none;
   }
-  .event-result-title{text-align:center;font-size:17px;font-weight:800;color:#5e555b;margin-bottom:12px;}
-  .event-result-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
-  .event-result-card{
-    padding:11px 12px;border-radius:13px;background:#fff8fa;border:1px solid #f0e1e5;text-align:center;
+  .event-result-title{
+    text-align:center;font-family:"Jua","Hi Melody",sans-serif;font-size:clamp(17px,2.4vw,26px);
+    color:#8b5948;font-weight:400;text-shadow:1px 1px 0 rgba(255,255,255,.95);margin-bottom:8px;
   }
-  .event-result-card:nth-child(3n+2){background:#f7fbff;border-color:#e1edf6;}
-  .event-result-card:nth-child(3n){background:#f8fbf5;border-color:#e4eddc;}
-  .event-result-pair{display:flex;align-items:center;justify-content:center;gap:5px;min-width:0;}
-  .event-result-gift{font-size:12px;color:#9b7b84;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .event-result-colon{font-size:12px;color:#b4a8ae;}
-  .event-result-name{font-size:17px;font-weight:800;color:#5f565b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .event-result-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:0;}
+  .event-result-card{padding:4px 5px;background:transparent;border:0;text-align:center;}
+  .event-result-gift{font:400 clamp(10px,1.25vw,14px) "Jua",sans-serif;color:#9b6b50;margin-bottom:1px;}
+  .event-result-name{font:400 clamp(18px,2.7vw,30px) "Jua","Hi Melody",sans-serif;color:#76503c;text-shadow:1px 1px 0 rgba(255,255,255,.95);}
 
-  /* 전체 추첨 완료 후: 이름만 크게 */
-  .event-final-summary{
-    margin-top:14px;padding:17px;border-radius:18px;
-    background:linear-gradient(135deg,#fff2f6,#fff9ed 55%,#f1f8ff);
-    border:1px solid #eadfe4;text-align:center;
-  }
-  .event-final-summary-title{font-size:13px;font-weight:800;color:#9a6474;margin-bottom:10px;}
-  .event-final-winners{display:flex;flex-wrap:wrap;justify-content:center;gap:9px;}
-  .event-final-winner{
-    padding:9px 15px;border-radius:999px;background:#fff;border:1px solid #eadfe2;
-    color:#5d5359;font-size:16px;font-weight:800;box-shadow:0 2px 7px rgba(100,80,90,.05);
-  }
-
-  .event-empty{padding:36px 12px;text-align:center;color:#8c8085;font-size:14px;line-height:1.7;}
-
-  /* 관리자 */
-  .event-admin{width:min(100%,960px);margin:18px auto 0;padding:18px;background:#fff;border:1px solid #e8e0e4;border-radius:20px;box-shadow:0 6px 18px rgba(100,80,90,.06);}
-  .event-admin h3{font-size:15px;color:#5e555b;margin-bottom:13px;}
-  .event-manage-list{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;}
+  /* 관리자 패널: 이미지 아래 */
+  .event-admin{position:relative;z-index:5;width:min(100%,900px);margin:18px auto 0;padding:16px;background:rgba(255,251,240,.98);border:1px solid #c5a16f;border-radius:16px;box-shadow:0 7px 18px rgba(83,67,38,.12);}
+  .event-admin h3{font-size:16px;color:#50644d;margin-bottom:12px;}
+  .event-manage-list{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:13px;}
   .event-manage-item{display:flex;align-items:center;gap:4px;max-width:100%;}
-  .event-manage-main{padding:8px 11px;border:1px solid #eadde2;border-radius:12px;background:#fff4f7;color:#865f6d;font-weight:700;font-size:12px;font-family:inherit;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px;}
-  .event-manage-main.active{background:#f7ebf0;border-color:#d9b8c4;color:#794c60;}
-  .event-manage-edit,.event-manage-delete{width:29px;height:29px;border-radius:9px;border:1px solid #e4dde0;background:#faf9fa;color:#746a70;cursor:pointer;font-family:inherit;}
-  .event-manage-delete{color:#c45d67;border-color:#efc4c8;background:#fff7f7;}
-  .event-add-btn{width:100%;margin-bottom:13px;padding:11px;border:1.5px dashed #d9c2a8;border-radius:12px;background:#fffbf4;color:#8c6b4e;font:700 13px 'Noto Sans KR',sans-serif;cursor:pointer;}
-  .event-add-btn:hover{background:#fff5e5;}
+  .event-manage-main{padding:8px 11px;border:1px solid #cbdcc5;border-radius:999px;background:#fff;color:#5b6c56;font:400 12px "Jua",sans-serif;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:230px;}
+  .event-manage-main.active{background:#dff1d9;border-color:#94be88;color:#3d6338;font-weight:700;}
+  .event-manage-edit,.event-manage-delete{width:28px;height:28px;border-radius:50%;border:1px solid #d9d2c9;background:#fff;color:#75675b;cursor:pointer;font-size:12px;}
+  .event-manage-delete{color:#c62828;border-color:#efb0b0;background:#fff7f7;}
+  .event-add-btn{width:100%;margin-bottom:14px;padding:11px;border:1.5px dashed #b9a47e;border-radius:12px;background:#fffaf0;color:#8b684d;font:700 13px "Jua",sans-serif;cursor:pointer;}
+  .event-add-btn:hover{background:#fff4df;}
   .event-admin-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
   .event-admin-field{display:flex;flex-direction:column;gap:5px;}
   .event-admin-field.full{grid-column:1/-1;}
-  .event-admin-label{font-size:12px;color:#72686d;font-weight:700;}
-  .event-admin-input,.event-admin-textarea{width:100%;padding:10px 11px;border:1px solid #ddd6da;border-radius:10px;font-family:inherit;background:#fff;outline:none;box-sizing:border-box;}
-  .event-admin-input:focus,.event-admin-textarea:focus{border-color:#cba6b2;}
+  .event-admin-label{font-size:12px;color:#6f7e69;font-weight:700;}
+  .event-admin-input,.event-admin-textarea{width:100%;padding:10px 11px;border:1px solid #cddac7;border-radius:10px;font-family:inherit;background:#fff;outline:none;box-sizing:border-box;}
   .event-admin-textarea{min-height:100px;resize:vertical;line-height:1.5;}
-  .event-candidate-list{display:flex;flex-wrap:wrap;gap:6px;padding:10px;border:1px solid #e3dde0;border-radius:12px;background:#fcfbfc;max-height:190px;overflow:auto;}
-  .event-candidate-chip{padding:7px 10px;border-radius:10px;border:1px solid #ddd8dc;background:#fff;color:#6d6369;font:500 12px 'Noto Sans KR',sans-serif;cursor:pointer;}
-  .event-candidate-chip.on{background:#f8edf2;border-color:#d5b4c0;color:#7e4f62;font-weight:800;}
+  .event-candidate-list{display:flex;flex-wrap:wrap;gap:6px;padding:9px;border:1px solid #d9e3d3;border-radius:10px;background:#fbfdf9;max-height:180px;overflow:auto;}
+  .event-candidate-chip{padding:6px 10px;border-radius:999px;border:1px solid #cbdcc5;background:#fff;color:#5b6c56;font-size:12px;cursor:pointer;}
+  .event-candidate-chip.on{background:#dff1d9;border-color:#94be88;color:#3d6338;font-weight:700;}
   .event-admin-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
-  .event-admin-btn{padding:10px 15px;border-radius:11px;border:1px solid #ddd5d9;background:#f8f7f8;color:#635b60;font-weight:700;cursor:pointer;font-family:inherit;}
-  .event-admin-btn.primary{background:#f1dfe7;color:#744b5d;border-color:#d7b2bf;}
-  .event-admin-btn.warn{background:#fff4f3;color:#ad5d61;border-color:#efc7c9;}
-  .event-admin-note{font-size:11px;color:#91868c;line-height:1.6;margin-top:9px;}
+  .event-admin-btn{padding:10px 16px;border-radius:999px;border:1px solid #a9c69f;background:#eef8ea;color:#466340;font-weight:700;cursor:pointer;font-family:inherit;}
+  .event-admin-btn.primary{background:#6e9b61;color:#fff;border-color:#6e9b61;}
+  .event-admin-btn.warn{background:#fff4df;color:#8d603e;border-color:#dfc18f;}
+  .event-admin-note{font-size:11px;color:#87927f;line-height:1.5;margin-top:9px;}
+  .event-empty{text-align:center;color:#789070;padding:70px 10px;font-size:15px;}
 
-  @media(max-width:700px){
-    .event-page{padding:12px 10px 34px;}
-    .event-head{grid-template-columns:1fr;padding:16px;}
-    .event-clock{grid-column:1;grid-row:2;justify-self:start;}
-    .event-title-block{grid-column:1;grid-row:1;}
-    .event-title-main{font-size:26px;letter-spacing:-.5px;}
-    .event-info-panel,.event-roulette-card,.event-results-panel{padding:15px;}
-    .event-info-message{font-size:13px;}
-    .event-info-gifts{gap:5px;}
-    .event-gift-pill{font-size:11px;padding:6px 9px;}
-    .event-name-window{height:96px;}
-    .event-reel-item{height:64px;flex-basis:64px;font-size:28px;}
-    .event-reel-track.winner-track .event-reel-item{height:78px;flex-basis:78px;font-size:38px;}
-    .event-result-list{grid-template-columns:1fr;}
-    .event-result-name{font-size:16px;}
+  @media(max-width:600px){
+    .event-page{padding:8px 0 30px;}
+    .event-garden-stage{width:100%;border-radius:0;box-shadow:none;}
+    .event-clock{top:1%;right:2%;font-size:8px;padding:3px 7px;}
+    .event-switcher{top:17.1%;left:7%;width:86%;justify-content:flex-start;gap:4px;}
+    .event-switch-btn{max-width:75%;padding:4px 10px;font-size:10px;}
+    .event-title{top:22.8%;left:10%;width:80%;}
+    .event-title-main{font-size:clamp(25px,7vw,33px);letter-spacing:1px;}
+    .event-info-card{top:30.3%;left:8%;width:84%;}
+    .event-info-message{font-size:12px;line-height:1.55;}
+    .event-info-meta{font-size:10px;margin-top:7px;}
+    .event-info-gifts{gap:5px;margin-top:7px;}
+    .event-gift-pill{font-size:10.5px;padding:2px 6px;}
+    .event-slot-shell{top:43.2%;left:8%;width:84%;}
+    .event-slot-top{font-size:13px;margin-bottom:2px;}
+    .event-name-window{height:105px;}
+    .event-reel-item{height:76px;flex-basis:76px;font-size:clamp(26px,8vw,34px);}
+    .event-reel-track.winner-track .event-reel-item{height:88px;flex-basis:88px;font-size:clamp(34px,10vw,46px);}
+    .event-countdown{font-size:9px;min-height:12px;}
+    .event-result{left:7%;top:61.2%;width:86%;}
+    .event-result-title{font-size:18px;margin-bottom:5px;}
+    .event-result-list{gap:3px;}
+    .event-result-gift{font-size:10px;}
+    .event-result-name{font-size:21px;}
+    .event-admin{width:calc(100% - 14px);}
     .event-admin-grid{grid-template-columns:1fr;}
     .event-admin-field.full{grid-column:auto;}
+    .event-manage-main{max-width:190px;}
   }
-
-
   /* ── PIN 보안 ── */
   @keyframes pinShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
   .pin-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;display:flex;align-items:center;justify-content:center;padding:1rem;}
@@ -1553,8 +1570,7 @@ window.toggleGuildReverseSort = function() {
   renderGuild();
 }
 
-
-// ── 이벤트 시스템 : 다중 독립 이벤트 ─────────────────────
+// ── 이벤트 시스템 ─────────────────────────────────────────
 function eventSubscribe(){
   eventSubbed = true;
   onValue(ref(db,"event"), snap => {
@@ -1563,11 +1579,17 @@ function eventSubscribe(){
     if(raw && raw.events && typeof raw.events === "object"){
       eventLegacyMode = false;
       eventEvents = raw.events || {};
+
       const ids = Object.keys(eventEvents);
-      if(!eventActiveId || !eventEvents[eventActiveId]){
-        eventActiveId = raw.defaultId && eventEvents[raw.defaultId] ? raw.defaultId : (ids[0] || "");
+      if(eventActiveId && eventEvents[eventActiveId]){
+        // 현재 보고 있던 이벤트를 그대로 유지
+      }else{
+        eventActiveId = raw.defaultId && eventEvents[raw.defaultId]
+          ? raw.defaultId
+          : (ids[0] || "");
       }
     }else if(raw && (raw.title || raw.message || raw.gifts || raw.candidates)){
+      // 기존 버전의 단일 event 구조도 그대로 읽을 수 있게 호환
       eventLegacyMode = true;
       eventEvents = { event_1: raw };
       eventActiveId = "event_1";
@@ -1578,7 +1600,9 @@ function eventSubscribe(){
     }
 
     eventData = eventActiveId ? (eventEvents[eventActiveId] || null) : null;
-    if(nickname === "길드장" && !eventEditingId) eventEditingId = eventActiveId || "";
+    if(nickname === "길드장" && !eventEditingId){
+      eventEditingId = eventActiveId || "";
+    }
     lastEventResultCount = eventResults().length;
 
     if(currentTab === "event"){
@@ -1636,16 +1660,24 @@ function eventReelMarkup(names){
 }
 function eventWinnerName(data){
   const results = Array.isArray(data?.results) ? data.results : Object.values(data?.results||{});
-  return results.length ? (results[results.length-1]?.winner || "") : "";
+  if(!results.length) return "";
+  return results[results.length-1]?.winner || "";
 }
-function eventIds(){ return Object.keys(eventEvents || {}); }
+function eventIds(){
+  return Object.keys(eventEvents || {});
+}
 function eventShortTitle(title){
   const t = String(title || "이벤트").trim();
-  return t.length > 14 ? t.slice(0,13) + "…" : t;
+  return t.length > 13 ? t.slice(0,12) + "…" : t;
 }
-function eventRecordPath(id){ return eventLegacyMode ? ref(db,"event") : ref(db,`event/events/${id}`); }
-function eventDefaultEditRecord(){ return eventEditingId && eventEvents[eventEditingId] ? eventEvents[eventEditingId] : null; }
-function eventIsFinished(data=eventData){ return data?.status === "finished"; }
+function eventRecordPath(id){
+  if(eventLegacyMode) return ref(db,"event");
+  return ref(db,`event/events/${id}`);
+}
+function eventDefaultEditRecord(){
+  if(eventEditingId && eventEvents[eventEditingId]) return eventEvents[eventEditingId];
+  return null;
+}
 
 function renderEventSwitcher(){
   const ids = eventIds();
@@ -1657,12 +1689,11 @@ function renderEventSwitcher(){
 
 function renderEvent(){
   const isAdmin = nickname === "길드장";
-  const ids = eventIds();
   const candidates = eventCandidates();
   const results = eventResults();
-  const gifts = Array.isArray(eventData?.gifts) ? eventData.gifts : [];
+  const gifts = (eventData && Array.isArray(eventData.gifts)) ? eventData.gifts : [];
   const title = eventData?.title || "정원산책 이벤트";
-  const message = eventData?.message || "아직 등록된 이벤트가 없어요.";
+  const message = eventData?.message || "";
   const announcement = eventData?.announcementAt || "";
   const status = eventData?.status || "";
   const available = eventAvailableCandidates(eventData);
@@ -1670,8 +1701,6 @@ function renderEvent(){
   const winner = status === "winner" ? (eventData?.rollingName || eventWinnerName(eventData)) : "";
   const reelNames = available.length ? available : candidates;
   const editing = eventDefaultEditRecord();
-  const giftHTML = gifts.map(g=>`<span class="event-gift-pill">🎁 ${eventEsc(g)}</span>`).join("");
-  const infoMeta = announcement ? eventFormatKoreanDate(announcement) : "";
 
   let reelHTML = "";
   let reelClass = "";
@@ -1680,87 +1709,74 @@ function renderEvent(){
     reelHTML = `<div class="event-reel-item event-name-winner">${eventEsc(winner)}</div>`;
   }else if(reelNames.length && status === "rolling"){
     reelHTML = eventReelMarkup(reelNames);
-  }else if(reelNames.length && status !== "finished"){
-    reelHTML = `<div class="event-reel-item">${eventEsc(reelNames[0])}</div>`;
   }
 
-  const resultHTML = results.length ? `
-    <section class="event-results-panel">
-      <div class="event-result-title">🏆 당첨 결과</div>
-      <div class="event-result-list">
-        ${results.map((r,i)=>`<div class="event-result-card">
-          <div class="event-result-pair">
-            <span class="event-result-gift">🎁 ${eventEsc(r.gift || gifts[i] || "선물")}</span>
-            <span class="event-result-colon">:</span>
-            <span class="event-result-name">${eventEsc(r.winner || "")}</span>
-          </div>
-        </div>`).join("")}
-      </div>
-      ${eventIsFinished() ? `
-        <div class="event-final-summary">
-          <div class="event-final-summary-title">🎉 이번 이벤트 당첨자</div>
-          <div class="event-final-winners">
-            ${results.map(r=>`<span class="event-final-winner">${eventEsc(r.winner || "")}</span>`).join("")}
-          </div>
-        </div>` : ""}
-    </section>` : "";
+  const infoMeta = announcement ? eventFormatKoreanDate(announcement) : "";
+  const giftHTML = gifts.map(g=>`<span class="event-gift-pill">🎁 ${eventEsc(g)}</span>`).join("");
 
   document.getElementById("content").innerHTML = `
     <div class="event-page">
-      <div class="event-wrap">
-        ${ids.length ? renderEventSwitcher() : ""}
-
-        ${ids.length ? `
-        <header class="event-head">
-          <div class="event-title-block">
-            <div class="event-kicker">🌸 GUILD EVENT</div>
-            <div class="event-title-main">${eventEsc(title)}</div>
-            <div class="event-subcopy">선택한 이벤트의 룰렛과 당첨 결과가 이곳에 표시됩니다.</div>
-          </div>
+      <div class="event-garden-stage">
+        <div class="event-garden-overlay">
           <div class="event-clock" id="event-clock">오전 12:00:00</div>
-        </header>
+          ${renderEventSwitcher()}
 
-        <section class="event-info-panel">
-          ${message ? `<div class="event-info-message">${eventEsc(message)}</div>` : ""}
-          <div class="event-info-meta-row">
-            ${infoMeta ? `<div class="event-info-meta">📅 발표 예정 · ${eventEsc(infoMeta)}</div>` : ""}
-            <div class="event-info-meta">👥 후보 ${candidates.length}명</div>
-            <div class="event-info-meta">🎁 선물 ${gifts.length}개</div>
+          ${title || message || gifts.length || announcement ? `
+          <div class="event-title">
+            <div class="event-title-main">${eventEsc(title)}</div>
+          </div>` : ""}
+
+          <div class="event-board-wrap">
+            <div class="event-board">
+              <div class="event-screen">
+                ${title || message || gifts.length || announcement ? `
+                <div class="event-info-card">
+                  ${message ? `<div class="event-info-message">${eventEsc(message)}</div>` : ""}
+                  ${infoMeta ? `<div class="event-info-meta">발표 예정 · ${eventEsc(infoMeta)}</div>` : ""}
+                  ${giftHTML ? `<div class="event-info-gifts">${giftHTML}</div>` : ""}
+                </div>` : ""}
+
+                <div class="event-slot-shell">
+                  ${activeGift ? `<div class="event-slot-top">🌸 ${eventEsc(activeGift)} 🌸</div>` : ""}
+                  <div class="event-name-window">
+                    <div class="event-reel-track ${reelClass}" id="event-reel-track">${reelHTML}</div>
+                    <div class="event-fireworks" id="event-fireworks"></div>
+                  </div>
+                  <div class="event-countdown" id="event-countdown">${announcement ? eventCountdownText(announcement) : ""}</div>
+                </div>
+              </div>
+            </div>
           </div>
-          ${giftHTML ? `<div class="event-info-gifts">${giftHTML}</div>` : ""}
-        </section>
 
-        <section class="event-roulette-card">
-          <div class="event-roulette-label">🎡 하나의 룰렛</div>
-          ${activeGift ? `<div class="event-slot-top">🎁 ${eventEsc(activeGift)}</div>` : ""}
-          <div class="event-name-window">
-            <div class="event-reel-track ${reelClass}" id="event-reel-track">${reelHTML || `<div class="event-reel-item">추첨 준비 중</div>`}</div>
-            <div class="event-fireworks" id="event-fireworks"></div>
-          </div>
-          <div class="event-countdown" id="event-countdown">${announcement && status === "rolling" ? eventCountdownText(announcement) : (status === "winner" ? "✨ 당첨자 발표 중" : (status === "finished" ? "🎊 추첨이 모두 끝났어요" : ""))}</div>
-        </section>
-
-        ${resultHTML}
-        ` : `
-        <section class="event-info-panel event-empty">
-          🌸 아직 등록된 이벤트가 없어요.<br>
-          길드장이라면 아래에서 첫 이벤트를 만들어 주세요.
-        </section>`}
-
-        ${isAdmin ? renderEventAdmin(eventActiveId, editing) : ""}
+          ${results.length ? `
+          <div class="event-result">
+            <div class="event-result-title">🌸 오늘의 당첨 결과 🌸</div>
+            <div class="event-result-list">
+              ${results.map((r,i)=>`<div class="event-result-card">
+                <div class="event-result-gift">${eventEsc(r.gift || gifts[i] || "선물")}</div>
+                <div class="event-result-name">🎁 ${eventEsc(r.winner)}</div>
+              </div>`).join("")}
+            </div>
+          </div>` : ""}
+        </div>
       </div>
+
+      ${isAdmin ? renderEventAdmin(eventActiveId, editing) : ""}
     </div>
   `;
 
   const track = document.getElementById("event-reel-track");
-  if(track && status === "rolling") track.style.setProperty("--reel-speed","4.5s");
+  if(track && status === "rolling"){
+    track.style.setProperty("--reel-speed","4.5s");
+  }
 }
 
 function eventFormatKoreanDate(iso){
   const d = new Date(iso);
   if(isNaN(d)) return "";
   return new Intl.DateTimeFormat("ko-KR",{
-    timeZone:"Asia/Seoul",year:"numeric",month:"long",day:"numeric",weekday:"short",hour:"numeric",minute:"2-digit",hour12:true
+    timeZone:"Asia/Seoul",year:"numeric",month:"long",day:"numeric",
+    weekday:"short",hour:"numeric",minute:"2-digit",hour12:true
   }).format(d);
 }
 
@@ -1768,9 +1784,10 @@ function eventInputLocalValue(iso){
   if(!iso) return "";
   const d = new Date(iso);
   if(isNaN(d)) return "";
-  return new Intl.DateTimeFormat("sv-SE",{
+  const p = new Intl.DateTimeFormat("sv-SE",{
     timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"
   }).format(d).replace(" ","T");
+  return p;
 }
 
 function renderEventAdmin(activeId, editing){
@@ -1786,47 +1803,49 @@ function renderEventAdmin(activeId, editing){
 
       ${ids.length ? `<div class="event-manage-list">
         ${ids.map((id,i)=>`<div class="event-manage-item">
-          <button type="button" class="event-manage-main ${id===activeId?"active":""}" onclick="eventSelect('${eventEsc(id)}')">${i===0?'🌸':'🌷'} ${eventEsc(eventShortTitle(eventEvents[id]?.title || `이벤트 ${i+1}`))}</button>
+          <button type="button" class="event-manage-main ${id===activeId?"active":""}" onclick="eventSelect('${eventEsc(id)}')" title="${eventEsc(eventEvents[id]?.title || `이벤트 ${i+1}`)}">
+            ${i===0?'🌸':'🌷'} ${eventEsc(eventShortTitle(eventEvents[id]?.title || `이벤트 ${i+1}`))}
+          </button>
           <button type="button" class="event-manage-edit" onclick="eventEdit('${eventEsc(id)}')" title="수정">✏️</button>
           <button type="button" class="event-manage-delete" onclick="eventDelete('${eventEsc(id)}')" title="삭제">×</button>
         </div>`).join("")}
-      </div>` : `<div class="event-empty" style="padding:10px 4px">등록된 이벤트가 없어요.</div>`}
+      </div>` : `<div class="event-empty" style="padding:12px 4px">등록된 이벤트가 없어요.</div>`}
 
       <button type="button" class="event-add-btn" onclick="eventNew()">＋ 새 이벤트 추가</button>
 
       <div class="event-admin-grid">
         <div class="event-admin-field">
-          <div class="event-admin-label">이벤트 명</div>
+          <div class="event-admin-label">이벤트 이름</div>
           <input class="event-admin-input" id="event-title-input" value="${eventEsc(editing?.title || "")}" placeholder="예: 추석연휴 커피수혈 이벤트">
         </div>
         <div class="event-admin-field">
-          <div class="event-admin-label">발표 시간 (한국시간)</div>
+          <div class="event-admin-label">발표 시작 시간 (한국시간)</div>
           <input class="event-admin-input" id="event-time-input" type="datetime-local" value="${localValue}">
         </div>
         <div class="event-admin-field full">
           <div class="event-admin-label">이벤트 설명</div>
-          <textarea class="event-admin-textarea" id="event-message-input" placeholder="이 이벤트의 안내문을 입력하세요.">${eventEsc(editing?.message || "")}</textarea>
+          <textarea class="event-admin-textarea" id="event-message-input" placeholder="이 이벤트에서 보여줄 안내문을 입력하세요.">${eventEsc(editing?.message || "")}</textarea>
         </div>
         <div class="event-admin-field full">
-          <div class="event-admin-label">선물 — 한 줄에 하나씩</div>
-          <textarea class="event-admin-textarea" id="event-gifts-input" placeholder="예:&#10;☕ 메가커피 1만원&#10;🎁 CU 5,000원">${Array.isArray(editing?.gifts)?editing.gifts.join("\n"):""}</textarea>
+          <div class="event-admin-label">이 이벤트의 선물 — 한 줄에 하나씩</div>
+          <textarea class="event-admin-textarea" id="event-gifts-input" placeholder="예:&#10;🎁 메가커피 1만원&#10;☕ CU 5,000원">${Array.isArray(editing?.gifts)?editing.gifts.join("\\n"):""}</textarea>
         </div>
         <div class="event-admin-field full">
-          <div class="event-admin-label">후보자(룰렛) — ${selected.size}명 선택</div>
+          <div class="event-admin-label">이 이벤트의 당첨자 후보군 (${selected.size}명)</div>
           <div class="event-candidate-list">
-            ${all.length ? all.map(n=>`<button type="button" class="event-candidate-chip ${selected.has(n)?"on":""}" data-event-nick="${eventEsc(n)}" onclick="eventToggleCandidate(this)">${eventEsc(n)}</button>`).join("") : `<div style="font-size:12px;color:#8b858b;padding:8px">아직 로그인한 길드원이 없습니다.</div>`}
+            ${all.length ? all.map(n=>`<button type="button" class="event-candidate-chip ${selected.has(n)?"on":""}" data-event-nick="${eventEsc(n)}" onclick="eventToggleCandidate(this)">${eventEsc(n)}</button>`).join("") : `<div style="font-size:12px;color:#8b9585;padding:8px">아직 로그인한 길드원이 없습니다.</div>`}
           </div>
         </div>
       </div>
 
       <div class="event-admin-actions">
-        <button class="event-admin-btn primary" onclick="saveEventSettings()">🌸 ${isNew ? "이벤트 추가 / 발표 예약" : "이 이벤트 저장 / 다시 예약"}</button>
-        ${!isNew ? `<button class="event-admin-btn warn" onclick="eventDelete('${eventEsc(activeId)}')">🗑 이 이벤트 삭제</button>` : ""}
+        <button class="event-admin-btn primary" onclick="saveEventSettings()">🌸 ${isNew ? "이벤트 추가 / 발표 예약" : "현재 이벤트 저장 / 다시 예약"}</button>
+        ${!isNew ? `<button class="event-admin-btn warn" onclick="eventDelete('${eventEsc(activeId)}')">🗑 현재 이벤트 삭제</button>` : ""}
       </div>
 
       <div class="event-admin-note">
-        이벤트마다 이벤트 명·설명·발표 시간·선물·후보자·당첨 결과가 독립적으로 저장됩니다.<br>
-        이벤트를 바꿔도 다른 이벤트의 당첨 결과에는 영향을 주지 않아요.
+        이벤트마다 설명·후보자·선물·당첨 결과가 따로 저장됩니다. 화면에는 룰렛 영역 하나만 사용하고, 위에서 선택한 이벤트의 데이터가 그 룰렛에 표시됩니다.
+        기존에 하나만 있던 이벤트도 자동으로 첫 번째 이벤트로 인식합니다.
       </div>
     </div>`;
 }
@@ -1857,11 +1876,12 @@ window.eventNew = function(){
   if(nickname !== "길드장") return;
   eventClearTimers();
   eventEditingId = "";
-  eventData = null;
   renderEvent();
 }
 
-window.eventToggleCandidate = function(btn){ btn.classList.toggle("on"); }
+window.eventToggleCandidate = function(btn){
+  btn.classList.toggle("on");
+}
 
 window.saveEventSettings = async function(){
   if(nickname!=="길드장"){ showToast("길드장만 설정할 수 있어요."); return; }
@@ -1869,14 +1889,12 @@ window.saveEventSettings = async function(){
   const title = document.getElementById("event-title-input")?.value.trim();
   const time = document.getElementById("event-time-input")?.value;
   const message = document.getElementById("event-message-input")?.value.trim() || "";
-  const gifts = (document.getElementById("event-gifts-input")?.value || "").split(/
-?
-/).map(x=>x.trim()).filter(Boolean);
+  const gifts = (document.getElementById("event-gifts-input")?.value || "").split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
   const candidates = [...document.querySelectorAll(".event-candidate-chip.on")].map(x=>x.dataset.eventNick);
 
-  if(!title){ showToast("이벤트 명을 입력해주세요."); return; }
+  if(!title){ showToast("이벤트 이름을 입력해주세요."); return; }
   if(!time){ showToast("발표 시간을 정해주세요."); return; }
-  if(candidates.length<1){ showToast("후보자(룰렛)를 한 명 이상 선택해주세요."); return; }
+  if(candidates.length<1){ showToast("당첨자 후보를 한 명 이상 선택해주세요."); return; }
   if(gifts.length<1){ showToast("선물을 한 개 이상 등록해주세요."); return; }
   if(gifts.length>candidates.length){ showToast("선물 수가 후보자 수보다 많을 수 없어요."); return; }
 
@@ -1887,15 +1905,16 @@ window.saveEventSettings = async function(){
 
   const editingId = eventEditingId;
   const old = editingId ? eventEvents[editingId] : null;
-  if(old?.results && eventResults().length > 0){
-    const ok = confirm("이미 발표된 당첨 결과가 있어요. 저장하면 이 이벤트의 결과를 초기화하고 다시 예약합니다. 계속할까요?");
+  if(old?.results && (Array.isArray(old.results) ? old.results.length : Object.keys(old.results).length) > 0){
+    const ok = confirm("이미 발표된 당첨 결과가 있어요. 저장하면 이 이벤트의 당첨 결과를 초기화하고 새로 예약합니다. 계속할까요?");
     if(!ok) return;
   }
 
   const id = editingId || `event_${Date.now()}`;
   const record = {
     title, message, announcementAt, gifts, candidates,
-    status:"rolling", rollingName:candidates[0], results:[], currentGift:gifts[0],
+    status:"rolling", rollingName:candidates[0],
+    results:[], currentGift:gifts[0],
     updatedAt:Date.now(), updatedBy:nickname
   };
 
@@ -1906,40 +1925,56 @@ window.saveEventSettings = async function(){
   eventLegacyMode = false;
   eventClearTimers();
 
-  await set(ref(db,"event"),{defaultId:id,events:eventEvents});
-  showToast(old ? "이 이벤트를 수정하고 다시 예약했어요 🌸" : "새 이벤트를 추가했어요 🌸");
+  // 기존 단일 event 구조였다면 여기서 {events:{...}} 구조로 한 번에 전환
+  await set(ref(db,"event"),{
+    defaultId:id,
+    events:eventEvents
+  });
+
+  showToast(old ? "이벤트를 수정하고 다시 예약했어요 🌸" : "새 이벤트를 추가했어요 🌸");
   lastEventResultCount = 0;
   renderEvent();
   startEventClock();
 }
 
 window.eventDelete = async function(id){
-  if(nickname!=="길드장" || !id) return;
+  if(nickname!=="길드장") return;
+  if(!id) return;
   const title = eventEvents[id]?.title || "이 이벤트";
-  if(!confirm(`"${title}"을(를) 삭제할까요?
-당첨 결과도 함께 삭제됩니다.`)) return;
+  if(!confirm(`"${title}"을(를) 삭제할까요?\n당첨 결과도 함께 삭제됩니다.`)) return;
 
   eventClearTimers();
+
   if(eventLegacyMode){
     await remove(ref(db,"event"));
-    eventEvents={}; eventActiveId=""; eventEditingId=""; eventData=null;
+    eventEvents = {};
+    eventActiveId = "";
+    eventEditingId = "";
+    eventData = null;
   }else{
-    const copy={...eventEvents};
+    const copy = {...eventEvents};
     delete copy[id];
-    const ids=Object.keys(copy);
+    const ids = Object.keys(copy);
     if(!ids.length){
       await remove(ref(db,"event"));
-      eventEvents={}; eventActiveId=""; eventEditingId=""; eventData=null;
+      eventEvents = {};
+      eventActiveId = "";
+      eventEditingId = "";
+      eventData = null;
     }else{
-      const nextId = id===eventActiveId ? ids[0] : eventActiveId;
-      eventEvents=copy;
-      eventActiveId=eventEvents[nextId] ? nextId : ids[0];
-      eventEditingId=nickname==="길드장" ? eventActiveId : "";
-      eventData=eventEvents[eventActiveId];
-      await set(ref(db,"event"),{defaultId:eventActiveId,events:eventEvents});
+      const nextId = ids.includes(eventActiveId) && id !== eventActiveId ? eventActiveId : ids[0];
+      eventEvents = copy;
+      eventActiveId = nextId;
+      eventEditingId = nickname === "길드장" ? nextId : "";
+      eventData = eventEvents[nextId];
+      await set(ref(db,"event"),{
+        defaultId:nextId,
+        events:eventEvents
+      });
     }
   }
-  lastEventResultCount=eventResults().length;
+
+  lastEventResultCount = eventResults().length;
   renderEvent();
   startEventClock();
   showToast("이벤트를 삭제했어요.");
@@ -1951,37 +1986,49 @@ window.clearEvent = async function(){
 }
 
 function eventCountdownText(iso){
-  const diff=new Date(iso).getTime()-Date.now();
-  if(diff<=0) return "✨ 발표 시간입니다";
-  const sec=Math.ceil(diff/1000), h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
-  return h ? `발표까지 ${h}시간 ${String(m).padStart(2,"0")}분 ${String(s).padStart(2,"0")}초` : `발표까지 ${m}분 ${String(s).padStart(2,"0")}초`;
+  const diff = new Date(iso).getTime() - Date.now();
+  if(diff<=0) return "✨";
+  const sec = Math.ceil(diff/1000);
+  const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
+  return h ? `${h}시간 ${String(m).padStart(2,"0")}분 ${String(s).padStart(2,"0")}초`
+           : `${m}분 ${String(s).padStart(2,"0")}초`;
 }
 
 function eventSetReelSpeed(diff){
-  const track=document.getElementById("event-reel-track");
+  const track = document.getElementById("event-reel-track");
   if(!track || track.classList.contains("winner-track")) return;
+
   let duration;
-  if(diff>60000) duration=4.5;
-  else if(diff>0){
-    const slowWindow=eventData?.results?.length ? 5000 : 60000;
-    const p=Math.max(0,Math.min(1,(slowWindow-diff)/slowWindow));
-    duration=4.5+p*8.5;
-  }else duration=13;
+  if(diff > 60000){
+    duration = 4.5;
+  }else if(diff > 0){
+    const slowWindow = eventData?.results?.length ? 5000 : 60000;
+    const p = Math.max(0,Math.min(1,(slowWindow-diff)/slowWindow));
+    duration = 4.5 + p*8.5;
+  }else{
+    duration = 13;
+  }
   track.style.setProperty("--reel-speed",duration.toFixed(2)+"s");
 }
 
 function startEventSchedule(){
   eventClearTimers();
-  if(!eventData || !eventData.announcementAt || eventData.status!=="rolling" || !eventActiveId) return;
-  const target=new Date(eventData.announcementAt).getTime();
-  const targetRef=eventRecordPath(eventActiveId);
-  const tick=async()=>{
-    const diff=target-Date.now();
+  if(!eventData || !eventData.announcementAt || eventData.status!=="rolling") return;
+  const target = new Date(eventData.announcementAt).getTime();
+  if(!eventActiveId) return;
+
+  const targetRef = eventRecordPath(eventActiveId);
+  const tick = async ()=>{
+    const now=Date.now(), diff=target-now;
     const cd=document.getElementById("event-countdown");
     if(cd) cd.textContent=eventCountdownText(eventData.announcementAt);
     if(diff>0) eventSetReelSpeed(diff);
-    if(diff<=0) await eventTryDraw(targetRef);
+    if(diff<=0){
+      await eventTryDraw(targetRef);
+      return;
+    }
   };
+
   tick();
   eventTimer=setInterval(tick,250);
 }
@@ -1990,10 +2037,11 @@ async function eventTryDraw(targetRef=eventRecordPath(eventActiveId)){
   if(eventDrawLock || !eventActiveId) return;
   eventDrawLock=true;
   eventClearTimers();
+
   try{
     const snap=await get(targetRef);
     const data=snap.val();
-    if(!data || data.status==="finished") return;
+    if(!data || data.status==="finished"){ eventDrawLock=false; return; }
 
     const results=Array.isArray(data.results)?data.results:Object.values(data.results||{});
     const gifts=Array.isArray(data.gifts)?data.gifts:[];
@@ -2003,33 +2051,44 @@ async function eventTryDraw(targetRef=eventRecordPath(eventActiveId)){
 
     if(index>=gifts.length || !available.length){
       await update(targetRef,{status:"finished"});
-      return;
+      eventDrawLock=false; return;
     }
 
     const buf=new Uint32Array(1);
     crypto.getRandomValues(buf);
-    const winner=available[buf[0]%available.length];
+    const winner=available[buf[0] % available.length];
     const gift=gifts[index];
 
     await update(targetRef,{
-      status:"winner",currentGift:gift,rollingName:winner,
+      status:"winner",
+      currentGift:gift,
+      rollingName:winner,
       [`results/${index}`]:{gift,winner,drawnAt:Date.now()}
     });
+
     launchFireworks();
 
-    const nextTimer=setTimeout(async()=>{
+    const nextTimer=setTimeout(async ()=>{
       try{
         const latest=(await get(targetRef)).val();
         if(!latest) return;
+
         const latestResults=Array.isArray(latest.results)?latest.results:Object.values(latest.results||{});
         const nextIndex=latestResults.length;
         const latestGifts=Array.isArray(latest.gifts)?latest.gifts:[];
+
         if(nextIndex>=latestGifts.length){
           await update(targetRef,{status:"finished"});
           return;
         }
+
         const nextAt=Date.now()+15000;
-        await update(targetRef,{status:"rolling",currentGift:latestGifts[nextIndex],rollingName:"",announcementAt:new Date(nextAt).toISOString()});
+        await update(targetRef,{
+          status:"rolling",
+          currentGift:latestGifts[nextIndex],
+          rollingName:"",
+          announcementAt:new Date(nextAt).toISOString()
+        });
       }finally{
         eventDrawLock=false;
       }
@@ -2037,8 +2096,7 @@ async function eventTryDraw(targetRef=eventRecordPath(eventActiveId)){
     eventAnimationTimers.push(nextTimer);
   }catch(err){
     console.error(err);
-  }finally{
-    if(eventDrawLock) eventDrawLock=false;
+    eventDrawLock=false;
   }
 }
 
@@ -2050,8 +2108,7 @@ function launchFireworks(){
   for(let i=0;i<18;i++){
     const f=document.createElement("div");
     f.className="firework";f.textContent=icons[i%icons.length];
-    f.style.left=(5+Math.random()*90)+"%";
-    f.style.top=(5+Math.random()*80)+"%";
+    f.style.left=(5+Math.random()*90)+"%";f.style.top=(5+Math.random()*80)+"%";
     f.style.animationDelay=(Math.random()*.45)+"s";
     box.appendChild(f);
   }
@@ -2064,12 +2121,13 @@ function eventRemoteCelebrate(){
   const count=eventResults().length;
   if(count>lastEventResultCount){
     const n=document.getElementById("event-reel-track");
-    if(n && !n.classList.contains("winner-track")) n.classList.add("winner-track");
+    if(n && !n.classList.contains("winner-track")){
+      n.classList.add("winner-track");
+    }
     launchFireworks();
   }
   lastEventResultCount=count;
 }
-
 
 function renderAdmin() {
   const memberList = Object.keys(members);
