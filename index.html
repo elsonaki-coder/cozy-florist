@@ -186,6 +186,8 @@
 
 
 
+  @import url("https://fonts.googleapis.com/css2?family=Hi+Melody&family=Jua&display=swap");
+
   /* ── 이벤트 페이지 : event-garden.png 전용 ── */
   .event-page{
     position:relative;
@@ -194,9 +196,8 @@
     padding:18px 12px 48px;
     overflow:visible;
     background:linear-gradient(180deg,#fff8ee 0%,#fff1dc 100%);
+    font-family:"Jua","Hi Melody","Noto Sans KR",sans-serif;
   }
-
-  /* 원본 1024×1536 비율을 그대로 유지하는 무대 */
   .event-garden-stage{
     position:relative;
     width:min(100%,900px);
@@ -207,336 +208,110 @@
     background:#fff3df url("event-garden.png") center top / 100% 100% no-repeat;
     box-shadow:0 12px 30px rgba(88,61,35,.16);
   }
-  .event-garden-overlay{
-    position:absolute;
-    inset:0;
-    z-index:2;
-  }
+  .event-garden-overlay{position:absolute;inset:0;z-index:2;}
 
-  /* 시계 */
   .event-clock{
-    position:absolute;
-    top:1.2%;
-    right:1.5%;
-    z-index:30;
-    padding:4px 9px;
-    border-radius:999px;
-    background:rgba(255,250,241,.72);
-    border:1px solid rgba(126,98,68,.24);
-    color:#705b4a;
-    font-size:10px;
-    font-weight:700;
-    box-shadow:0 2px 8px rgba(80,55,35,.08);
-    backdrop-filter:blur(2px);
+    position:absolute;top:1.2%;right:1.5%;z-index:30;
+    padding:4px 9px;border-radius:999px;background:rgba(255,250,241,.72);
+    border:1px solid rgba(126,98,68,.24);color:#705b4a;font:700 10px "Jua",sans-serif;
+    box-shadow:0 2px 8px rgba(80,55,35,.08);backdrop-filter:blur(2px);
   }
+  .event-floral-arch,.event-flower-corner{display:none!important;}
 
-  /* 이미지에 이미 꽃 아치가 있으므로 기존 장식은 사용하지 않음 */
-  .event-floral-arch,
-  .event-flower-corner{
-    display:none !important;
-  }
-
-  /* 나무판 위 제목 */
+  /* 제목: 둥글고 귀여운 손글씨 느낌 */
   .event-title{
-    position:absolute;
-    top:24.2%;
-    left:20%;
-    width:60%;
-    z-index:12;
-    margin:0;
-    padding:0;
-    text-align:center;
+    position:absolute;top:23.5%;left:14%;width:72%;z-index:12;
+    margin:0;padding:0;text-align:center;
   }
-  .event-title::before,
-  .event-title::after{
-    display:none !important;
-  }
-.event-title-main {
-    font-family: "Gaegu", cursive;
-    font-size: clamp(22px, 4.5vw, 42px);
-    line-height: 1.2;
-    font-weight: 700;
-    letter-spacing: 1px;
-    color: #704832;
-    text-shadow: 1px 1px 0 rgba(255, 255, 255, .92), 0 2px 4px rgba(91, 58, 36, .12);
-    white-space: normal;
-    word-break: keep-all;
-}
-
-  /* 기존 board는 껍데기만 남기고 실제 나무판은 배경 이미지가 담당 */
-  .event-board-wrap{
-    position:absolute;
-    inset:0;
-    z-index:5;
-    margin:0;
-    padding:0;
-    background:transparent !important;
-    border:0 !important;
-    border-radius:0 !important;
-    box-shadow:none !important;
-    pointer-events:none;
-  }
-  .event-board{
-    position:absolute;
-    inset:0;
-    min-height:0;
-    padding:0;
-    overflow:visible;
-    background:transparent !important;
-    border:0 !important;
-    border-radius:0 !important;
-    box-shadow:none !important;
-  }
-  .event-board::before,
-  .event-board::after{
-    display:none !important;
-  }
-  .event-screen{
-    position:absolute;
-    inset:0;
-    width:100%;
-    max-width:none;
-    margin:0;
-    text-align:center;
-    z-index:10;
-    pointer-events:none;
+  .event-title::before,.event-title::after{display:none!important;}
+  .event-title-main{
+    font-family:"Jua","Hi Melody",sans-serif;
+    font-size:clamp(25px,4.2vw,42px);
+    line-height:1.2;font-weight:400;letter-spacing:2px;color:#68442f;
+    text-shadow:1px 2px 0 rgba(255,255,255,.9),0 2px 4px rgba(91,58,36,.13);
+    white-space:normal;word-break:keep-all;
   }
 
-  /* 안내문 : 나무판 위에 직접 표시 */
+  .event-board-wrap{position:absolute;inset:0;z-index:5;margin:0;padding:0;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;pointer-events:none;}
+  .event-board{position:absolute;inset:0;min-height:0;padding:0;overflow:visible;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;}
+  .event-board::before,.event-board::after{display:none!important;}
+  .event-screen{position:absolute;inset:0;width:100%;max-width:none;margin:0;text-align:center;z-index:10;pointer-events:none;}
+
+  /* 안내문: 충분히 크게 */
   .event-info-card{
-    position:absolute;
-    top:32.5%;
-    left:23%;
-    width:54%;
-    max-width:none;
-    margin:0;
-    padding:0;
-    background:transparent !important;
-    border:0 !important;
-    border-radius:0;
-    box-shadow:none !important;
-    pointer-events:none;
+    position:absolute;top:31.5%;left:15%;width:70%;max-width:none;margin:0;padding:0;
+    background:transparent!important;border:0!important;border-radius:0;box-shadow:none!important;pointer-events:none;
   }
-  .event-info-card::before,
-  .event-info-card::after{
-    display:none !important;
-  }
+  .event-info-card::before,.event-info-card::after{display:none!important;}
   .event-info-message{
-    margin:0;
-    color:#80604a;
-    font-size:clamp(9px,1.35vw,13px);
-    line-height:1.5;
-    white-space:pre-line;
-    text-shadow:1px 1px 0 rgba(255,255,255,.8);
+    margin:0;color:#79523d;font-family:"Jua","Hi Melody","Noto Sans KR",sans-serif;
+    font-size:clamp(12px,1.7vw,17px);line-height:1.55;white-space:pre-line;
+    text-shadow:1px 1px 0 rgba(255,255,255,.9);
   }
   .event-info-meta{
-    margin-top:5px;
-    color:#a0785f;
-    font-size:clamp(8px,1.05vw,11px);
+    margin-top:8px;color:#9b6d53;font-family:"Jua",sans-serif;
+    font-size:clamp(10px,1.25vw,13px);line-height:1.4;text-shadow:1px 1px 0 rgba(255,255,255,.9);
+  }
+  .event-info-gifts{margin-top:8px;display:flex;justify-content:center;gap:6px;flex-wrap:wrap;}
+  .event-gift-pill{
+    padding:3px 8px;border:0;border-radius:999px;background:rgba(255,248,235,.62);
+    color:#8d6048;font:400 clamp(10px,1.15vw,13px) "Jua",sans-serif;
     text-shadow:1px 1px 0 rgba(255,255,255,.8);
   }
-  .event-info-gifts{
-    margin-top:5px;
-    display:flex;
-    justify-content:center;
-    gap:4px;
-    flex-wrap:wrap;
-  }
-  .event-gift-pill{
-    padding:2px 6px;
-    border:0;
-    border-radius:999px;
-    background:rgba(255,248,235,.52);
-    color:#8b684f;
-    font-size:clamp(7px,.9vw,10px);
-  }
 
-  /* 이름 추첨 영역 - 박스 없이 나무판 위에 직접 표시 */
-  .event-slot-shell{
-    position:absolute;
-    top:43%;
-    left:20%;
-    width:60%;
-    max-width:none;
-    margin:0;
-    padding:0;
-    border:0 !important;
-    border-radius:0;
-    background:transparent !important;
-    box-shadow:none !important;
-    pointer-events:none;
-  }
+  /* 룰렛/당첨자: 나무판 중앙 */
+  .event-slot-shell{position:absolute;top:44%;left:15%;width:70%;max-width:none;margin:0;padding:0;border:0!important;border-radius:0;background:transparent!important;box-shadow:none!important;pointer-events:none;}
   .event-slot-top{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:5px;
-    margin:0 0 5px;
-    padding:0;
-    font-family:"Nanum Myeongjo","Noto Serif KR",Georgia,serif;
-    font-size:clamp(10px,1.55vw,15px);
-    line-height:1.3;
-    font-weight:800;
-    color:#90624d;
-    text-shadow:1px 1px 0 rgba(255,255,255,.9);
+    display:flex;align-items:center;justify-content:center;gap:6px;margin:0 0 6px;padding:0;
+    font-family:"Jua","Hi Melody",sans-serif;font-size:clamp(13px,1.7vw,18px);line-height:1.3;font-weight:400;color:#90604b;
+    text-shadow:1px 1px 0 rgba(255,255,255,.95);
   }
-  .event-slot-top::before,
-  .event-slot-top::after{
-    color:#e69a9a;
-    font-size:.9em;
-  }
-
-  .event-name-window{
-    position:relative;
-    width:100%;
-    height:110px;
-    overflow:hidden;
-    background:transparent !important;
-    border:0 !important;
-    border-radius:0;
-    box-shadow:none !important;
-  }
-  .event-name-window::before,
-  .event-name-window::after{
-    display:none !important;
-  }
-  .event-reel-track{
-    position:absolute;
-    left:0;
-    right:0;
-    top:0;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    will-change:transform;
-    animation:eventReelScroll var(--reel-speed,4.5s) linear infinite;
-  }
+  .event-slot-top::before,.event-slot-top::after{color:#e69a9a;font-size:.9em;}
+  .event-name-window{position:relative;width:100%;height:120px;overflow:hidden;background:transparent!important;border:0!important;border-radius:0;box-shadow:none!important;}
+  .event-name-window::before,.event-name-window::after{display:none!important;}
+  .event-reel-track{position:absolute;left:0;right:0;top:0;display:flex;flex-direction:column;align-items:center;will-change:transform;animation:eventReelScroll var(--reel-speed,4.5s) linear infinite;}
   .event-reel-item{
-    width:100%;
-    height:78px;
-    flex:0 0 78px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:0 6px;
-    font-family:"Nanum Myeongjo","Noto Serif KR",Georgia,serif;
-    font-size:clamp(22px,4vw,40px);
-    line-height:1;
-    font-weight:800;
-    color:#704832;
-    text-shadow:1px 1px 0 rgba(255,255,255,.95),2px 2px 3px rgba(91,58,36,.16);
-    white-space:nowrap;
-    word-break:keep-all;
+    width:100%;height:82px;flex:0 0 82px;display:flex;align-items:center;justify-content:center;padding:0 6px;
+    font-family:"Jua","Hi Melody",sans-serif;font-size:clamp(28px,4.5vw,46px);line-height:1;font-weight:400;color:#704832;
+    text-shadow:1px 1px 0 rgba(255,255,255,.95),2px 2px 3px rgba(91,58,36,.16);white-space:nowrap;word-break:keep-all;
   }
-  .event-reel-track.winner-track{
-    animation:none;
-    top:50%;
-    transform:translateY(-50%);
-  }
+  .event-reel-track.winner-track{animation:none;top:50%;transform:translateY(-50%);}
   .event-reel-track.winner-track .event-reel-item{
-    height:92px;
-    flex-basis:92px;
-    font-size:clamp(30px,5.5vw,56px);
-    color:#bd6c72;
-    text-shadow:1px 1px 0 rgba(255,255,255,.98),0 0 12px rgba(255,190,150,.45);
+    height:100px;flex-basis:100px;font-size:clamp(40px,6vw,64px);color:#c66d73;
+    text-shadow:1px 1px 0 rgba(255,255,255,.98),0 0 12px rgba(255,190,150,.5);
   }
-  .event-reel-window::before{
-    display:none !important;
-  }
-  @keyframes eventReelScroll{
-    from{transform:translateY(0)}
-    to{transform:translateY(-50%)}
-  }
-  .event-name-winner{
-    animation:eventWinnerPop .75s cubic-bezier(.2,.85,.3,1.3) both;
-  }
-  @keyframes eventWinnerPop{
-    0%{transform:scale(.45);opacity:.1}
-    55%{transform:scale(1.12);opacity:1}
-    100%{transform:scale(1);opacity:1}
-  }
-  .event-countdown{
-    margin-top:2px;
-    min-height:16px;
-    color:#98745b;
-    font-size:clamp(8px,1vw,11px);
-    font-weight:700;
-    text-shadow:1px 1px 0 rgba(255,255,255,.9);
-  }
-  .event-fireworks{
-    position:absolute;
-    inset:-25%;
-    pointer-events:none;
-    overflow:visible;
-    z-index:20;
-  }
-  .firework{
-    position:absolute;
-    font-size:32px;
-    animation:fw 1.8s ease-out forwards;
-  }
-  @keyframes fw{
-    0%{transform:scale(.2);opacity:0}
-    20%{opacity:1}
-    100%{transform:scale(1.8) translateY(-30px);opacity:0}
-  }
+  .event-reel-window::before{display:none!important;}
+  @keyframes eventReelScroll{from{transform:translateY(0)}to{transform:translateY(-50%)}}
+  .event-name-winner{animation:eventWinnerPop .75s cubic-bezier(.2,.85,.3,1.3) both;}
+  @keyframes eventWinnerPop{0%{transform:scale(.45);opacity:.1}55%{transform:scale(1.12);opacity:1}100%{transform:scale(1);opacity:1}}
+  .event-countdown{margin-top:3px;min-height:18px;color:#98745b;font:400 clamp(10px,1.2vw,13px) "Jua",sans-serif;text-shadow:1px 1px 0 rgba(255,255,255,.9);}
+  .event-fireworks{position:absolute;inset:-25%;pointer-events:none;overflow:visible;z-index:20;}
+  .firework{position:absolute;font-size:32px;animation:fw 1.8s ease-out forwards;}
+  @keyframes fw{0%{transform:scale(.2);opacity:0}20%{opacity:1}100%{transform:scale(1.8) translateY(-30px);opacity:0}}
 
-  /* 당첨 결과는 이미지 아래에서 별도 카드로 */
+  /* 당첨 결과도 나무판 안에서 마무리 */
   .event-result{
-    position:relative;
-    z-index:5;
-    width:min(100%,900px);
-    margin:18px auto 0;
-    padding:15px;
-    border-radius:16px;
-    background:rgba(255,249,239,.92);
-    border:1px solid rgba(169,120,78,.4);
-    box-shadow:0 7px 18px rgba(75,64,39,.12);
+    position:absolute;left:15%;top:63%;width:70%;z-index:14;margin:0;padding:0;
+    background:transparent!important;border:0!important;border-radius:0;box-shadow:none!important;
+    text-align:center;pointer-events:none;
   }
   .event-result-title{
-    text-align:center;
-    font-family:"Nanum Myeongjo","Noto Serif KR",Georgia,serif;
-    font-size:24px;
-    color:#73513e;
-    font-weight:800;
+    text-align:center;font-family:"Jua","Hi Melody",sans-serif;font-size:clamp(15px,2vw,21px);
+    color:#8b5948;font-weight:400;text-shadow:1px 1px 0 rgba(255,255,255,.95);margin-bottom:8px;
   }
-  .event-result-list{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
-    gap:8px;
-    margin-top:10px;
-  }
-  .event-result-card{
-    padding:10px 12px;
-    border-radius:11px;
-    background:rgba(255,255,255,.7);
-    border:1px solid rgba(200,165,125,.4);
-    text-align:center;
-  }
-  .event-result-gift{font-size:11px;color:#9b7b52;margin-bottom:2px;font-weight:700;}
-  .event-result-name{font-family:"Nanum Myeongjo","Noto Serif KR",Georgia,serif;font-size:22px;color:#76503c;font-weight:800;}
+  .event-result-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:0;}
+  .event-result-card{padding:4px 5px;background:transparent;border:0;text-align:center;}
+  .event-result-gift{font:400 clamp(10px,1.2vw,13px) "Jua",sans-serif;color:#9b6b50;margin-bottom:1px;}
+  .event-result-name{font:400 clamp(17px,2.4vw,27px) "Jua","Hi Melody",sans-serif;color:#76503c;text-shadow:1px 1px 0 rgba(255,255,255,.95);}
 
-  /* 관리자 설정은 정원 이미지 밖으로 분리 */
-  .event-admin{
-    position:relative;
-    z-index:5;
-    width:min(100%,900px);
-    margin:18px auto 0;
-    padding:16px;
-    background:rgba(255,251,240,.98);
-    border:1px solid #c5a16f;
-    border-radius:16px;
-    box-shadow:0 7px 18px rgba(83,67,38,.12);
-  }
+  /* 관리자 설정은 이미지 밖 */
+  .event-admin{position:relative;z-index:5;width:min(100%,900px);margin:18px auto 0;padding:16px;background:rgba(255,251,240,.98);border:1px solid #c5a16f;border-radius:16px;box-shadow:0 7px 18px rgba(83,67,38,.12);}
   .event-admin h3{font-size:16px;color:#50644d;margin-bottom:12px;}
   .event-admin-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
   .event-admin-field{display:flex;flex-direction:column;gap:5px;}
   .event-admin-field.full{grid-column:1/-1;}
   .event-admin-label{font-size:12px;color:#6f7e69;font-weight:700;}
-  .event-admin-input,.event-admin-textarea{
-    width:100%;padding:10px 11px;border:1px solid #cddac7;border-radius:10px;
-    font-family:inherit;background:#fff;outline:none;box-sizing:border-box;
-  }
+  .event-admin-input,.event-admin-textarea{width:100%;padding:10px 11px;border:1px solid #cddac7;border-radius:10px;font-family:inherit;background:#fff;outline:none;box-sizing:border-box;}
   .event-admin-textarea{min-height:100px;resize:vertical;line-height:1.5;}
   .event-candidate-list{display:flex;flex-wrap:wrap;gap:6px;padding:9px;border:1px solid #d9e3d3;border-radius:10px;background:#fbfdf9;max-height:180px;overflow:auto;}
   .event-candidate-chip{padding:6px 10px;border-radius:999px;border:1px solid #cbdcc5;background:#fff;color:#5b6c56;font-size:12px;cursor:pointer;}
@@ -549,28 +324,26 @@
 
   @media(max-width:600px){
     .event-page{padding:8px 0 30px;}
-    .event-garden-stage{
-      width:100%;
-      border-radius:0;
-      box-shadow:none;
-    }
+    .event-garden-stage{width:100%;border-radius:0;box-shadow:none;}
     .event-clock{top:1%;right:2%;font-size:8px;padding:3px 7px;}
-    .event-title{top:24.5%;left:18%;width:64%;}
-    .event-title-main{font-size:clamp(17px,5vw,25px);letter-spacing:1px;}
-    .event-info-card{top:33%;left:20%;width:60%;}
-    .event-info-message{font-size:8px;line-height:1.45;}
-    .event-info-meta{font-size:7px;}
-    .event-gift-pill{font-size:6.5px;padding:1px 4px;}
-    .event-slot-shell{top:43.5%;left:17%;width:66%;}
-    .event-slot-top{font-size:9px;margin-bottom:2px;}
-    .event-name-window{height:92px;}
-    .event-reel-item{height:66px;flex-basis:66px;font-size:clamp(19px,6vw,28px);}
-    .event-reel-track.winner-track .event-reel-item{height:78px;flex-basis:78px;font-size:clamp(25px,8vw,39px);}
-    .event-countdown{font-size:7px;min-height:11px;}
-    .event-result{width:calc(100% - 14px);}
-    .event-result-list{grid-template-columns:1fr 1fr;}
-    .event-result-title{font-size:20px;}
-    .event-result-name{font-size:19px;}
+    .event-title{top:23.5%;left:12%;width:76%;}
+    .event-title-main{font-size:clamp(25px,7vw,31px);letter-spacing:1px;}
+    .event-info-card{top:31%;left:11%;width:78%;}
+    .event-info-message{font-size:11px;line-height:1.55;}
+    .event-info-meta{font-size:9.5px;margin-top:7px;}
+    .event-info-gifts{gap:5px;margin-top:7px;}
+    .event-gift-pill{font-size:9.5px;padding:2px 6px;}
+    .event-slot-shell{top:43%;left:10%;width:80%;}
+    .event-slot-top{font-size:13px;margin-bottom:2px;}
+    .event-name-window{height:105px;}
+    .event-reel-item{height:76px;flex-basis:76px;font-size:clamp(26px,8vw,34px);}
+    .event-reel-track.winner-track .event-reel-item{height:88px;flex-basis:88px;font-size:clamp(34px,10vw,46px);}
+    .event-countdown{font-size:9px;min-height:12px;}
+    .event-result{left:10%;top:62%;width:80%;}
+    .event-result-title{font-size:18px;margin-bottom:6px;}
+    .event-result-list{gap:4px;}
+    .event-result-gift{font-size:9px;}
+    .event-result-name{font-size:20px;}
     .event-admin{width:calc(100% - 14px);}
     .event-admin-grid{grid-template-columns:1fr;}
     .event-admin-field.full{grid-column:auto;}
@@ -1887,19 +1660,19 @@ function renderEvent(){
               </div>
             </div>
           </div>
+
+          ${results.length ? `
+          <div class="event-result">
+            <div class="event-result-title">🌸 오늘의 당첨 결과 🌸</div>
+            <div class="event-result-list">
+              ${results.map((r,i)=>`<div class="event-result-card">
+                <div class="event-result-gift">${eventEsc(r.gift || gifts[i] || "선물")}</div>
+                <div class="event-result-name">🎁 ${eventEsc(r.winner)}</div>
+              </div>`).join("")}
+            </div>
+          </div>` : ""}
         </div>
       </div>
-
-      ${results.length ? `
-      <div class="event-result">
-        <div class="event-result-title">🌸 오늘의 당첨 결과 🌸</div>
-        <div class="event-result-list">
-          ${results.map((r,i)=>`<div class="event-result-card">
-            <div class="event-result-gift">${eventEsc(r.gift || gifts[i] || "선물")}</div>
-            <div class="event-result-name">🎁 ${eventEsc(r.winner)}</div>
-          </div>`).join("")}
-        </div>
-      </div>` : ""}
 
       ${isAdmin ? renderEventAdmin(candidates, gifts, announcement, title, message) : ""}
     </div>
