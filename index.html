@@ -206,11 +206,18 @@
   .gev .row{position:absolute;left:0;right:0;height:52px;line-height:52px;font-size:21px;font-weight:700;z-index:1;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 8px;text-align:center}
   .gev .reel.done .win:before{background:var(--g-mint)}
-  .gev .reel.done{animation:gevPop .5s}
+  .gev .reel.pop{animation:gevPop .5s}
   @keyframes gevPop{50%{transform:scale(1.07)}}
   .gev .btn{border:0;border-radius:12px;padding:10px 18px;font-size:15px;font-weight:700;color:var(--g-ink);cursor:pointer;font-family:inherit;background:#fff}
   .gev .btn:disabled{opacity:.45;cursor:default}
-  .gev .go{background:var(--g-yel);font-size:17px;padding:13px 34px;margin-top:18px}
+  .gev .gtabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .gev .gtab{border:0;border-radius:14px;padding:10px 14px;background:#fff;color:var(--g-ink);font:inherit;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  .gev .gtab.on{background:var(--g-lav)}
+  .gev .gtab.add{background:var(--g-peach)}
+  .gev .gtab .gt{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .gev .gtab .gs{font-size:11px;font-weight:600;border-radius:999px;padding:2px 8px;background:var(--g-mint)}
+  .gev .gtab .gs.fin{background:var(--g-yel)}
+  .gev .adm input:disabled,.gev .adm textarea:disabled{opacity:.55}
   .gev .two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
   .gev .two .blk{margin:0}
   .gev .prize{background:var(--g-mint)}
@@ -224,7 +231,7 @@
   .gev .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .gev .abtns{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
   @media(max-width:640px){.gev .two,.gev .g2{grid-template-columns:1fr}.gev .reel{width:calc(50% - 6px)}.gev h2{font-size:22px}}
-  @media(prefers-reduced-motion:reduce){.gev .reel.done{animation:none}}
+  @media(prefers-reduced-motion:reduce){.gev .reel.pop{animation:none}}
 
 
   /* ── PIN 보안 ── */
@@ -462,7 +469,7 @@
 <!-- Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, onValue, set, get, remove, push, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, onValue, set, get, remove, push, update, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCADiBeq2rB3rXxHWvvnmdH2jzi24Eizzc",
@@ -1418,27 +1425,25 @@ window.toggleGuildReverseSort = function() {
   renderGuild();
 }
 
-// ── 이벤트 시스템 (슬롯 룰렛 / 길드장 작성) ─────────────────────
-// 저장 위치: Firebase  guildEvent
-//   { title, start, end, drawAt, n, prizes, cands, winners[], drawnAt }
-let gevData = null;      // Firebase 최신 데이터
-let gevRunning = false;  // 슬롯 연출 중
-let gevPlayed = 0;       // 이미 연출을 끝낸 drawnAt
-let gevAutoTried = false;
-const GEV_RH = 52;       // 슬롯 한 칸 높이(px)
-const GEV_SPEED = 14;    // 회전 속도(칸/초) - 글자가 읽히는 속도
+// ── 이벤트 시스템 (슬롯 룰렛 · 동시 3건 · 길드장 작성) ─────────────
+// 저장 위치: Firebase  guildEvents/{id}
+//   { title, start, end, drawAt, n, prizes, cands, winners[], drawnAt, createdAt }
+// 동작: 추첨 시간 전까지 후보자 이름이 천천히 계속 돌고,
+//       추첨 시간이 되면 자동으로 당첨자를 정해 점점 느려지며 멈춥니다. (다시 추첨 없음)
+const GEV_MAX = 3;          // 동시 등록 가능한 이벤트 수
+const GEV_SLOW = 2.5;       // 대기 중 회전 속도(칸/초) - 천천히
+const GEV_STOP_SEC = 3.5;   // 멈추기까지 걸리는 시간(초)
+const GEV_STAGGER = 900;    // 슬롯이 하나씩 멈추는 간격(ms)
+const GEV_RH = 52;          // 슬롯 한 칸 높이(px)
+let gevItems = {};          // Firebase 최신 데이터
+let gevActive = "";         // 보고 있는 이벤트 id ("new" = 새 이벤트 작성)
+let gevState = {};          // id -> 슬롯 상태 (화면이 다시 그려져도 회전 위치 유지)
+let gevArrived = {};        // id -> 당첨자 도착 시각(이 기기 기준)
+let gevDrawing = {};        // id -> 추첨 요청 중
+let gevRaf = 0, gevTimer = null;
 
 function eventEsc(s){
   return String(s ?? "").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
-}
-function gevGet(){
-  const d = gevData || {};
-  const w = d.winners ? (Array.isArray(d.winners) ? d.winners : Object.values(d.winners)) : [];
-  return {
-    title:d.title||"", start:d.start||"", end:d.end||"", drawAt:d.drawAt||"",
-    n:Math.min(Math.max(+d.n||1,1),10), prizes:d.prizes||"", cands:d.cands||"",
-    winners:w.filter(Boolean), drawnAt:d.drawnAt||0
-  };
 }
 function gevNames(text){ return String(text||"").split("\n").map(s=>s.trim()).filter(Boolean); }
 function gevMod(a,n){ return ((a%n)+n)%n; }
@@ -1449,86 +1454,223 @@ function gevFmtDT(s){
   const t=new Date(s); if(isNaN(t)) return "-";
   return `${t.getFullYear()}.${t.getMonth()+1}.${t.getDate()} ${String(t.getHours()).padStart(2,"0")}:${String(t.getMinutes()).padStart(2,"0")}`;
 }
-// 방금 추첨됐고 아직 연출 전이면 결과를 숨긴다 (스포 방지)
-function gevHide(d){ return d.drawnAt && d.drawnAt!==gevPlayed && Date.now()-d.drawnAt<6000; }
+function gevGet(id){
+  const d=gevItems[id]; if(!d) return null;
+  const w=d.winners ? (Array.isArray(d.winners)?d.winners:Object.values(d.winners)) : [];
+  return {
+    id, title:d.title||"", start:d.start||"", end:d.end||"", drawAt:d.drawAt||"",
+    n:Math.min(Math.max(+d.n||1,1),10), prizes:d.prizes||"", cands:d.cands||"",
+    winners:w.filter(Boolean), createdAt:d.createdAt||0
+  };
+}
+function gevIds(){ return Object.keys(gevItems).sort((a,b)=>(gevItems[a].createdAt||0)-(gevItems[b].createdAt||0)); }
 
 function eventClearTimers(){ if(eventTimer){ clearInterval(eventTimer); eventTimer=null; } }
+function eventRemoteCelebrate(){}   // (호환용) 연출은 슬롯 루프가 처리
 
 function eventSubscribe(){
   if(eventSubbed) return;
   eventSubbed = true;
-  onValue(ref(db,"guildEvent"), snap => {
-    gevData = snap.val();
+  onValue(ref(db,"guildEvents"), snap => {
+    const next = snap.val() || {};
+    Object.keys(next).forEach(id=>{
+      const prev=gevItems[id];
+      if(prev && !(prev.winners && Object.keys(prev.winners).length) && next[id].winners) gevArrived[id]=Date.now();
+    });
+    Object.keys(gevState).forEach(id=>{ if(!next[id]) delete gevState[id]; });
+    gevItems = next;
     if(currentTab==="event") renderContent();
   });
+  gevTimer = setInterval(gevTickFn,1000);
 }
 
-// ── 화면 ──────────────────────────────────────────────────
+// ── 추첨: 시간이 되면 누구든 먼저 연 사람이 1회만 확정 (트랜잭션) ──
+async function gevTryDraw(id){
+  if(gevDrawing[id]) return;
+  gevDrawing[id]=true;
+  try{
+    await runTransaction(ref(db,`guildEvents/${id}`), cur=>{
+      if(cur===null) return cur;
+      if(cur.winners) return;                      // 이미 추첨됨 → 중단
+      const pool=[...new Set(gevNames(cur.cands))];
+      if(!pool.length) return;
+      for(let i=pool.length-1;i>0;i--){ const j=gevRand(i+1); [pool[i],pool[j]]=[pool[j],pool[i]]; }
+      cur.winners=pool.slice(0,Math.min(Math.max(+cur.n||1,1),10,pool.length));
+      cur.drawnAt=Date.now();
+      return cur;
+    });
+  }catch(e){ console.error(e); }
+  gevDrawing[id]=false;
+}
+
+// 1초마다: 추첨 시간 확인 + 카운트다운 문구
+function gevTickFn(){
+  const now=Date.now();
+  Object.keys(gevItems).forEach(id=>{
+    const d=gevGet(id);
+    if(!d.winners.length && d.drawAt && new Date(d.drawAt).getTime()<=now && gevNames(d.cands).length) gevTryDraw(id);
+  });
+  const el=document.getElementById("gev-count"); if(!el) return;
+  const d=gevGet(gevActive); if(!d){ el.textContent=""; return; }
+  const st=gevState[d.id];
+  if(d.winners.length){ el.textContent=(st && st.phase!=="done") ? "추첨 중..." : "🎉 당첨자가 발표되었어요!"; return; }
+  if(!d.drawAt){ el.textContent=""; return; }
+  const diff=new Date(d.drawAt)-now;
+  if(diff>0){
+    const s=Math.floor(diff/1000), D=Math.floor(s/86400), H=Math.floor(s%86400/3600), M=Math.floor(s%3600/60), S=s%60;
+    el.textContent=`발표까지 ${D?D+"일 ":""}${H}시간 ${M}분 ${S}초`;
+  }else el.textContent="곧 발표됩니다...";
+}
+
+// ── 슬롯 ──────────────────────────────────────────────────
+function gevEnsureState(d){
+  const list=gevNames(d.cands);
+  const n=Math.max(1,Math.min(d.n,new Set(list).size||1));
+  let st=gevState[d.id];
+  if(!st || st.reels.length!==n){
+    const done=d.winners.length>0;
+    st={phase:done?"done":"idle",reels:[],last:0};
+    for(let i=0;i<n;i++) st.reels.push({p:Math.random()*Math.max(list.length,1),mode:done?"done":"idle",ovK:null,ovName:""});
+    gevState[d.id]=st;
+    st.fresh=true;
+  }
+  st.list=list;
+  d.winners.forEach(w=>{ if(st.list.indexOf(w)<0) st.list.push(w); });
+  if(st.fresh){
+    st.fresh=false;
+    if(st.phase==="done") st.reels.forEach((r,i)=>{ r.p=Math.max(0,st.list.indexOf(d.winners[i])); });
+  }
+  return st;
+}
+function gevPaint(rows,r,list,p){
+  const N=list.length, base=Math.floor(p);
+  rows.forEach((x,k)=>{
+    const j=base-1+k;
+    x.textContent = N ? (r.ovK===j ? r.ovName : list[gevMod(j,N)]) : (k===2?"?":"");
+    x.style.transform=`translateY(${(j-p+1)*GEV_RH}px)`;
+  });
+}
 function gevFillWinners(list){
   const box=document.getElementById("gev-winners"); if(!box) return;
   box.innerHTML = list.length
     ? list.map((w,i)=>`<div class="item">${i+1}. ${eventEsc(w)}</div>`).join("")
-    : '<div class="none">추첨 후 이곳에 발표됩니다.</div>';
+    : '<div class="none">발표 시간이 되면 이곳에 공개됩니다.</div>';
 }
-function gevPaintStatic(rows,text){
-  rows.forEach((x,k)=>{ x.style.transform=`translateY(${(k-1)*GEV_RH}px)`; x.textContent=(k===2)?text:""; });
-}
-function gevPaint(rows,list,p){
-  const N=list.length, base=Math.floor(p);
-  rows.forEach((x,k)=>{
-    const j=base-1+k;
-    x.textContent=N?list[gevMod(j,N)]:"";
-    x.style.transform=`translateY(${(j-p+1)*GEV_RH}px)`;
+function gevKick(){ if(!gevRaf) gevRaf=requestAnimationFrame(gevLoop); }
+
+function gevLoop(now){
+  gevRaf=0;
+  const box=document.getElementById("gev-reels"); if(!box) return;
+  const id=box.dataset.id, st=gevState[id], d=gevGet(id);
+  if(!st||!d) return;
+  const dt=st.last ? Math.min((now-st.last)/1000,0.1) : 0; st.last=now;
+  const els=[...box.querySelectorAll(".reel")];
+  const N=st.list.length;
+
+  // 당첨자가 확정됐고 아직 돌고 있으면 → 순서대로 멈추기 시작
+  if(d.winners.length && st.phase==="idle"){
+    if(Date.now()-(gevArrived[id]||0)<15000){
+      st.phase="stopping"; st.t0=now;
+      st.reels.forEach((r,i)=>{ r.mode = i<d.winners.length ? "wait" : "done"; });
+    }else{
+      st.phase="done";
+      st.reels.forEach((r,i)=>{ r.mode="done"; r.ovK=null; r.p=Math.max(0,st.list.indexOf(d.winners[i])); });
+    }
+  }
+
+  st.reels.forEach((r,i)=>{
+    if(r.mode==="idle"){ r.p+=GEV_SLOW*dt; }
+    else if(r.mode==="wait"){
+      r.p+=GEV_SLOW*dt;
+      if(now-st.t0>=i*GEV_STAGGER){
+        // 현재 위치에서 점점 느려져 당첨자 이름에 정확히 멈추도록 계획
+        r.p0=r.p; r.k=Math.ceil(r.p0+GEV_SLOW*GEV_STOP_SEC/2);
+        r.ovK=r.k; r.ovName=d.winners[i];            // 멈출 칸에 당첨자 이름 배치
+        r.dur=2*(r.k-r.p0)/GEV_SLOW; r.ts=now; r.mode="stop";
+      }
+    }
+    else if(r.mode==="stop"){
+      const s=Math.min((now-r.ts)/1000,r.dur);
+      r.p=r.p0+GEV_SLOW*s-GEV_SLOW/(2*r.dur)*s*s;
+      if(s>=r.dur){ r.p=r.k; r.mode="done"; els[i]&&els[i].classList.add("pop"); }
+    }
+    if(els[i]){
+      gevPaint([...els[i].querySelectorAll(".row")],r,st.list,r.p);
+      els[i].classList.toggle("done", r.mode==="done" && d.winners.length>0);
+    }
   });
+
+  if(st.phase==="stopping" && st.reels.every(r=>r.mode==="done")){
+    st.phase="done";
+    gevFillWinners(d.winners);
+    const c=document.getElementById("gev-count"); if(c) c.textContent="🎉 당첨자가 발표되었어요!";
+  }
+  if(st.phase!=="done") gevKick();
 }
+
+// ── 화면 ──────────────────────────────────────────────────
+window.gevSelect = function(id){
+  if(id==="new" && gevIds().length>=GEV_MAX){ showToast(`이벤트는 최대 ${GEV_MAX}건까지 등록할 수 있어요`); return; }
+  document.activeElement?.blur();
+  gevActive=id; renderEvent();
+};
 
 function renderEvent(){
-  if(gevRunning) return;
   const ae=document.activeElement;
   if(ae && ae.matches && ae.matches("input,textarea") && ae.closest(".gev .adm")) return; // 작성 중엔 갱신 안 함
-  const d=gevGet(), isAdmin=nickname==="길드장";
-  const shown=gevHide(d) ? [] : d.winners;
-  const prizeLines=d.prizes.split("\n").filter(s=>s.trim());
+  const ids=gevIds(), isAdmin=nickname==="길드장";
+  if(gevActive!=="new" && !gevItems[gevActive]) gevActive=ids[0]||"";
+  const d=gevItems[gevActive] ? gevGet(gevActive) : null;
+  const st=d ? gevEnsureState(d) : null;
+  const nReels=st ? st.reels.length : 3;
+  const lock=!!(d && d.winners.length);
 
-  const reelsHTML=Array.from({length:d.n},()=>
+  const tabs=ids.map(i=>{
+    const e=gevGet(i), fin=e.winners.length>0;
+    return `<button class="gtab ${i===gevActive?"on":""}" onclick="gevSelect('${i}')"><span class="gt">${eventEsc(e.title||"제목 없음")}</span><span class="gs ${fin?"fin":""}">${fin?"발표 완료":"진행 중"}</span></button>`;
+  }).join("") + (isAdmin ? `<button class="gtab add ${gevActive==="new"?"on":""}" onclick="gevSelect('new')">＋ 새 이벤트 (${ids.length}/${GEV_MAX})</button>` : "");
+
+  const reelsHTML=Array.from({length:nReels},()=>
     `<div class="reel"><div class="win">${'<div class="row"></div>'.repeat(5)}</div></div>`).join("");
+  const prizeLines=(d?d.prizes:"").split("\n").filter(s=>s.trim());
 
   const adminHTML = isAdmin ? `
     <div class="blk adm">
-      <h3>이벤트 작성 (길드장 전용)</h3>
-      <label>이벤트 제목</label><input id="gev-f-title" value="${eventEsc(d.title)}" maxlength="60">
+      <h3>${d ? "이벤트 수정 (길드장 전용)" : "새 이벤트 작성 (길드장 전용)"}</h3>
+      <label>이벤트 제목</label><input id="gev-f-title" value="${eventEsc(d?d.title:"")}" maxlength="60">
       <div class="g2">
-        <div><label>시작일</label><input id="gev-f-start" type="date" value="${eventEsc(d.start)}"></div>
-        <div><label>종료일</label><input id="gev-f-end" type="date" value="${eventEsc(d.end)}"></div>
+        <div><label>시작일</label><input id="gev-f-start" type="date" value="${eventEsc(d?d.start:"")}"></div>
+        <div><label>종료일</label><input id="gev-f-end" type="date" value="${eventEsc(d?d.end:"")}"></div>
       </div>
       <div class="g2">
-        <div><label>추첨 일시</label><input id="gev-f-draw" type="datetime-local" value="${eventEsc(d.drawAt)}"></div>
-        <div><label>당첨 인원(명, 최대 10)</label><input id="gev-f-n" type="number" min="1" max="10" value="${d.n}"></div>
+        <div><label>추첨(발표) 일시</label><input id="gev-f-draw" type="datetime-local" value="${eventEsc(d?d.drawAt:"")}" ${lock?"disabled":""}></div>
+        <div><label>당첨 인원(명, 최대 10)</label><input id="gev-f-n" type="number" min="1" max="10" value="${d?d.n:3}" ${lock?"disabled":""}></div>
       </div>
       <label>당첨 선물 (줄바꿈으로 구분)</label>
-      <textarea id="gev-f-prizes">${eventEsc(d.prizes)}</textarea>
+      <textarea id="gev-f-prizes">${eventEsc(d?d.prizes:"")}</textarea>
       <label>추첨 대상 명단 (한 줄에 한 명)</label>
-      <textarea id="gev-f-cands" style="height:120px">${eventEsc(d.cands)}</textarea>
+      <textarea id="gev-f-cands" style="height:120px" ${lock?"disabled":""}>${eventEsc(d?d.cands:"")}</textarea>
       <div class="abtns">
         <button class="btn" onclick="gevSave()">💾 저장</button>
-        <button class="btn" onclick="gevFillMembers()">길드원 명단 불러오기</button>
-        <button class="btn" onclick="gevReset()" style="margin-left:auto">당첨 결과 초기화</button>
+        ${lock ? "" : `<button class="btn" onclick="gevFillMembers()">길드원 명단 불러오기</button>`}
+        ${d ? `<button class="btn" onclick="gevDelete()" style="margin-left:auto">🗑 이 이벤트 삭제</button>` : ""}
       </div>
+      <div class="none" style="margin-top:10px;font-size:12px">추첨 시간이 되면 자동으로 당첨자가 정해지고 발표돼요. 발표 후에는 다시 추첨할 수 없고, 명단·시간·인원은 수정할 수 없어요.</div>
     </div>` : "";
 
   document.getElementById("content").innerHTML = `
     <div class="gev">
+      ${tabs ? `<div class="gtabs">${tabs}</div>` : ""}
       <div class="blk top">
-        <h2>${eventEsc(d.title || "진행 중인 이벤트가 없어요")}</h2>
+        <h2>${eventEsc(d ? d.title : (gevActive==="new" ? "새 이벤트 작성 중" : "진행 중인 이벤트가 없어요"))}</h2>
         <div class="meta">
-          <div class="chip"><b>이벤트 기간</b>${eventEsc(gevFmtD(d.start))} ~ ${eventEsc(gevFmtD(d.end))}</div>
-          <div class="chip"><b>추첨일</b>${eventEsc(gevFmtDT(d.drawAt))}</div>
+          <div class="chip"><b>이벤트 기간</b>${d?eventEsc(gevFmtD(d.start))+" ~ "+eventEsc(gevFmtD(d.end)):"-"}</div>
+          <div class="chip"><b>추첨일</b>${d?eventEsc(gevFmtDT(d.drawAt)):"-"}</div>
         </div>
       </div>
       <div class="blk roul">
         <div class="count" id="gev-count"></div>
-        <div class="reels" id="gev-reels">${reelsHTML}</div>
-        ${isAdmin ? `<button class="btn go" onclick="gevDraw()">${d.winners.length?"다시 추첨":"추첨 시작"}</button>` : ""}
+        <div class="reels" id="gev-reels" data-id="${d?d.id:""}">${reelsHTML}</div>
       </div>
       <div class="two">
         <div class="blk prize"><h3>🎁 당첨 선물</h3>
@@ -1539,117 +1681,36 @@ function renderEvent(){
       ${adminHTML}
     </div>`;
 
-  gevFillWinners(shown);
-  document.querySelectorAll(".gev .reel").forEach((el,i)=>{
-    const rows=[...el.querySelectorAll(".row")];
-    if(shown[i]){ el.classList.add("done"); gevPaintStatic(rows,shown[i]); }
-    else gevPaintStatic(rows,"?");
+  gevFillWinners(d && st.phase==="done" ? d.winners : []);
+  if(st){ gevKick(); }
+  else document.querySelectorAll(".gev .reel").forEach(el=>{
+    [...el.querySelectorAll(".row")].forEach((x,k)=>{ x.style.transform=`translateY(${(k-1)*GEV_RH}px)`; x.textContent=(k===2)?"?":""; });
   });
-  startEventClock();
+  gevTickFn();
 }
 
-// ── 카운트다운 / 자동 추첨 ────────────────────────────────
-function startEventClock(){
-  if(eventClockTimer) clearInterval(eventClockTimer);
-  const tick=()=>{
-    const el=document.getElementById("gev-count");
-    if(!el||gevRunning) return;
-    const d=gevGet();
-    if(gevHide(d)){ el.textContent="추첨 중..."; return; }
-    if(d.winners.length){ el.textContent="🎉 추첨이 끝났습니다. 축하드려요!"; return; }
-    if(!d.drawAt){ el.textContent=""; return; }
-    const diff=new Date(d.drawAt)-new Date();
-    if(diff>0){
-      const s=Math.floor(diff/1000), D=Math.floor(s/86400), H=Math.floor(s%86400/3600), M=Math.floor(s%3600/60), S=s%60;
-      el.textContent=`추첨까지 ${D?D+"일 ":""}${H}시간 ${M}분 ${S}초`;
-    }else{
-      el.textContent = nickname==="길드장" ? "추첨 시간입니다!" : "곧 추첨이 진행됩니다.";
-      if(nickname==="길드장" && !gevAutoTried && gevNames(d.cands).length){ gevAutoTried=true; gevDraw(true); }
-    }
-  };
-  tick();
-  eventClockTimer=setInterval(tick,1000);
-}
-
-// ── 길드장: 추첨 (결과를 DB에 저장 → 모든 접속자가 같은 연출을 봄) ──
-window.gevDraw = async function(auto){
-  if(nickname!=="길드장") return;
-  const d=gevGet(), list=gevNames(d.cands);
-  if(!list.length){ showToast("추첨 대상 명단을 입력해주세요"); return; }
-  if(!auto && d.winners.length && !confirm("이미 당첨자가 있어요. 다시 추첨할까요?")) return;
-  const pool=[...new Set(list)];
-  for(let i=pool.length-1;i>0;i--){ const j=gevRand(i+1); [pool[i],pool[j]]=[pool[j],pool[i]]; }
-  const winners=pool.slice(0,Math.min(d.n,pool.length));
-  await update(ref(db,"guildEvent"),{winners,drawnAt:Date.now()});
-};
-
-// 새 추첨이 감지되면 슬롯 연출 시작 (renderContent 에서 호출됨)
-function eventRemoteCelebrate(){
-  if(currentTab!=="event"||gevRunning) return;
-  const d=gevGet();
-  if(!d.drawnAt||d.drawnAt===gevPlayed) return;
-  if(d.winners.length && Date.now()-d.drawnAt<6000) gevPlay(d);
-  else gevPlayed=d.drawnAt;   // 오래된 결과는 연출 없이 바로 표시
-}
-
-// ── 슬롯: 빠르게 회전 → 순서대로 점점 느려지며 정확히 정지 ──
-function gevPlay(d){
-  const els=[...document.querySelectorAll(".gev .reel")];
-  const list=gevNames(d.cands);
-  d.winners.forEach(w=>{ if(list.indexOf(w)<0) list.push(w); });
-  const n=Math.min(els.length,d.winners.length);
-  if(!n||!list.length){ gevPlayed=d.drawnAt; return; }
-  gevRunning=true;
-  const R=els.map(el=>({el,rows:[...el.querySelectorAll(".row")]}));
-  R.forEach(r=>r.el.classList.remove("done"));
-  const plans=R.map((r,i)=>{
-    if(i>=n) return {done:true};
-    const spin=2200+i*900;                       // 칸마다 감속 시작 시점이 다름
-    const p0=GEV_SPEED*spin/1000;
-    const m=list.indexOf(d.winners[i]);
-    let k=Math.ceil(p0+GEV_SPEED*3.2/2);         // 최소 약 3초 감속
-    while(gevMod(k,list.length)!==m) k++;        // 당첨자 이름 위치에 정확히 도착
-    return {spin,p0,k,dur:2*(k-p0)/GEV_SPEED*1000,done:false};
-  });
-  const t0=performance.now(); let fin=0;
-  const cd=document.getElementById("gev-count"); if(cd) cd.textContent="추첨 중...";
-  (function tick(now){
-    if(!document.body.contains(R[0].el)){ gevRunning=false; gevPlayed=d.drawnAt; return; } // 탭 이동
-    const t=now-t0;
-    R.forEach((r,i)=>{
-      const pl=plans[i]; if(pl.done) return;
-      let p;
-      if(t<pl.spin) p=GEV_SPEED*t/1000;
-      else{
-        const s=Math.min(t-pl.spin,pl.dur)/1000, D=pl.dur/1000;
-        p=pl.p0+GEV_SPEED*s-GEV_SPEED/(2*D)*s*s;
-        if(t-pl.spin>=pl.dur){ p=pl.k; pl.done=true; fin++; r.el.classList.add("done"); }
-      }
-      gevPaint(r.rows,list,p);
-    });
-    if(fin<n) requestAnimationFrame(tick);
-    else{
-      gevPlayed=d.drawnAt; gevRunning=false;
-      gevFillWinners(d.winners);
-      if(cd) cd.textContent="🎉 추첨이 끝났습니다. 축하드려요!";
-    }
-  })(t0);
-}
-
-// ── 길드장: 저장 / 명단 불러오기 / 초기화 ─────────────────
+// ── 길드장: 저장 / 명단 불러오기 / 삭제 ───────────────────
 window.gevSave = async function(){
   if(nickname!=="길드장"){ showToast("길드장만 작성할 수 있어요"); return; }
   const v=id=>document.getElementById(id).value;
   const title=v("gev-f-title").trim();
   if(!title){ showToast("이벤트 제목을 입력해주세요"); return; }
+  const cur=gevItems[gevActive] ? gevGet(gevActive) : null;
+  if(!cur && gevIds().length>=GEV_MAX){ showToast(`이벤트는 최대 ${GEV_MAX}건까지 등록할 수 있어요`); return; }
+  const locked=!!(cur && cur.winners.length);
+  let drawAt=v("gev-f-draw"), cands=v("gev-f-cands"), n=Math.min(Math.max(+v("gev-f-n")||1,1),10);
+  if(locked){ drawAt=cur.drawAt; cands=cur.cands; n=cur.n; }
+  else{
+    if(!drawAt){ showToast("추첨(발표) 일시를 정해주세요"); return; }
+    if((!cur || drawAt!==cur.drawAt) && new Date(drawAt).getTime()<=Date.now()){ showToast("추첨 일시는 지금보다 이후여야 해요"); return; }
+    if(!gevNames(cands).length){ showToast("추첨 대상 명단을 입력해주세요"); return; }
+  }
+  const id=cur ? gevActive : ("ev_"+Date.now().toString(36));
+  const payload={title,start:v("gev-f-start"),end:v("gev-f-end"),drawAt,n,prizes:v("gev-f-prizes"),cands,updatedAt:Date.now(),updatedBy:nickname};
+  if(!cur) payload.createdAt=Date.now();
   document.activeElement?.blur();
-  await update(ref(db,"guildEvent"),{
-    title, start:v("gev-f-start"), end:v("gev-f-end"), drawAt:v("gev-f-draw"),
-    n:Math.min(Math.max(+v("gev-f-n")||1,1),10),
-    prizes:v("gev-f-prizes"), cands:v("gev-f-cands"),
-    updatedAt:Date.now(), updatedBy:nickname
-  });
-  gevAutoTried=false;
+  await update(ref(db,`guildEvents/${id}`),payload);
+  gevActive=id;
   showToast("이벤트가 저장됐어요 🌸");
 };
 window.gevFillMembers = function(){
@@ -1657,16 +1718,16 @@ window.gevFillMembers = function(){
   document.getElementById("gev-f-cands").value=names.join("\n");
   showToast(`길드원 ${names.length}명을 불러왔어요`);
 };
-window.gevReset = async function(){
-  if(nickname!=="길드장") return;
-  if(!confirm("당첨 결과를 지우고 다시 추첨할 수 있게 할까요?")) return;
+window.gevDelete = async function(){
+  if(nickname!=="길드장" || !gevItems[gevActive]) return;
+  if(!confirm(`"${gevItems[gevActive].title||"이 이벤트"}"를 삭제할까요?\n당첨 결과도 함께 삭제돼요.`)) return;
   document.activeElement?.blur();
-  await update(ref(db,"guildEvent"),{winners:null,drawnAt:null});
-  gevPlayed=0; gevAutoTried=false;
-  showToast("당첨 결과를 초기화했어요");
+  const id=gevActive;
+  gevActive="";
+  await remove(ref(db,`guildEvents/${id}`));
+  showToast("이벤트를 삭제했어요");
 };
 
- 
 function renderAdmin() {
   const memberList = Object.keys(members);
   document.getElementById("content").innerHTML = `
